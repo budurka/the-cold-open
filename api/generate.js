@@ -2,10 +2,11 @@ export default async function handler(req, res) {
   try {
     const { format, input, quantity } = req.body;
 
-    const prompt = `Generate a ${format} style improv show prompt using the following input: "${input}"${quantity ? \` with \${quantity} entries.\` : ''}`;
+    const prompt = `Generate a ${format} style improv show prompt using the following input: "${input}"` + 
+                   (quantity ? ` with ${quantity} entries.` : '');
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
 
     const response = await fetch(url, {
       method: "POST",
