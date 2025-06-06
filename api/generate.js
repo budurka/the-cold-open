@@ -5,9 +5,10 @@ export default async function handler(req, res) {
     const { format, input, quantity } = req.body;
 
     const prompt = `Generate a ${format} style improv show prompt using the following input: "${input}"` +
-                   (quantity ? ` with ${quantity} entries.` : '');
+                   (quantity ? ` with ${quantity} entries.` : "");
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    const apiKey = process.env.GEMINI_API_KEY;
+    const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
     const result = await model.generateContent(prompt);
@@ -15,9 +16,8 @@ export default async function handler(req, res) {
     const text = response.text();
 
     return res.status(200).json({ result: text });
-
-  } catch (error) {
-    console.error("❌ Gemini SDK Error:", error);
-    return res.status(500).json({ error: "Something went wrong", details: error.message });
+  } catch (err) {
+    console.error("❌ Gemini API Error:", err);
+    res.status(500).json({ error: "Something went wrong", details: err.message });
   }
 }
