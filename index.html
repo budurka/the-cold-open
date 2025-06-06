@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,41 +6,43 @@
   <title>The Cold Open</title>
   <style>
     :root {
-      --bg: #e0e0e0;
-      --text: #333;
-      --card: #f0f0f0;
-      --shadow-light: #ffffff;
-      --shadow-dark: #bebebe;
-    }
-
-    [data-theme='dark'] {
-      --bg: #1e1e1e;
-      --text: #f5f5f5;
-      --card: #2e2e2e;
-      --shadow-light: #3a3a3a;
-      --shadow-dark: #141414;
+      --bg-light: #e0e0e0;
+      --fg-light: #333;
+      --bg-dark: #1e1e1e;
+      --fg-dark: #f2f2f2;
+      --card-light: #f0f0f0;
+      --card-dark: #2e2e2e;
+      --shadow-light: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
+      --shadow-dark: 8px 8px 16px #0e0e0e, -8px -8px 16px #2e2e2e;
     }
 
     body {
+      font-family: system-ui, sans-serif;
       margin: 0;
-      padding: 0;
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
+      padding: 2rem;
+      background: var(--bg-light);
+      color: var(--fg-light);
+      transition: background 0.3s ease, color 0.3s ease;
+    }
+
+    body.dark {
+      background: var(--bg-dark);
+      color: var(--fg-dark);
     }
 
     .container {
-      margin-top: 4rem;
-      width: 90%;
       max-width: 600px;
-      background: var(--card);
+      margin: auto;
       padding: 2rem;
       border-radius: 20px;
-      box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+      background: var(--card-light);
+      box-shadow: var(--shadow-light);
+      transition: all 0.3s ease;
+    }
+
+    body.dark .container {
+      background: var(--card-dark);
+      box-shadow: var(--shadow-dark);
     }
 
     h1 {
@@ -52,63 +53,122 @@
       width: 100%;
       margin-top: 1rem;
       padding: 1rem;
-      font-size: 1rem;
+      border-radius: 12px;
       border: none;
-      border-radius: 10px;
-      box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
-      background: var(--card);
-      color: var(--text);
+      font-size: 1rem;
+      background: inherit;
+      color: inherit;
+      box-shadow: inset 2px 2px 6px #d1d1d1, inset -2px -2px 6px #ffffff;
     }
 
-    #result {
-      white-space: pre-wrap;
-      margin-top: 2rem;
-      font-weight: bold;
+    body.dark select,
+    body.dark input,
+    body.dark button {
+      box-shadow: inset 2px 2px 6px #121212, inset -2px -2px 6px #2e2e2e;
     }
 
-    .theme-toggle {
+    .toggle-theme {
       position: fixed;
       top: 1rem;
       right: 1rem;
-      background: var(--card);
-      border-radius: 50%;
-      padding: 0.5rem;
-      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+      border: none;
+      background: none;
       cursor: pointer;
+      font-size: 1.25rem;
+    }
+
+    .output {
+      margin-top: 2rem;
+      white-space: pre-wrap;
+      font-family: monospace;
     }
   </style>
 </head>
 <body>
-  <div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+  <button class="toggle-theme" onclick="toggleTheme()">🌗</button>
   <div class="container">
     <h1>The Cold Open</h1>
     <select id="format">
       <option value="taboops">🧠 Taboops!</option>
-      <!-- Add others later -->
+      <option value="pailot">🎬 P-AI-lot Episode</option>
+      <option value="trailer">🎥 Trailer Trash</option>
+      <option value="gameshow">🎲 Game Show Mayhem</option>
+      <option value="reality">🛳️ Real Drama</option>
+      <option value="buzzwords">🧩 Buzzwords & Bullsh*t</option>
     </select>
-    <input id="prompt" type="text" placeholder="Enter your word here" />
+
+    <div id="input-fields"></div>
+
     <button onclick="generate()">Generate Prompt</button>
-    <div id="result"></div>
+    <div class="output" id="result"></div>
   </div>
 
   <script>
-    function toggleTheme() {
-      const current = document.documentElement.getAttribute('data-theme');
-      document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    const inputFields = {
+      taboops: [{ id: 'word', label: 'Taboo Word' }],
+      pailot: [
+        { id: 'location', label: 'Bizarre Location' },
+        { id: 'object', label: 'Unlikely Object' },
+        { id: 'emotion', label: 'Over-the-top Emotion or Goal' }
+      ],
+      trailer: [
+        { id: 'concept', label: 'Concept or Keyword(s)' }
+      ],
+      gameshow: [
+        { id: 'classic', label: 'Classic Game (e.g. Tag, Uno)' }
+      ],
+      reality: [
+        { id: 'setting', label: 'Location or Type of Drama' }
+      ],
+      buzzwords: [
+        { id: 'topic', label: 'Topic or Theme' },
+        { id: 'quantity', label: 'How many? (number)' }
+      ]
+    };
+
+    const formatSelect = document.getElementById('format');
+    const fieldsContainer = document.getElementById('input-fields');
+
+    function renderFields(format) {
+      fieldsContainer.innerHTML = '';
+      const fields = inputFields[format] || [];
+      fields.forEach(f => {
+        const label = document.createElement('label');
+        label.htmlFor = f.id;
+        label.textContent = f.label;
+        const input = document.createElement('input');
+        input.type = f.id === 'quantity' ? 'number' : 'text';
+        input.id = f.id;
+        fieldsContainer.appendChild(label);
+        fieldsContainer.appendChild(input);
+      });
     }
 
+    function toggleTheme() {
+      document.body.classList.toggle('dark');
+    }
+
+    formatSelect.addEventListener('change', () => {
+      renderFields(formatSelect.value);
+    });
+
+    renderFields(formatSelect.value);
+
     async function generate() {
-      const format = document.getElementById('format').value;
-      const prompt = document.getElementById('prompt').value;
-      const resultEl = document.getElementById('result');
-      resultEl.textContent = 'Loading...';
+      const format = formatSelect.value;
+      const inputs = {};
+      Array.from(fieldsContainer.querySelectorAll('input')).forEach(input => {
+        inputs[input.id] = input.value;
+      });
+
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ format, prompt })
+        body: JSON.stringify({ format, ...inputs })
       });
+
       const data = await res.json();
-      resultEl.textContent = data.output || 'Something went wrong';
+      document.getElementById('result').textContent = data.output || data.message || 'No response.';
     }
   </script>
 </body>
