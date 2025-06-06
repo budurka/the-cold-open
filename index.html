@@ -2,20 +2,23 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Cold Open</title>
-  <link rel="stylesheet" href="styles.css"/>
 </head>
 <body>
   <h1>The Cold Open</h1>
-  <label for="format">Format:</label>
-  <input id="format" type="text" placeholder="buzzwords or sitcom">
-  <label for="user-input">Input:</label>
-  <input id="user-input" type="text" placeholder="Prompt input">
-  <label for="quantity">Quantity:</label>
-  <input id="quantity" type="number" min="1" max="10">
-  <button id="generate">Generate</button>
-  <pre id="result">Waiting for prompt...</pre>
+  <label for="format">Choose a Format:</label>
+  <select id="format">
+    <option value="">--Select--</option>
+    <option value="P-AI-lot Episode">🎬 P-AI-lot Episode</option>
+    <option value="Trailer Trash">🎥 Trailer Trash</option>
+    <option value="Game Show Mayhem">🎲 Game Show Mayhem</option>
+    <option value="Decks & Drama">🛳️ Decks & Drama</option>
+    <option value="Taboops!">🧠 Taboops!</option>
+  </select>
+  <div id="fields-container"></div>
+  <button id="generate">Generate Prompt</button>
+  <pre id="result"></pre>
   <script src="script.js"></script>
 </body>
 </html>
