@@ -2,6 +2,6 @@
   "name": "the-cold-open",
   "type": "module",
   "dependencies": {
-    "openai": "^4.20.0"
+  "node-fetch": "^3.3.2"
   }
 }
