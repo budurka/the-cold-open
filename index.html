@@ -31,6 +31,7 @@
       margin: auto;
       padding: 2rem;
       background-color: inherit;
+      text-align: center;
     }
 
     h1 {
@@ -40,18 +41,27 @@
     select, input, button {
       display: block;
       width: 100%;
-      margin-top: 1rem;
+      margin: 1rem auto;
       padding: 0.75rem;
       font-size: 1rem;
       border-radius: 8px;
       border: 1px solid #ccc;
-      background-color: inherit;
+      background-color: #fff;
       color: inherit;
+      appearance: none;
+    }
+
+    body.dark select,
+    body.dark input,
+    body.dark button {
+      background-color: #1e1e1e;
+      color: #f5f5f5;
     }
 
     label {
-      margin-top: 1rem;
       display: block;
+      margin-top: 1rem;
+      text-align: left;
     }
 
     .output {
@@ -61,6 +71,8 @@
       padding: 1rem;
       border-radius: 8px;
       color: #111;
+      text-align: left;
+      position: relative;
     }
 
     body.dark .output {
@@ -74,13 +86,41 @@
       right: 1rem;
       background: none;
       border: none;
-      font-size: 1.25rem;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border-left-color: #333;
+      margin: 1rem auto;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+
+    body.dark .spinner {
+      border-left-color: #f5f5f5;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .copy-button {
+      margin-top: 0.5rem;
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
       cursor: pointer;
     }
   </style>
 </head>
 <body>
-  <button class="toggle-theme" onclick="toggleTheme()">🌗</button>
+  <button class="toggle-theme" onclick="toggleTheme()" id="theme-toggle" title="Toggle theme">🪑💡</button>
   <div class="container">
     <h1>The Cold Open</h1>
     <label for="format">Choose Format:</label>
@@ -95,8 +135,10 @@
 
     <div id="input-fields"></div>
 
-    <button onclick="generate()">Generate Prompt</button>
+    <button id="generate">Generate Scene Start</button>
+    <div class="spinner" id="spinner"></div>
     <div class="output" id="result"></div>
+    <button class="copy-button" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
   </div>
 
   <script>
@@ -124,6 +166,8 @@
 
     const formatSelect = document.getElementById('format');
     const fieldsContainer = document.getElementById('input-fields');
+    const spinner = document.getElementById('spinner');
+    const result = document.getElementById('result');
 
     function renderFields(format) {
       fieldsContainer.innerHTML = '';
@@ -142,7 +186,8 @@
     }
 
     function toggleTheme() {
-      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.toggle('dark');
+      document.getElementById('theme-toggle').textContent = isDark ? '🪑🔦' : '🪑💡';
     }
 
     formatSelect.addEventListener('change', () => {
@@ -151,12 +196,15 @@
 
     renderFields(formatSelect.value);
 
-    async function generate() {
+    document.getElementById("generate").addEventListener("click", async () => {
       const format = formatSelect.value;
       const inputs = {};
       Array.from(fieldsContainer.querySelectorAll('input')).forEach(input => {
         inputs[input.id] = input.value;
       });
+
+      spinner.style.display = 'block';
+      result.textContent = '';
 
       const res = await fetch('/api/generate', {
         method: 'POST',
@@ -165,7 +213,17 @@
       });
 
       const data = await res.json();
-      document.getElementById('result').textContent = data.output || data.message || 'No response.';
+      spinner.style.display = 'none';
+      result.textContent = data.output || data.message || 'No response.';
+    });
+
+    function copyToClipboard() {
+      const text = document.getElementById('result').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Copied to clipboard!');
+      }, () => {
+        alert('Failed to copy.');
+      });
     }
   </script>
 </body>
