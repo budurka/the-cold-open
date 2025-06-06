@@ -1,8 +1,8 @@
 {
-  "version": 2,
   "routes": [
-    { "src": "/api/generate", "dest": "api/generate.js" },
-    { "src": "/", "dest": "/index.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+    {
+      "src": "/api/(.*)",
+      "dest": "/api/generate.js"
+    }
   ]
 }
