@@ -1,31 +1,41 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+// api/generate.js
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+export const config = {
+  runtime: 'edge',
+};
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method Not Allowed" });
+export default async function handler(req) {
+  if (req.method !== 'POST') {
+    return new Response(JSON.stringify({ error: 'Only POST requests allowed' }), { status: 405 });
   }
 
-  const { format, input } = req.body;
+  const { word } = await req.json();
 
-  if (!format || !input) {
-    return res.status(400).json({ error: "Missing required fields: format and input." });
+  if (!word) {
+    return new Response(JSON.stringify({ error: 'Missing required "word" in request body.' }), { status: 400 });
   }
 
-  try {
-    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-flash" });
+  const apiKey = process.env.GEMINI_API_KEY;
+  const model = "models/gemini-1.5-pro-002";
 
-    const prompt = `You're a creative AI for a live improv comedy show. The format is: ${format}. Use this input from the audience: ${input}.
-Generate a fun, formatted response under 200 words with bold section titles. Never write a script.`;
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [{
+        parts: [{
+          text: `The user provided the word: "${word}". Create a Taboo-style game card using that word. Respond only with:\n\n**Taboo Word**: <the word>\n**Forbidden Words**: - word1\n- word2\n- word3\n- word4\n- word5\n**Comedic Challenge**: <funny optional rule performers must follow>\n\nKeep the response under 50 words.`
+        }]
+      }]
+    }),
+  });
 
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+  const result = await response.json();
 
-    res.status(200).json({ result: text });
-  } catch (error) {
-    console.error("❌ Gemini API error:", error);
-    res.status(500).json({ error: "Something went wrong with the Gemini API." });
+  if (result.error) {
+    return new Response(JSON.stringify(result.error), { status: 500 });
   }
+
+  const output = result.candidates?.[0]?.content?.parts?.[0]?.text || "Error: No content generated.";
+  return new Response(JSON.stringify({ output }), { status: 200 });
 }
