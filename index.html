@@ -6,27 +6,23 @@
   <title>The Cold Open</title>
   <style>
     :root {
-      --bg-light: #e0e0e0;
-      --fg-light: #333;
-      --bg-dark: #1e1e1e;
-      --fg-dark: #f2f2f2;
-      --card-light: #f0f0f0;
-      --card-dark: #2e2e2e;
-      --shadow-light: 8px 8px 16px #bebebe, -8px -8px 16px #ffffff;
-      --shadow-dark: 8px 8px 16px #0e0e0e, -8px -8px 16px #2e2e2e;
+      --bg-light: #ffffff;
+      --fg-light: #111111;
+      --bg-dark: #121212;
+      --fg-dark: #f5f5f5;
     }
 
     body {
-      font-family: system-ui, sans-serif;
       margin: 0;
       padding: 2rem;
-      background: var(--bg-light);
+      font-family: sans-serif;
+      background-color: var(--bg-light);
       color: var(--fg-light);
       transition: background 0.3s ease, color 0.3s ease;
     }
 
     body.dark {
-      background: var(--bg-dark);
+      background-color: var(--bg-dark);
       color: var(--fg-dark);
     }
 
@@ -34,15 +30,7 @@
       max-width: 600px;
       margin: auto;
       padding: 2rem;
-      border-radius: 20px;
-      background: var(--card-light);
-      box-shadow: var(--shadow-light);
-      transition: all 0.3s ease;
-    }
-
-    body.dark .container {
-      background: var(--card-dark);
-      box-shadow: var(--shadow-dark);
+      background-color: inherit;
     }
 
     h1 {
@@ -50,37 +38,44 @@
     }
 
     select, input, button {
+      display: block;
       width: 100%;
       margin-top: 1rem;
-      padding: 1rem;
-      border-radius: 12px;
-      border: none;
+      padding: 0.75rem;
       font-size: 1rem;
-      background: inherit;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      background-color: inherit;
       color: inherit;
-      box-shadow: inset 2px 2px 6px #d1d1d1, inset -2px -2px 6px #ffffff;
     }
 
-    body.dark select,
-    body.dark input,
-    body.dark button {
-      box-shadow: inset 2px 2px 6px #121212, inset -2px -2px 6px #2e2e2e;
+    label {
+      margin-top: 1rem;
+      display: block;
+    }
+
+    .output {
+      margin-top: 2rem;
+      white-space: pre-wrap;
+      background-color: #f2f2f2;
+      padding: 1rem;
+      border-radius: 8px;
+      color: #111;
+    }
+
+    body.dark .output {
+      background-color: #2a2a2a;
+      color: #f5f5f5;
     }
 
     .toggle-theme {
       position: fixed;
       top: 1rem;
       right: 1rem;
-      border: none;
       background: none;
-      cursor: pointer;
+      border: none;
       font-size: 1.25rem;
-    }
-
-    .output {
-      margin-top: 2rem;
-      white-space: pre-wrap;
-      font-family: monospace;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -88,6 +83,7 @@
   <button class="toggle-theme" onclick="toggleTheme()">🌗</button>
   <div class="container">
     <h1>The Cold Open</h1>
+    <label for="format">Choose Format:</label>
     <select id="format">
       <option value="taboops">🧠 Taboops!</option>
       <option value="pailot">🎬 P-AI-lot Episode</option>
@@ -139,6 +135,7 @@
         const input = document.createElement('input');
         input.type = f.id === 'quantity' ? 'number' : 'text';
         input.id = f.id;
+        input.name = f.id;
         fieldsContainer.appendChild(label);
         fieldsContainer.appendChild(input);
       });
