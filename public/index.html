@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Cold Open</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>The Cold Open</h1>
+    <p>Generate live improv show prompts powered by AI.</p>
+  </header>
+  <main>
+    <section>
+      <label for="format">Choose Format:</label>
+      <select id="format">
+        <option value="pilot">P-AI-lot Episode</option>
+        <option value="trailer">Trailer Trash</option>
+        <option value="gameshow">Game Show Mayhem</option>
+        <option value="decks">Decks & Drama</option>
+        <option value="taboops">Taboops!</option>
+        <option value="buzzwords">Buzzwords & Bullsh*t</option>
+      </select>
+      <input type="text" id="user-input" placeholder="Enter your suggestion(s)" />
+      <input type="number" id="quantity" placeholder="How many? (if applicable)" min="1" max="10" />
+      <button id="generate">Generate</button>
+    </section>
+    <section id="output">
+      <h2>Scene Idea:</h2>
+      <pre id="result">Waiting for prompt...</pre>
+    </section>
+  </main>
+  <script src="script.js"></script>
+</body>
+</html>
