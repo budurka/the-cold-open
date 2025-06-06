@@ -1,24 +1,115 @@
+<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Cold Open</title>
+  <style>
+    :root {
+      --bg: #e0e0e0;
+      --text: #333;
+      --card: #f0f0f0;
+      --shadow-light: #ffffff;
+      --shadow-dark: #bebebe;
+    }
+
+    [data-theme='dark'] {
+      --bg: #1e1e1e;
+      --text: #f5f5f5;
+      --card: #2e2e2e;
+      --shadow-light: #3a3a3a;
+      --shadow-dark: #141414;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      margin-top: 4rem;
+      width: 90%;
+      max-width: 600px;
+      background: var(--card);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: 10px 10px 20px var(--shadow-dark), -10px -10px 20px var(--shadow-light);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    select, input, button {
+      width: 100%;
+      margin-top: 1rem;
+      padding: 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+      background: var(--card);
+      color: var(--text);
+    }
+
+    #result {
+      white-space: pre-wrap;
+      margin-top: 2rem;
+      font-weight: bold;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: var(--card);
+      border-radius: 50%;
+      padding: 0.5rem;
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>The Cold Open</h1>
-  <label for="format">Choose a Format:</label>
-  <select id="format">
-    <option value="">--Select--</option>
-    <option value="P-AI-lot Episode">🎬 P-AI-lot Episode</option>
-    <option value="Trailer Trash">🎥 Trailer Trash</option>
-    <option value="Game Show Mayhem">🎲 Game Show Mayhem</option>
-    <option value="Decks & Drama">🛳️ Decks & Drama</option>
-    <option value="Taboops!">🧠 Taboops!</option>
-  </select>
-  <div id="fields-container"></div>
-  <button id="generate">Generate Prompt</button>
-  <pre id="result"></pre>
-  <script src="script.js"></script>
+  <div class="theme-toggle" onclick="toggleTheme()">🌓</div>
+  <div class="container">
+    <h1>The Cold Open</h1>
+    <select id="format">
+      <option value="taboops">🧠 Taboops!</option>
+      <!-- Add others later -->
+    </select>
+    <input id="prompt" type="text" placeholder="Enter your word here" />
+    <button onclick="generate()">Generate Prompt</button>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
+    }
+
+    async function generate() {
+      const format = document.getElementById('format').value;
+      const prompt = document.getElementById('prompt').value;
+      const resultEl = document.getElementById('result');
+      resultEl.textContent = 'Loading...';
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ format, prompt })
+      });
+      const data = await res.json();
+      resultEl.textContent = data.output || 'Something went wrong';
+    }
+  </script>
 </body>
 </html>
