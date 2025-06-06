@@ -43,8 +43,8 @@ document.getElementById("generate").addEventListener("click", async () => {
   const inputs = fieldsContainer.querySelectorAll("input");
   const inputPairs = [];
   inputs.forEach(input => {
-    const label = fieldsContainer.querySelector(`label[for="\${input.id}"]`);
-    inputPairs.push(`\${label.textContent}: \${input.value}`);
+    const label = fieldsContainer.querySelector(`label[for="${input.id}"]`);
+    inputPairs.push(`${label.textContent}: ${input.value}`);
   });
   const inputText = inputPairs.join(" | ");
   const resultEl = document.getElementById("result");
