@@ -1,11 +1,9 @@
-
 const formatSelector = document.getElementById("format");
 const fieldsContainer = document.getElementById("fields-container");
 const resultBox = document.getElementById("result");
 const spinner = document.getElementById("spinner");
 const copyBtn = document.getElementById("copy-button");
 const toggleBtn = document.getElementById("theme-toggle");
-const chairIcon = document.getElementById("chair-icon");
 
 const formatFields = {
   "P-AI-lot Episode": [
@@ -95,5 +93,4 @@ copyBtn.addEventListener("click", () => {
 toggleBtn.addEventListener("click", () => {
   const isDark = document.body.classList.toggle("dark");
   document.body.classList.toggle("light", !isDark);
-  chairIcon.src = isDark ? "chair-dark.png" : "chair-light.png";
 });
