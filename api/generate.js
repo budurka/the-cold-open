@@ -4,7 +4,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { format, input } = req.body;
+    const { format, input } = req.body || {};
+
+    if (!format || !input) {
+      return res.status(400).json({ error: 'Missing format or input in request body.' });
+    }
+
     const model = "models/gemini-1.5-pro";
     const apiKey = process.env.GEMINI_API_KEY;
 
@@ -42,6 +47,10 @@ export default async function handler(req, res) {
 
   } catch (err) {
     console.error("❌ Error:", err);
-    res.status(500).json({ error: 'Internal Server Error', details: err.message });
+    res.status(500).json({ 
+      error: 'Internal Server Error', 
+      details: err.message || 'No error message',
+      stack: err.stack || 'No stack trace' 
+    });
   }
 }
