@@ -1,5 +1,9 @@
 const formatSelector = document.getElementById("format");
 const fieldsContainer = document.getElementById("fields-container");
+const resultBox = document.getElementById("result");
+const spinner = document.getElementById("spinner");
+const copyBtn = document.getElementById("copy-button");
+const toggleBtn = document.getElementById("theme-toggle");
 
 const formatFields = {
   "P-AI-lot Episode": [
@@ -8,52 +12,94 @@ const formatFields = {
     { id: "emotion", label: "Over-the-top Emotion or Goal" }
   ],
   "Trailer Trash": [
-    { id: "concept", label: "Concept or Keyword" }
+    { id: "concept", label: "Concept or Keyword(s)" }
   ],
   "Game Show Mayhem": [
-    { id: "theme", label: "Theme or Suggestion" }
+    { id: "classic", label: "Classic Game" }
   ],
-  "Decks & Drama": [
-    { id: "setting", label: "Setting or Type of Drama" }
+  "Real Drama": [
+    { id: "setting", label: "Location or Type of Drama" }
   ],
   "Taboops!": [
     { id: "word", label: "Taboo Word" }
+  ],
+  "Buzzwords & Bullsh*t": [
+    { id: "topic", label: "Topic or Theme" },
+    { id: "quantity", label: "How many?" }
   ]
 };
 
+// render appropriate fields
+function renderFields(format) {
+  fieldsContainer.innerHTML = "";
+
+  if (!formatFields[format]) return;
+
+  formatFields[format].forEach(({ id, label }) => {
+    const labelEl = document.createElement("label");
+    labelEl.setAttribute("for", id);
+    labelEl.textContent = label;
+
+    const inputEl = document.createElement("input");
+    inputEl.type = "text";
+    inputEl.id = id;
+    inputEl.name = id;
+
+    fieldsContainer.appendChild(labelEl);
+    fieldsContainer.appendChild(inputEl);
+  });
+}
+
+// on change, show inputs
 formatSelector.addEventListener("change", () => {
   const selected = formatSelector.value;
-  fieldsContainer.innerHTML = "";
-  if (!formatFields[selected]) return;
-  formatFields[selected].forEach(field => {
-    const label = document.createElement("label");
-    label.textContent = field.label;
-    label.setAttribute("for", field.id);
-    const input = document.createElement("input");
-    input.type = "text";
-    input.id = field.id;
-    input.name = field.id;
-    fieldsContainer.appendChild(label);
-    fieldsContainer.appendChild(input);
-  });
+  renderFields(selected);
 });
 
+// on click, generate
 document.getElementById("generate").addEventListener("click", async () => {
   const format = formatSelector.value;
   const inputs = fieldsContainer.querySelectorAll("input");
   const inputPairs = [];
+
   inputs.forEach(input => {
     const label = fieldsContainer.querySelector(`label[for="${input.id}"]`);
     inputPairs.push(`${label.textContent}: ${input.value}`);
   });
-  const inputText = inputPairs.join(" | ");
-  const resultEl = document.getElementById("result");
-  resultEl.textContent = "Generating...";
-  const response = await fetch("/api/generate", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ format, input: inputText })
+
+  const prompt = `Generate a ${format} style improv show prompt using the following input: "${inputPairs.join(" | ")}"`;
+
+  spinner.style.display = "block";
+  resultBox.textContent = "";
+  copyBtn.style.display = "none";
+
+  try {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ format, input: inputPairs.join(" | ") })
+    });
+
+    const data = await res.json();
+    resultBox.textContent = data.result || "No response.";
+    copyBtn.style.display = "inline-block";
+  } catch (err) {
+    resultBox.textContent = "Something went wrong.";
+  } finally {
+    spinner.style.display = "none";
+  }
+});
+
+// copy button
+copyBtn.addEventListener("click", () => {
+  navigator.clipboard.writeText(resultBox.textContent).then(() => {
+    copyBtn.textContent = "✅ Copied!";
+    setTimeout(() => (copyBtn.textContent = "📋 Copy to Clipboard"), 2000);
   });
-  const data = await response.json();
-  resultEl.textContent = data.result || "No response.";
+});
+
+// light/dark toggle
+toggleBtn.addEventListener("click", () => {
+  document.body.classList.toggle("dark");
+  document.body.classList.toggle("light");
 });
