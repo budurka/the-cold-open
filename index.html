@@ -2,229 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Cold Open</title>
-  <style>
-    :root {
-      --bg-light: #ffffff;
-      --fg-light: #111111;
-      --bg-dark: #121212;
-      --fg-dark: #f5f5f5;
-    }
-
-    body {
-      margin: 0;
-      padding: 2rem;
-      font-family: sans-serif;
-      background-color: var(--bg-light);
-      color: var(--fg-light);
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-
-    body.dark {
-      background-color: var(--bg-dark);
-      color: var(--fg-dark);
-    }
-
-    .container {
-      max-width: 600px;
-      margin: auto;
-      padding: 2rem;
-      background-color: inherit;
-      text-align: center;
-    }
-
-    h1 {
-      text-align: center;
-    }
-
-    select, input, button {
-      display: block;
-      width: 100%;
-      margin: 1rem auto;
-      padding: 0.75rem;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      background-color: #fff;
-      color: inherit;
-      appearance: none;
-    }
-
-    body.dark select,
-    body.dark input,
-    body.dark button {
-      background-color: #1e1e1e;
-      color: #f5f5f5;
-    }
-
-    label {
-      display: block;
-      margin-top: 1rem;
-      text-align: left;
-    }
-
-    .output {
-      margin-top: 2rem;
-      white-space: pre-wrap;
-      background-color: #f2f2f2;
-      padding: 1rem;
-      border-radius: 8px;
-      color: #111;
-      text-align: left;
-      position: relative;
-    }
-
-    body.dark .output {
-      background-color: #2a2a2a;
-      color: #f5f5f5;
-    }
-
-    .toggle-theme {
-      position: fixed;
-      top: 1rem;
-      right: 1rem;
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .spinner {
-      border: 4px solid rgba(0, 0, 0, 0.1);
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      border-left-color: #333;
-      margin: 1rem auto;
-      animation: spin 1s linear infinite;
-      display: none;
-    }
-
-    body.dark .spinner {
-      border-left-color: #f5f5f5;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .copy-button {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      padding: 0.4rem 0.8rem;
-      cursor: pointer;
-    }
-  </style>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-<body>
-  <button class="toggle-theme" onclick="toggleTheme()" id="theme-toggle" title="Toggle theme">🪑💡</button>
+<body class="light">
   <div class="container">
     <h1>The Cold Open</h1>
-    <label for="format">Choose Format:</label>
+
     <select id="format">
-      <option value="taboops">🧠 Taboops!</option>
-      <option value="pailot">🎬 P-AI-lot Episode</option>
-      <option value="trailer">🎥 Trailer Trash</option>
-      <option value="gameshow">🎲 Game Show Mayhem</option>
-      <option value="reality">🛳️ Real Drama</option>
-      <option value="buzzwords">🧩 Buzzwords & Bullsh*t</option>
+      <option disabled selected>Choose a Format</option>
+      <option value="P-AI-lot Episode">🎬 P-AI-lot Episode</option>
+      <option value="Trailer Trash">🎥 Trailer Trash</option>
+      <option value="Game Show Mayhem">🎲 Game Show Mayhem</option>
+      <option value="Real Drama">🛳️ Real Drama</option>
+      <option value="Taboops!">🧠 Taboops!</option>
+      <option value="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</option>
     </select>
 
-    <div id="input-fields"></div>
+    <div id="fields-container"></div>
 
     <button id="generate">Generate Scene Start</button>
-    <div class="spinner" id="spinner"></div>
-    <div class="output" id="result"></div>
-    <button class="copy-button" onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+
+    <div id="result"></div>
+
+    <button id="copy-button" style="display: none;">📋 Copy to Clipboard</button>
+    <button id="theme-toggle">🎭 Toggle Spotlight</button>
+
+    <div id="spinner" style="display: none; margin-top: 1rem;">🔄 Generating...</div>
   </div>
 
-  <script>
-    const inputFields = {
-      taboops: [{ id: 'word', label: 'Taboo Word' }],
-      pailot: [
-        { id: 'location', label: 'Bizarre Location' },
-        { id: 'object', label: 'Unlikely Object' },
-        { id: 'emotion', label: 'Over-the-top Emotion or Goal' }
-      ],
-      trailer: [
-        { id: 'concept', label: 'Concept or Keyword(s)' }
-      ],
-      gameshow: [
-        { id: 'classic', label: 'Classic Game (e.g. Tag, Uno)' }
-      ],
-      reality: [
-        { id: 'setting', label: 'Location or Type of Drama' }
-      ],
-      buzzwords: [
-        { id: 'topic', label: 'Topic or Theme' },
-        { id: 'quantity', label: 'How many? (number)' }
-      ]
-    };
-
-    const formatSelect = document.getElementById('format');
-    const fieldsContainer = document.getElementById('input-fields');
-    const spinner = document.getElementById('spinner');
-    const result = document.getElementById('result');
-
-    function renderFields(format) {
-      fieldsContainer.innerHTML = '';
-      const fields = inputFields[format] || [];
-      fields.forEach(f => {
-        const label = document.createElement('label');
-        label.htmlFor = f.id;
-        label.textContent = f.label;
-        const input = document.createElement('input');
-        input.type = f.id === 'quantity' ? 'number' : 'text';
-        input.id = f.id;
-        input.name = f.id;
-        fieldsContainer.appendChild(label);
-        fieldsContainer.appendChild(input);
-      });
-    }
-
-    function toggleTheme() {
-      const isDark = document.body.classList.toggle('dark');
-      document.getElementById('theme-toggle').textContent = isDark ? '🪑🔦' : '🪑💡';
-    }
-
-    formatSelect.addEventListener('change', () => {
-      renderFields(formatSelect.value);
-    });
-
-    renderFields(formatSelect.value);
-
-    document.getElementById("generate").addEventListener("click", async () => {
-      const format = formatSelect.value;
-      const inputs = {};
-      Array.from(fieldsContainer.querySelectorAll('input')).forEach(input => {
-        inputs[input.id] = input.value;
-      });
-
-      spinner.style.display = 'block';
-      result.textContent = '';
-
-      const res = await fetch('/api/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ format, ...inputs })
-      });
-
-      const data = await res.json();
-      spinner.style.display = 'none';
-      result.textContent = data.output || data.message || 'No response.';
-    });
-
-    function copyToClipboard() {
-      const text = document.getElementById('result').textContent;
-      navigator.clipboard.writeText(text).then(() => {
-        alert('Copied to clipboard!');
-      }, () => {
-        alert('Failed to copy.');
-      });
-    }
-  </script>
+  <script src="script.js"></script>
 </body>
 </html>
