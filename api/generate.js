@@ -1,5 +1,3 @@
-// File: /api/generate.js
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -13,11 +11,6 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-
-    if (!apiKey) {
-      return res.status(500).json({ error: "Missing GEMINI_API_KEY in environment" });
-    }
-
     const model = "models/gemini-1.5-pro-latest";
     const endpoint = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
 
@@ -36,6 +29,8 @@ Supported Formats:
 Format: ${format}
 Input: ${input}`;
 
+    console.log("🔧 Sending prompt to Gemini:", prompt);
+
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -45,6 +40,7 @@ Input: ${input}`;
     });
 
     const data = await response.json();
+    console.log("📩 Gemini Response:", JSON.stringify(data));
 
     if (data?.candidates?.length > 0) {
       const output = data.candidates[0].content.parts[0].text;
