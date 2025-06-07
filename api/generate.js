@@ -11,7 +11,7 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
-    const model = "models/gemini-1.5-pro-latest";
+    const model = "models/gemini-1.5-pro"; // ✅ CORRECTED model name
     const endpoint = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
 
     const prompt = `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
@@ -40,14 +40,15 @@ Input: ${input}`;
     });
 
     const data = await response.json();
-    console.log("📩 Gemini Response:", JSON.stringify(data));
+
+    console.log("📩 Gemini Response:", data);
 
     if (data?.candidates?.length > 0) {
       const output = data.candidates[0].content.parts[0].text;
       return res.status(200).json({ result: output });
     }
 
-    return res.status(500).json({ error: "No response from model", raw: data });
+    return res.status(500).json({ error: "No response from model", data });
   } catch (err) {
     console.error("❌ API Error:", err);
     return res.status(500).json({ error: "Something went wrong", details: err.message });
