@@ -67,7 +67,7 @@ document.getElementById("generate").addEventListener("click", async () => {
     inputPairs.push(`${label.textContent}: ${input.value}`);
   });
 
-  const prompt = `Generate a ${format} style improv show prompt using the following input: "${inputPairs.join(" | ")}"`;
+  const inputText = inputPairs.join(" | ");
 
   spinner.style.display = "block";
   resultBox.textContent = "";
@@ -77,14 +77,19 @@ document.getElementById("generate").addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, input: inputPairs.join(" | ") })
+      body: JSON.stringify({ format, input: inputText })
     });
 
     const data = await res.json();
-    resultBox.textContent = data.result || "No response.";
-    copyBtn.style.display = "inline-block";
+
+    if (data.result) {
+      resultBox.textContent = data.result;
+      copyBtn.style.display = "inline-block";
+    } else {
+      resultBox.textContent = `⚠️ ${data.error || 'No response'}\n${data.details || ''}`;
+    }
   } catch (err) {
-    resultBox.textContent = "Something went wrong.";
+    resultBox.textContent = `❌ Fetch error: ${err.message}`;
   } finally {
     spinner.style.display = "none";
   }
