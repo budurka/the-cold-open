@@ -16,10 +16,10 @@ export default async function handler(req, res) {
     let prompt;
 
     if (format === "Taboops!") {
-      prompt = `You are designing a Taboo-style game card. The card has one main word that the player must guess, and five "taboo" words that the clue-giver cannot say.
+      prompt = `You are designing a Taboo-style game card. The card has one main word that the player must guess, and five \"taboo\" words that the clue-giver cannot say.
 
 Create a single funny card that fits the following theme:
-"${input}"
+\"${input}\"
 
 Return only the card in this format:
 
@@ -29,7 +29,7 @@ Return only the card in this format:
       prompt = `You are a comedy writer creating content for a party card game like Cards Against Humanity or Incohearent.
 
 Create 10 hilarious card entries based on the following theme:
-"${input}"
+\"${input}\"
 
 Return just the 10 card phrases in a simple numbered list, no intro or extra commentary.`;
     } else {
@@ -43,7 +43,7 @@ Return just the 10 card phrases in a simple numbered list, no intro or extra com
         Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4", // or "gpt-3.5-turbo"
+        model: "gpt-4",
         messages: [{ role: "user", content: prompt }],
         temperature: 0.8,
         max_tokens: 500
