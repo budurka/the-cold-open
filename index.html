@@ -1,40 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#ffffff" />
-  <title>The Cold Open</title>
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body class="light">
-  <div class="container">
-    <header>
-      <h1>The Cold Open 🎭</h1>
-      <button id="theme-toggle" title="Toggle theme">🌙</button>
-    </header>
+<div class="container">
+  <h1>🎭 Improv Generator</h1>
 
-    <main>
-      <label for="format">Choose a Format:</label>
-      <select id="format">
-        <option value="">-- Select Format --</option>
-        <option value="P-AI-lot Episode">🎬 P-AI-lot Episode</option>
-        <option value="Trailer Trash">🎥 Trailer Trash</option>
-        <option value="Game Show Mayhem">🎲 Game Show Mayhem</option>
-        <option value="Real Drama">🛳️ Real Drama</option>
-        <option value="Taboops!">🧠 Taboops!</option>
-        <option value="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</option>
-      </select>
+  <label for="format">Choose a Format</label>
+  <select id="format">
+    <option value="" disabled selected>Select a format</option>
+    <option value="Taboops!">🧠 Taboops!</option>
+    <option value="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</option>
+  </select>
 
-      <div id="fields-container"></div>
+  <div id="fields-container"></div>
 
-      <button id="generate">Generate Scene Start</button>
-      <div id="spinner" style="display:none;">✨ Generating...</div>
-      <pre id="result"> </pre>
-      <button id="copy-button" style="display:none;">📋 Copy to Clipboard</button>
-    </main>
-  </div>
+  <button id="generate">✨ Generate</button>
+  <div id="spinner" style="display: none;">Generating...</div>
 
-  <script src="scripts.js"></script>
-</body>
-</html>
+  <pre id="result"></pre>
+  <button id="copy-button" style="display: none;">📋 Copy to Clipboard</button>
+
+  <button id="theme-toggle">🌓 Toggle Theme</button>
+</div>
