@@ -10,7 +10,7 @@ const formatFields = {
     { id: "word", label: "Taboo Word" }
   ],
   "Buzzwords & Bullsh*t": [
-    { id: "prompt", label: "What kind of card game are you creating?" }
+    { id: "topic", label: "What kind of card game are you making?" }
   ]
 };
 
@@ -34,7 +34,8 @@ function renderFields(format) {
 }
 
 formatSelector.addEventListener("change", () => {
-  renderFields(formatSelector.value);
+  const selectedFormat = formatSelector.value;
+  renderFields(selectedFormat);
 });
 
 document.getElementById("generate").addEventListener("click", async () => {
