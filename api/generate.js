@@ -11,60 +11,49 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.OPENAI_API_KEY;
-    const endpoint = "https://api.openai.com/v1/chat/completions";
 
-    // Custom prompt logic for Taboops!
-    const prompt =
-      format === "Taboops!"
-        ? `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
+    // Handle each format with its own specialized prompt
+    let prompt;
 
-Respond with:
-- A **bolded and punny title** for the card
-- A **short, playful rule** for the performers based on the input word
-- A **bulleted list** of 5 to 7 "taboo" words the performers must avoid
+    if (format === "Taboops!") {
+      prompt = `You are designing a Taboo-style game card. The card has one main word that the player must guess, and five "taboo" words that the clue-giver cannot say.
 
-Taboo word: ${input}`
-        : `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
+Create a single funny card that fits the following theme:
+"${input}"
 
-You never write full scenes. Your responses are short, clear, and formatted to be read aloud on stage. Always respond with bolded section titles and a fun tone. Each format is under 200 words.
+Return only the card in this format:
 
-Supported Formats:
-1. 🎬 P-AI-lot Episode
-2. 🎥 Trailer Trash
-3. 🎲 Game Show Mayhem
-4. 🛳️ Real Drama
-5. 🧠 Taboops!
-6. 🧩 Buzzwords & Bullsh*t
+**Guess Word:** <word>
+**Taboo Words:** <word 1>, <word 2>, <word 3>, <word 4>, <word 5>`;
+    } else if (format === "Buzzwords & Bullsh*t") {
+      prompt = `You are a comedy writer creating content for a party card game like Cards Against Humanity or Incohearent.
 
-Format: ${format}
-Input: ${input}`;
+Create 10 hilarious card entries based on the following theme:
+"${input}"
 
-    const response = await fetch(endpoint, {
+Return just the 10 card phrases in a simple numbered list, no intro or extra commentary.`;
+    } else {
+      return res.status(400).json({ error: "Unsupported format" });
+    }
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: "gpt-4",
-        messages: [
-          {
-            role: "system",
-            content: "You are a helpful, creative assistant for a live improv comedy generator site."
-          },
-          {
-            role: "user",
-            content: prompt
-          }
-        ],
-        temperature: 0.9
+        model: "gpt-4", // or "gpt-3.5-turbo"
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.8,
+        max_tokens: 500
       })
     });
 
     const data = await response.json();
 
     if (data?.choices?.length > 0) {
-      const output = data.choices[0].message.content.trim();
+      const output = data.choices[0].message.content;
       return res.status(200).json({ result: output });
     }
 
