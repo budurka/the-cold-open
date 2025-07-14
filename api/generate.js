@@ -10,9 +10,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing required fields" });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    const model = "models/gemini-1.5-pro"; // ✅ CORRECTED model name
-    const endpoint = `https://generativelanguage.googleapis.com/v1/${model}:generateContent?key=${apiKey}`;
+    const apiKey = process.env.OPENAI_API_KEY;
 
     const prompt = `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
 
@@ -29,23 +27,23 @@ Supported Formats:
 Format: ${format}
 Input: ${input}`;
 
-    console.log("🔧 Sending prompt to Gemini:", prompt);
-
-    const response = await fetch(endpoint, {
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`
+      },
       body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: prompt }] }]
+        model: "gpt-4",
+        messages: [{ role: "user", content: prompt }],
+        temperature: 0.8
       })
     });
 
     const data = await response.json();
 
-    console.log("📩 Gemini Response:", data);
-
-    if (data?.candidates?.length > 0) {
-      const output = data.candidates[0].content.parts[0].text;
-      return res.status(200).json({ result: output });
+    if (data?.choices?.[0]?.message?.content) {
+      return res.status(200).json({ result: data.choices[0].message.content });
     }
 
     return res.status(500).json({ error: "No response from model", data });
