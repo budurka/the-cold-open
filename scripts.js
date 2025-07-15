@@ -6,12 +6,14 @@ const spinner = document.getElementById("spinner");
 const copyButton = document.getElementById("copy-button");
 const themeSelect = document.getElementById("theme-select");
 
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 
-// Theme handling
 function applyTheme(theme) {
   if (theme === "system") {
-    document.documentElement.setAttribute("data-theme", prefersDark.matches ? "dark" : "light");
+    document.documentElement.setAttribute(
+      "data-theme",
+      prefersDark.matches ? "dark" : "light"
+    );
   } else {
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -24,17 +26,19 @@ themeSelect.addEventListener("change", (e) => {
 });
 
 prefersDark.addEventListener("change", () => {
-  if (localStorage.getItem("theme") === "system") {
-    applyTheme("system");
-  }
+  const saved = localStorage.getItem("theme") || "system";
+  if (saved === "system") applyTheme("system");
 });
 
 applyTheme(localStorage.getItem("theme") || "system");
 
-// Handle format changes
 formatSelector.addEventListener("change", () => {
   const format = formatSelector.value;
   fieldsContainer.innerHTML = "";
+
+  // Clear result and hide copy button when switching formats
+  resultEl.textContent = "";
+  copyButton.style.display = "none";
 
   if (format === "Taboops!") {
     const label = document.createElement("label");
@@ -97,10 +101,9 @@ formatSelector.addEventListener("change", () => {
   }
 });
 
-// Generate click
 generateButton.addEventListener("click", async () => {
   const format = formatSelector.value;
-  const payload = { format };
+  const inputs = {};
 
   if (!format) return alert("Please select a format.");
 
@@ -108,22 +111,23 @@ generateButton.addEventListener("click", async () => {
     const word = document.getElementById("tabooWord")?.value;
     const afterDark = document.getElementById("afterDark")?.checked;
     if (!word) return alert("Please enter a taboo word.");
-    payload.tabooWord = word;
-    payload.afterDark = afterDark;
+    inputs.word = word;
+    inputs.isAfterDark = afterDark;
   }
 
   if (format === "Buzzwords & Bullsh*t") {
     const buzzword = document.getElementById("buzzTopic")?.value;
     if (!buzzword) return alert("Please enter a buzzword or topic.");
-    payload.buzzTopic = buzzword;
+    inputs.buzzword = buzzword;
+    inputs.industry = "corporate";
   }
 
   if (format === "Fill in the Bleep!") {
-    const fields = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
-    for (let field of fields) {
-      const val = document.getElementById(field)?.value;
-      if (!val) return alert(`Please enter a value for ${field}.`);
-      payload[field] = val;
+    const ids = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
+    for (let id of ids) {
+      const val = document.getElementById(id)?.value;
+      if (!val) return alert(`Please enter a value for ${id}.`);
+      inputs[id] = val;
     }
   }
 
@@ -135,21 +139,20 @@ generateButton.addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ format, inputs, isAfterDark: inputs.isAfterDark || false }),
     });
 
     const data = await res.json();
-    resultEl.textContent = data.result || "🤯 Whoa! We’re out of ideas for a second. Try again?";
+    resultEl.textContent = data.result || "No result.";
     copyButton.style.display = "block";
   } catch (err) {
     console.error("Generation error:", err);
-    resultEl.textContent = "❌ Something went wrong. Maybe the improv gods are taking five.";
+    resultEl.textContent = "Something went wrong.";
   } finally {
     spinner.style.display = "none";
   }
 });
 
-// Copy to clipboard
 copyButton.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(resultEl.textContent);
