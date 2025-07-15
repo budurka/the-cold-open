@@ -1,42 +1,76 @@
-import { OpenAI } from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).end();
-  }
-
-  const { format, input } = req.body;
-
-  let prompt = "";
-
-  if (format === "Taboops!") {
-    prompt = `You are a creative AI used in a live improv comedy show. Your job is to generate a hilarious setup for the game Taboops! using the provided taboo word. Only respond with a single scene idea that follows this structure:
-
-**Title: [Funny Scene Name]**
-
-Welcome to **Taboops!** The hilarious show where the performers have to avoid the word '[TABOO WORD]'. The cast must perform a series of scenes where this word is forbidden. If someone says it, a punishment happens (like interpretive dance, weird noise, or buzzers). Here's your scene idea:
-
-Taboo Word: ${input}`;
-  } else if (format === "Buzzwords & Bullsh*t") {
-    prompt = `You are a creative AI designing cards for a party game like Cards Against Humanity or Apples to Apples. Your goal is to create 10 outrageous, funny, or clever cards based on the user's input. Each card should be one line and reflect the theme.
-
-User Prompt: ${input}`;
-  } else {
-    prompt = `Generate a comedy improv idea based on: ${input}`;
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const chat = await openai.chat.completions.create({
-      messages: [{ role: "user", content: prompt }],
-      model: "gpt-4",
+    const { format, input } = req.body;
+
+    if (!format || !input) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const apiKey = process.env.OPENAI_API_KEY;
+    const endpoint = "https://api.openai.com/v1/chat/completions";
+
+    // Custom prompt logic for Taboops!
+    const prompt =
+      format === "Taboops!"
+        ? `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
+
+Respond with:
+- A **bolded and punny title** for the card
+- A **short, playful rule** for the performers based on the input word
+- A **bulleted list** of 5 to 7 "taboo" words the performers must avoid
+
+Taboo word: ${input}`
+        : `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
+
+You never write full scenes. Your responses are short, clear, and formatted to be read aloud on stage. Always respond with bolded section titles and a fun tone. Each format is under 200 words.
+
+Supported Formats:
+1. 🎬 P-AI-lot Episode
+2. 🎥 Trailer Trash
+3. 🎲 Game Show Mayhem
+4. 🛳️ Real Drama
+5. 🧠 Taboops!
+6. 🧩 Buzzwords & Bullsh*t
+
+Format: ${format}
+Input: ${input}`;
+
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "gpt-4",
+        messages: [
+          {
+            role: "system",
+            content: "You are a helpful, creative assistant for a live improv comedy generator site."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        temperature: 0.9
+      })
     });
 
-    res.status(200).json({ result: chat.choices[0].message.content });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    const data = await response.json();
+
+    if (data?.choices?.length > 0) {
+      const output = data.choices[0].message.content.trim();
+      return res.status(200).json({ result: output });
+    }
+
+    return res.status(500).json({ error: "No response from OpenAI", data });
+  } catch (err) {
+    console.error("❌ API Error:", err);
+    return res.status(500).json({ error: "Something went wrong", details: err.message });
   }
 }
