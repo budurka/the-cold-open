@@ -1,13 +1,20 @@
+/* Base font and layout */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+
 body {
   margin: 0;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   transition: background-color 0.3s, color 0.3s;
+  font-weight: 400;
+  letter-spacing: -0.15px;
+  background-color: #fff;
+  color: #000;
 }
 
 .container {
-  max-width: 700px;
+  max-width: 680px;
   margin: 2rem auto;
-  padding: 1rem;
+  padding: 1.5rem;
   text-align: center;
 }
 
@@ -19,47 +26,91 @@ header {
 }
 
 h1 {
-  font-size: 2.5rem;
+  font-size: 2.75rem;
+  font-weight: 700;
   margin: 0;
+  line-height: 1.2;
 }
 
 main {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 0 0.5rem;
 }
 
+/* Form controls */
 select,
-input,
+input {
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  background-color: #fff;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus,
+select:focus {
+  border-color: #d1001f;
+  box-shadow: 0 0 0 3px rgba(209, 0, 31, 0.2);
+  outline: none;
+}
+
+label {
+  font-weight: 600;
+  text-align: left;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+/* Generate button */
 button {
   font-size: 1rem;
-  padding: 0.75rem;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  transition: all 0.2s ease;
-}
-
-button {
-  font-weight: bold;
-  background-color: #7a3dfd;
-  color: white;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  font-weight: 600;
   border: none;
   cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
 }
 
-button:hover {
-  background-color: #5d2ed9;
+#generate {
+  background-color: #d1001f; /* Apple Music-style red */
+  color: white;
+  letter-spacing: 0.3px;
+  margin-top: 0.5rem;
+  animation: pulse 1.5s infinite ease-in-out;
 }
 
-#copy-button {
-  background-color: #555;
+#generate:hover {
+  background-color: #b3001b;
+  transform: translateY(-1px);
 }
 
-#copy-button:hover {
-  background-color: #333;
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(209, 0, 31, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(209, 0, 31, 0);
+  }
+}
+
+/* Spinner & result */
+#spinner {
+  font-style: italic;
+  margin-top: 0.5rem;
+  animation: blink 1s step-start 0s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
 }
 
 pre {
@@ -70,10 +121,23 @@ pre {
   text-align: left;
   max-height: 400px;
   overflow-y: auto;
-  border-radius: 8px;
+  border-radius: 12px;
+  margin-top: 1rem;
+  font-size: 0.95rem;
 }
 
-/* Dark theme */
+/* Copy button */
+#copy-button {
+  background-color: #555;
+  color: white;
+  margin-top: 0.5rem;
+}
+
+#copy-button:hover {
+  background-color: #333;
+}
+
+/* Dark mode */
 body.dark {
   background-color: #121212;
   color: #ffffff;
