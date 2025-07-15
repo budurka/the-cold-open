@@ -3,34 +3,54 @@ const fieldsContainer = document.getElementById("fields-container");
 const resultBox = document.getElementById("result");
 const spinner = document.getElementById("spinner");
 const copyBtn = document.getElementById("copy-button");
-const toggleBtn = document.getElementById("theme-toggle");
-const afterDarkToggle = document.getElementById("after-dark-toggle");
-const afterDarkCheckbox = document.getElementById("after-dark-checkbox");
+const themeSelect = document.getElementById("theme-select");
+const afterDarkContainer = document.getElementById("after-dark-container");
+const afterDarkCheckbox = document.getElementById("after-dark");
 
 const formatFields = {
-  "Taboops!": [
-    { id: "word", label: "Taboo Word" }
-  ],
+  "Taboops!": [],
   "Buzzwords & Bullsh*t": [
     { id: "topic", label: "Topic or Theme" }
   ],
   "Fill in the Bleep!": [
-    { id: "title", label: "Story Title" },
+    { id: "storyTitle", label: "What should this story be called?" },
     { id: "noun1", label: "Noun" },
     { id: "adjective", label: "Adjective" },
     { id: "place", label: "Place" },
-    { id: "noun2", label: "Second Noun" },
+    { id: "noun2", label: "Another Noun" },
     { id: "verb", label: "Verb" },
-    { id: "random1", label: "Random Thing 1" },
-    { id: "random2", label: "Random Thing 2" }
+    { id: "thing1", label: "Random Thing #1" },
+    { id: "thing2", label: "Random Thing #2" }
   ]
 };
 
+// Theme handling
+function applyTheme(theme) {
+  const html = document.documentElement;
+  if (theme === "system") {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    html.setAttribute("data-theme", prefersDark ? "dark" : "light");
+  } else {
+    html.setAttribute("data-theme", theme);
+  }
+  localStorage.setItem("theme", theme);
+}
+
+themeSelect.addEventListener("change", () => {
+  applyTheme(themeSelect.value);
+});
+
+// Load theme preference
+const savedTheme = localStorage.getItem("theme") || "system";
+themeSelect.value = savedTheme;
+applyTheme(savedTheme);
+
+// Render fields
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
   resultBox.textContent = "";
   copyBtn.style.display = "none";
-  afterDarkToggle.style.display = format === "Taboops!" ? "block" : "none";
+  afterDarkContainer.style.display = format === "Taboops!" ? "block" : "none";
 
   if (!formatFields[format]) return;
 
@@ -63,8 +83,10 @@ document.getElementById("generate").addEventListener("click", async () => {
     inputPairs.push(`${label.textContent}: ${input.value}`);
   });
 
-  if (format === "Taboops!" && afterDarkCheckbox.checked) {
-    inputPairs.push("Taboo After Dark: true");
+  // Add After Dark value if relevant
+  const afterDarkEnabled = afterDarkCheckbox.checked;
+  if (format === "Taboops!") {
+    inputPairs.push(`After Dark: ${afterDarkEnabled ? "true" : "false"}`);
   }
 
   spinner.style.display = "block";
@@ -75,15 +97,14 @@ document.getElementById("generate").addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        format,
-        input: inputPairs.join(" | ")
-      })
+      body: JSON.stringify({ format, input: inputPairs.join(" | ") })
     });
 
     const data = await res.json();
     resultBox.textContent = data.result || "No response.";
-    copyBtn.style.display = "inline-block";
+    if (data.result) {
+      copyBtn.style.display = "inline-block";
+    }
   } catch (err) {
     resultBox.textContent = "Something went wrong.";
   } finally {
@@ -96,10 +117,4 @@ copyBtn.addEventListener("click", () => {
     copyBtn.textContent = "✅ Copied!";
     setTimeout(() => (copyBtn.textContent = "📋 Copy to Clipboard"), 2000);
   });
-});
-
-toggleBtn.addEventListener("click", () => {
-  const isDark = document.body.classList.toggle("dark");
-  document.body.classList.toggle("light", !isDark);
-  toggleBtn.classList.toggle("active");
 });
