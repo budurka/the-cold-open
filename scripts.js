@@ -44,10 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
     fieldsContainer.innerHTML = '';
 
     if (format === 'Taboops!') {
-      const wordInput = createInput('word', 'Enter a word to guess');
+      fieldsContainer.appendChild(createInput('word', 'Enter a word to guess'));
       const checkbox = document.createElement('label');
       checkbox.innerHTML = `<input type="checkbox" id="afterDark"> After Dark version`;
-      fieldsContainer.appendChild(wordInput);
       fieldsContainer.appendChild(checkbox);
     }
 
@@ -116,13 +115,19 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function createInput(name, placeholder) {
-    const label = document.createElement('label');
-    label.textContent = placeholder;
+    const wrapper = document.createElement('label');
+    wrapper.textContent = placeholder;
     const input = document.createElement('input');
     input.type = 'text';
     input.name = name;
     input.placeholder = placeholder;
-    label.appendChild(input);
-    return label;
+    wrapper.appendChild(input);
+    return wrapper;
+  }
+
+  // Apply system theme on load if selected
+  if (currentTheme === 'system') {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
   }
 });
