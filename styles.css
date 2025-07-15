@@ -2,30 +2,55 @@ body {
   font-family: system-ui, sans-serif;
   margin: 0;
   padding: 2rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
+  width: 100%;
   max-width: 600px;
-  margin: auto;
   text-align: center;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
 h1 {
   font-size: 2.5rem;
-  margin-bottom: 1rem;
+  margin: 0;
 }
 
 label {
   display: block;
   margin: 1rem 0 0.5rem;
+  font-weight: bold;
+  text-align: left;
 }
 
-select, input, button {
+select,
+input,
+button {
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
   margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+select:focus,
+input:focus,
+button:focus {
+  outline: 2px solid #007BFF;
+  outline-offset: 2px;
 }
 
 pre {
@@ -35,12 +60,18 @@ pre {
   white-space: pre-wrap;
   word-wrap: break-word;
   background-color: #f8f8f8;
+  border-radius: 4px;
+  text-align: left;
 }
 
 button {
   cursor: pointer;
-  border: 1px solid #ccc;
   background: white;
+  transition: background-color 0.2s ease;
+}
+
+button:hover {
+  background-color: #f0f0f0;
 }
 
 #spinner {
@@ -67,5 +98,6 @@ button {
   background: none;
   border: none;
   cursor: pointer;
-  margin-top: 1rem;
+  font-size: 1.5rem;
+  padding: 0.25rem 0.5rem;
 }
