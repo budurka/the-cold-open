@@ -13,14 +13,20 @@ const formatFields = {
     { id: "topic", label: "Topic or Theme" }
   ],
   "Fill in the Bleep!": [
-    { id: "story", label: "General Story Idea" },
-    { id: "words", label: "List 2–8 Random Words" }
+    { id: "idea", label: "What should the story be about?" },
+    { id: "noun", label: "Noun" },
+    { id: "adjective", label: "Adjective" },
+    { id: "place", label: "Place" },
+    { id: "noun2", label: "Another Noun" },
+    { id: "verb", label: "Verb" },
+    { id: "random1", label: "Random Thing #1" },
+    { id: "random2", label: "Random Thing #2" }
   ]
 };
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
-  resultBox.textContent = "";
+  resultBox.textContent = ""; // Auto-clear
   copyBtn.style.display = "none";
 
   if (!formatFields[format]) return;
