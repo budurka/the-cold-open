@@ -153,3 +153,26 @@ pre#result {
   width: 100%;
   font-weight: 600;
 }
+
+.checkbox-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: -1rem;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.checkbox-wrapper input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.checkbox-wrapper label {
+  font-weight: 600;
+  color: var(--text-color);
+  cursor: pointer;
+  user-select: none;
+}
