@@ -8,9 +8,10 @@ const spinner = document.getElementById("spinner");
 const copyButton = document.getElementById("copy-button");
 const themeSelect = document.getElementById("theme-select");
 
-const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 let currentFormat = "";
 
+// Theme initialization
 function applyTheme(theme) {
   if (theme === "system") {
     document.documentElement.removeAttribute("data-theme");
@@ -25,10 +26,7 @@ function applyTheme(theme) {
   themeSelect.value = theme;
 }
 
-themeSelect.addEventListener("change", (e) => {
-  applyTheme(e.target.value);
-});
-
+themeSelect.addEventListener("change", (e) => applyTheme(e.target.value));
 prefersDark.addEventListener("change", () => {
   const saved = localStorage.getItem("theme") || "system";
   if (saved === "system") applyTheme("system");
@@ -36,6 +34,7 @@ prefersDark.addEventListener("change", () => {
 
 applyTheme(localStorage.getItem("theme") || "system");
 
+// Format switch handling
 formatButtons.forEach((button) => {
   button.addEventListener("click", () => {
     currentFormat = button.dataset.format;
@@ -74,11 +73,12 @@ formatButtons.forEach((button) => {
         { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
         { id: "verb", label: "Verb", placeholder: "Enter a verb" },
         { id: "random1", label: "Random Thing #1", placeholder: "Something silly" },
-        { id: "random2", label: "Random Thing #2", placeholder: "Another weird thing" },
+        { id: "random2", label: "Random Thing #2", placeholder: "Another weird thing" }
       ];
 
       prompts.forEach(({ id, label, placeholder }) => {
         const wrapper = document.createElement("div");
+        wrapper.className = "field-group";
         wrapper.innerHTML = `
           <label for="${id}">${label}</label>
           <input type="text" id="${id}" placeholder="${placeholder}">`;
@@ -90,13 +90,12 @@ formatButtons.forEach((button) => {
   });
 });
 
+// Generate result
 generateButton.addEventListener("click", async () => {
-  const format = currentFormat;
+  if (!currentFormat) return alert("Please select a format.");
   const inputs = {};
 
-  if (!format) return alert("Please select a format.");
-
-  if (format === "Taboops!") {
+  if (currentFormat === "Taboops!") {
     const word = document.getElementById("tabooWord")?.value;
     const afterDark = document.getElementById("afterDark")?.checked;
     if (!word) return alert("Please enter a taboo word.");
@@ -104,15 +103,15 @@ generateButton.addEventListener("click", async () => {
     inputs.afterDark = afterDark;
   }
 
-  if (format === "Buzzwords & Bullsh*t") {
+  if (currentFormat === "Buzzwords & Bullsh*t") {
     const buzzword = document.getElementById("buzzTopic")?.value;
     if (!buzzword) return alert("Please enter a buzzword or topic.");
     inputs.buzzTopic = buzzword;
   }
 
-  if (format === "Fill in the Bleep!") {
+  if (currentFormat === "Fill in the Bleep!") {
     const ids = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
-    for (let id of ids) {
+    for (const id of ids) {
       const val = document.getElementById(id)?.value;
       if (!val) return alert(`Please enter a value for ${id}.`);
       inputs[id] = val;
@@ -124,23 +123,24 @@ generateButton.addEventListener("click", async () => {
     resultEl.textContent = "";
     copyButton.style.display = "none";
 
-    const res = await fetch("/api/generate", {
+    const response = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, ...inputs }),
+      body: JSON.stringify({ format: currentFormat, ...inputs })
     });
 
-    const data = await res.json();
+    const data = await response.json();
     resultEl.textContent = data.result || "No result.";
     copyButton.style.display = "block";
-  } catch (err) {
-    console.error("Generation error:", err);
+  } catch (error) {
+    console.error("Generation error:", error);
     resultEl.textContent = "Something went wrong.";
   } finally {
     spinner.style.display = "none";
   }
 });
 
+// Copy to clipboard
 copyButton.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(resultEl.textContent);
