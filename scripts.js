@@ -6,48 +6,54 @@ document.addEventListener('DOMContentLoaded', () => {
   const spinner = document.getElementById('spinner');
   const copyButton = document.getElementById('copy-button');
   const themeToggle = document.getElementById('theme-toggle');
+  const root = document.documentElement;
 
-  let currentTheme = localStorage.getItem('theme') || 'system';
-  applyTheme(currentTheme);
-  updateThemeToggleLabel(currentTheme);
+  // Handle Theme Preference
+  let theme = localStorage.getItem('theme') || 'system';
+  applyTheme(theme);
+  updateToggleLabel(theme);
 
   themeToggle.addEventListener('click', () => {
-    currentTheme = nextTheme(currentTheme);
-    localStorage.setItem('theme', currentTheme);
-    applyTheme(currentTheme);
-    updateThemeToggleLabel(currentTheme);
+    theme = getNextTheme(theme);
+    localStorage.setItem('theme', theme);
+    applyTheme(theme);
+    updateToggleLabel(theme);
   });
 
-  function nextTheme(theme) {
-    return theme === 'light' ? 'dark' : theme === 'dark' ? 'system' : 'light';
+  function getNextTheme(current) {
+    return current === 'light' ? 'dark' : current === 'dark' ? 'system' : 'light';
   }
 
-  function applyTheme(theme) {
-    const html = document.documentElement;
-    if (theme === 'system') {
-      html.removeAttribute('data-theme');
+  function applyTheme(selected) {
+    if (selected === 'system') {
+      root.removeAttribute('data-theme');
     } else {
-      html.setAttribute('data-theme', theme);
+      root.setAttribute('data-theme', selected);
     }
   }
 
-  function updateThemeToggleLabel(theme) {
-    themeToggle.textContent = {
+  function updateToggleLabel(current) {
+    const labelMap = {
       light: '🌞',
       dark: '🌙',
       system: '🖥️'
-    }[theme];
+    };
+    themeToggle.textContent = labelMap[current] || '🖥️';
   }
 
+  // Handle Format Input Prompts
   formatSelect.addEventListener('change', () => {
-    const format = formatSelect.value;
     fieldsContainer.innerHTML = '';
+    const format = formatSelect.value;
 
     if (format === 'Taboops!') {
       fieldsContainer.appendChild(createInput('word', 'Enter a word to guess'));
-      const checkbox = document.createElement('label');
-      checkbox.innerHTML = `<input type="checkbox" id="afterDark"> After Dark version`;
-      fieldsContainer.appendChild(checkbox);
+      const label = document.createElement('label');
+      label.style.display = 'flex';
+      label.style.alignItems = 'center';
+      label.style.gap = '0.5rem';
+      label.innerHTML = `<input type="checkbox" id="afterDark"> After Dark version`;
+      fieldsContainer.appendChild(label);
     }
 
     if (format === 'Buzzwords & Bullsh*t') {
@@ -67,14 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Create input field
+  function createInput(name, labelText) {
+    const label = document.createElement('label');
+    label.textContent = labelText;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.name = name;
+    input.placeholder = labelText;
+    label.appendChild(input);
+    return label;
+  }
+
+  // Generate prompt handler
   generateButton.addEventListener('click', async () => {
     const format = formatSelect.value;
-    if (!format) return alert('Please select a format.');
+    if (!format) return alert('Choose a format.');
 
-    const inputs = {};
-    const inputElements = fieldsContainer.querySelectorAll('input[type="text"]');
-    inputElements.forEach(input => {
-      inputs[input.name] = input.value.trim();
+    const inputData = {};
+    fieldsContainer.querySelectorAll('input[type="text"]').forEach(input => {
+      inputData[input.name] = input.value.trim();
     });
 
     const isAfterDark = document.getElementById('afterDark')?.checked || false;
@@ -84,50 +102,34 @@ document.addEventListener('DOMContentLoaded', () => {
     copyButton.style.display = 'none';
 
     try {
-      const response = await fetch('/api/generate', {
+      const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ format, inputs, isAfterDark })
+        body: JSON.stringify({ format, inputs: inputData, isAfterDark })
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
       if (data.error) {
-        resultPre.textContent = `❌ Error: ${data.error}`;
+        resultPre.textContent = `Error: ${data.error}`;
       } else {
         resultPre.textContent = data.result;
         copyButton.style.display = 'block';
       }
     } catch (err) {
-      resultPre.textContent = '❌ Something went wrong.';
+      resultPre.textContent = 'Something went wrong.';
     } finally {
       spinner.style.display = 'none';
     }
   });
 
+  // Copy to clipboard
   copyButton.addEventListener('click', () => {
     navigator.clipboard.writeText(resultPre.textContent).then(() => {
       copyButton.textContent = '✅ Copied!';
       setTimeout(() => {
         copyButton.textContent = '📋 Copy to Clipboard';
-      }, 2000);
+      }, 1500);
     });
   });
-
-  function createInput(name, placeholder) {
-    const wrapper = document.createElement('label');
-    wrapper.textContent = placeholder;
-    const input = document.createElement('input');
-    input.type = 'text';
-    input.name = name;
-    input.placeholder = placeholder;
-    wrapper.appendChild(input);
-    return wrapper;
-  }
-
-  // Apply system theme on load if selected
-  if (currentTheme === 'system') {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
-  }
 });
