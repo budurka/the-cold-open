@@ -6,8 +6,24 @@ const copyBtn = document.getElementById("copy-button");
 const toggleBtn = document.getElementById("theme-toggle");
 
 const formatFields = {
-  "🧠 Taboops!": [{ id: "word", label: "Taboo Word" }],
-  "🧩 Buzzwords & Bullsh*t": [
+  "P-AI-lot Episode": [
+    { id: "location", label: "Bizarre Location" },
+    { id: "object", label: "Unlikely Object" },
+    { id: "emotion", label: "Over-the-top Emotion or Goal" }
+  ],
+  "Trailer Trash": [
+    { id: "concept", label: "Concept or Keyword(s)" }
+  ],
+  "Game Show Mayhem": [
+    { id: "classic", label: "Classic Game" }
+  ],
+  "Real Drama": [
+    { id: "setting", label: "Location or Type of Drama" }
+  ],
+  "Taboops!": [
+    { id: "word", label: "Taboo Word" }
+  ],
+  "Buzzwords & Bullsh*t": [
     { id: "topic", label: "Topic or Theme" },
     { id: "quantity", label: "How many?" }
   ]
@@ -16,14 +32,17 @@ const formatFields = {
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
   if (!formatFields[format]) return;
+
   formatFields[format].forEach(({ id, label }) => {
     const labelEl = document.createElement("label");
     labelEl.setAttribute("for", id);
     labelEl.textContent = label;
+
     const inputEl = document.createElement("input");
     inputEl.type = "text";
     inputEl.id = id;
     inputEl.name = id;
+
     fieldsContainer.appendChild(labelEl);
     fieldsContainer.appendChild(inputEl);
   });
@@ -53,6 +72,7 @@ document.getElementById("generate").addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ format, input: inputPairs.join(" | ") })
     });
+
     const data = await res.json();
     resultBox.textContent = data.result || "No response.";
     copyBtn.style.display = "inline-block";
