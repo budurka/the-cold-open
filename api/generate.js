@@ -3,15 +3,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { format, inputs, isAfterDark } = req.body;
+  const { format, tabooWord, afterDark, buzzTopic, storyTitle, noun1, adjective, place, noun2, verb, random1, random2 } = req.body;
 
   let prompt = '';
 
   switch (format) {
     case 'Taboops!':
-      prompt = `Create a new Taboo-style card. The guess word is "${inputs.word}". List five creative words that are not allowed to be said during the game. Format the output as:
+      prompt = `Create a new Taboo-style card. The guess word is "${tabooWord}". List five creative words that are not allowed to be said during the game. Format the output as:
 
-Word: ${inputs.word}
+Word: ${tabooWord}
 Taboo Words:
 1.
 2.
@@ -19,23 +19,23 @@ Taboo Words:
 4.
 5.
 
-Tone: ${isAfterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-friendly'}.`;
+Tone: ${afterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-friendly'}.`;
       break;
 
     case 'Buzzwords & Bullsh*t':
-      prompt = `You are a jaded corporate trainer. Create a fake, over-the-top corporate presentation opener that uses the buzzword "${inputs.buzzword}" and ties it to the "${inputs.industry}" industry. Make it sound dramatic, cheesy, and filled with meaningless jargon.`;
+      prompt = `You are a jaded corporate trainer. Create a fake, over-the-top corporate presentation opener that uses the buzzword "${buzzTopic}" in an absurd context. Make it sound dramatic, cheesy, and filled with meaningless jargon.`;
       break;
 
     case 'Fill in the Bleep!':
-      prompt = `Create a short, funny Mad Libs-style story titled "${inputs.storyTitle}". The story should include and emphasize the following:
+      prompt = `Create a short, funny Mad Libs-style story titled "${storyTitle}". The story should include and emphasize the following:
 
-- A noun: ${inputs.noun}
-- An adjective: ${inputs.adjective}
-- A place: ${inputs.place}
-- Another noun: ${inputs.noun2}
-- A verb: ${inputs.verb}
-- Random thing 1: ${inputs.random1}
-- Random thing 2: ${inputs.random2}
+- A noun: ${noun1}
+- An adjective: ${adjective}
+- A place: ${place}
+- Another noun: ${noun2}
+- A verb: ${verb}
+- Random thing 1: ${random1}
+- Random thing 2: ${random2}
 
 Output the complete story in 3–5 short paragraphs using these words in absurd or unexpected ways. End with a silly twist.`;
       break;
