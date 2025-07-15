@@ -1,120 +1,175 @@
-const formatSelector = document.getElementById("format");
-const fieldsContainer = document.getElementById("fields-container");
-const resultBox = document.getElementById("result");
-const spinner = document.getElementById("spinner");
-const copyBtn = document.getElementById("copy-button");
-const themeSelect = document.getElementById("theme-select");
-const afterDarkContainer = document.getElementById("after-dark-container");
-const afterDarkCheckbox = document.getElementById("after-dark");
+document.addEventListener("DOMContentLoaded", () => {
+  const formatSelect = document.getElementById("format");
+  const generateButton = document.getElementById("generate");
+  const resultEl = document.getElementById("result");
+  const spinner = document.getElementById("spinner");
+  const copyButton = document.getElementById("copy-button");
+  const themeToggle = document.getElementById("theme-toggle");
 
-const formatFields = {
-  "Taboops!": [],
-  "Buzzwords & Bullsh*t": [
-    { id: "topic", label: "Topic or Theme" }
-  ],
-  "Fill in the Bleep!": [
-    { id: "storyTitle", label: "What should this story be called?" },
-    { id: "noun1", label: "Noun" },
-    { id: "adjective", label: "Adjective" },
-    { id: "place", label: "Place" },
-    { id: "noun2", label: "Another Noun" },
-    { id: "verb", label: "Verb" },
-    { id: "thing1", label: "Random Thing #1" },
-    { id: "thing2", label: "Random Thing #2" }
-  ]
-};
+  // Initialize theme
+  initTheme();
 
-// Theme handling
-function applyTheme(theme) {
-  const html = document.documentElement;
-  if (theme === "system") {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    html.setAttribute("data-theme", prefersDark ? "dark" : "light");
-  } else {
-    html.setAttribute("data-theme", theme);
-  }
-  localStorage.setItem("theme", theme);
-}
-
-themeSelect.addEventListener("change", () => {
-  applyTheme(themeSelect.value);
-});
-
-// Load theme preference
-const savedTheme = localStorage.getItem("theme") || "system";
-themeSelect.value = savedTheme;
-applyTheme(savedTheme);
-
-// Render fields
-function renderFields(format) {
-  fieldsContainer.innerHTML = "";
-  resultBox.textContent = "";
-  copyBtn.style.display = "none";
-  afterDarkContainer.style.display = format === "Taboops!" ? "block" : "none";
-
-  if (!formatFields[format]) return;
-
-  formatFields[format].forEach(({ id, label }) => {
-    const labelEl = document.createElement("label");
-    labelEl.setAttribute("for", id);
-    labelEl.textContent = label;
-
-    const inputEl = document.createElement("input");
-    inputEl.type = "text";
-    inputEl.id = id;
-    inputEl.name = id;
-
-    fieldsContainer.appendChild(labelEl);
-    fieldsContainer.appendChild(inputEl);
-  });
-}
-
-formatSelector.addEventListener("change", () => {
-  renderFields(formatSelector.value);
-});
-
-document.getElementById("generate").addEventListener("click", async () => {
-  const format = formatSelector.value;
-  const inputs = fieldsContainer.querySelectorAll("input");
-  const inputPairs = [];
-
-  inputs.forEach(input => {
-    const label = fieldsContainer.querySelector(`label[for="${input.id}"]`);
-    inputPairs.push(`${label.textContent}: ${input.value}`);
+  formatSelect.addEventListener("change", () => {
+    updateFields(formatSelect.value);
   });
 
-  // Add After Dark value if relevant
-  const afterDarkEnabled = afterDarkCheckbox.checked;
-  if (format === "Taboops!") {
-    inputPairs.push(`After Dark: ${afterDarkEnabled ? "true" : "false"}`);
-  }
-
-  spinner.style.display = "block";
-  resultBox.textContent = "";
-  copyBtn.style.display = "none";
-
-  try {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, input: inputPairs.join(" | ") })
-    });
-
-    const data = await res.json();
-    resultBox.textContent = data.result || "No response.";
-    if (data.result) {
-      copyBtn.style.display = "inline-block";
+  generateButton.addEventListener("click", async () => {
+    const format = formatSelect.value;
+    if (!format) {
+      alert("Please select a format.");
+      return;
     }
-  } catch (err) {
-    resultBox.textContent = "Something went wrong.";
-  } finally {
-    spinner.style.display = "none";
+
+    const input = getInput(format);
+    spinner.style.display = "block";
+    resultEl.textContent = "";
+    copyButton.style.display = "none";
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ format, input })
+      });
+
+      const data = await response.json();
+      if (data?.output) {
+        resultEl.textContent = data.output;
+        copyButton.style.display = "block";
+      } else {
+        resultEl.textContent = "No response from model.";
+      }
+    } catch (error) {
+      resultEl.textContent = "Something went wrong.";
+    } finally {
+      spinner.style.display = "none";
+    }
+  });
+
+  copyButton.addEventListener("click", () => {
+    const text = resultEl.textContent;
+    navigator.clipboard.writeText(text);
+  });
+
+  themeToggle.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme");
+    let next = "light";
+    if (current === "light") next = "dark";
+    else if (current === "dark") next = "system";
+    else next = "light";
+
+    applyTheme(next);
+    localStorage.setItem("theme", next);
+    updateThemeLabel(next);
+  });
+
+  function initTheme() {
+    const saved = localStorage.getItem("theme") || "system";
+    applyTheme(saved);
+    updateThemeLabel(saved);
+  }
+
+  function applyTheme(mode) {
+    if (mode === "system") {
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      document.documentElement.setAttribute("data-theme", prefersDark ? "dark" : "light");
+    } else {
+      document.documentElement.setAttribute("data-theme", mode);
+    }
+  }
+
+  function updateThemeLabel(mode) {
+    if (mode === "dark") themeToggle.textContent = "🌙";
+    else if (mode === "light") themeToggle.textContent = "☀️";
+    else themeToggle.textContent = "🖥️ System";
   }
 });
 
-copyBtn.addEventListener("click", () => {
-  navigator.clipboard.writeText(resultBox.textContent).then(() => {
-    copyBtn.textContent = "✅ Copied!";
-    setTimeout(() => (copyBtn.textContent = "📋 Copy to Clipboard"), 2000);
-  });
-});
+function updateFields(format) {
+  const container = document.getElementById("fields-container");
+  container.innerHTML = "";
+
+  if (format === "Taboops!") {
+    const wordInput = document.createElement("input");
+    wordInput.type = "text";
+    wordInput.placeholder = "Enter a word for the Taboops! card";
+    wordInput.id = "taboops-word";
+    container.appendChild(wordInput);
+
+    const checkboxWrapper = document.createElement("div");
+    checkboxWrapper.className = "checkbox-wrapper";
+
+    const afterDarkCheckbox = document.createElement("input");
+    afterDarkCheckbox.type = "checkbox";
+    afterDarkCheckbox.id = "after-dark";
+    afterDarkCheckbox.name = "after-dark";
+
+    const checkboxLabel = document.createElement("label");
+    checkboxLabel.htmlFor = "after-dark";
+    checkboxLabel.innerHTML = "Taboops After Dark 🌒";
+
+    checkboxWrapper.appendChild(afterDarkCheckbox);
+    checkboxWrapper.appendChild(checkboxLabel);
+
+    container.appendChild(checkboxWrapper);
+  }
+
+  if (format === "Fill in the Bleep!") {
+    const promptInput = document.createElement("input");
+    promptInput.type = "text";
+    promptInput.placeholder = "Name a story you wish was in Mad Libs";
+    promptInput.id = "bleep-prompt";
+    container.appendChild(promptInput);
+
+    const fields = [
+      "Noun",
+      "Adjective",
+      "Place",
+      "Noun",
+      "Verb",
+      "Random Thing",
+      "Another Random Thing"
+    ];
+
+    fields.forEach((labelText, i) => {
+      const input = document.createElement("input");
+      input.type = "text";
+      input.placeholder = labelText;
+      input.id = `bleep-${i}`;
+      container.appendChild(input);
+    });
+  }
+
+  if (format === "Buzzwords & Bullsh*t") {
+    const topicInput = document.createElement("input");
+    topicInput.type = "text";
+    topicInput.placeholder = "Enter a buzzwordy topic";
+    topicInput.id = "buzz-topic";
+    container.appendChild(topicInput);
+  }
+}
+
+function getInput(format) {
+  if (format === "Taboops!") {
+    const word = document.getElementById("taboops-word")?.value.trim();
+    const isAfterDark = document.getElementById("after-dark")?.checked;
+    return `Word: ${word || "Random"} | After Dark: ${isAfterDark}`;
+  }
+
+  if (format === "Fill in the Bleep!") {
+    const prompt = document.getElementById("bleep-prompt")?.value.trim();
+    const parts = [];
+    for (let i = 0; i < 7; i++) {
+      const val = document.getElementById(`bleep-${i}`)?.value.trim();
+      parts.push(val || `[blank ${i + 1}]`);
+    }
+    return `Story: ${prompt || "Untitled"} | Words: ${parts.join(", ")}`;
+  }
+
+  if (format === "Buzzwords & Bullsh*t") {
+    const topic = document.getElementById("buzz-topic")?.value.trim();
+    return topic || "Synergizing verticals in the metaverse";
+  }
+
+  return "";
+}
