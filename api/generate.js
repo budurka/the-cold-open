@@ -3,40 +3,67 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { format, input } = req.body;
+  try {
+    const { format, input } = req.body;
 
-  if (!format || !input) {
-    return res.status(400).json({ error: "Missing required fields" });
-  }
+    if (!format || !input) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
-  const apiKey = process.env.OPENROUTER_API_KEY; // Store in Vercel or .env
+    const apiKey = process.env.OPENROUTER_API_KEY;
+    const endpoint = "https://openrouter.ai/api/v1/chat/completions";
+    const model = "meta-llama/llama-3-70b-instruct"; // or try claude-3-opus or another
 
-  const prompt =
-    format === "Taboops!"
-      ? `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
+    let prompt = "";
+
+    switch (format) {
+      case "Taboops!":
+        prompt = `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
 
 Respond with:
 - A **bolded and punny title** for the card
 - A **short, playful rule** for the performers based on the input word
 - A **bulleted list** of 5 to 7 "taboo" words the performers must avoid
 
-Taboo word: ${input}`
-      : `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
+Taboo word: ${input}`;
+        break;
 
-You never write full scenes. Your responses are short, clear, and formatted to be read aloud on stage. Always respond with bolded section titles and a fun tone. Each format is under 200 words.
+      case "Buzzwords & Bullsh*t":
+        prompt = `You are a creative AI that invents hilarious party card content for a Cards Against Humanity-style game.
 
-Format: ${format}
-Input: ${input}`;
+Topic: ${input}
 
-  try {
-    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+Generate 10 funny, absurd, or outrageous phrases, quotes, or ideas that would be cards in this themed party game. Keep the tone edgy but playful. Format them as a simple bullet list.`;
+        break;
+
+      case "Fill in the Bleep!":
+        const [ideaLine, wordsLine] = input.split(" | ");
+        const storyIdea = ideaLine?.replace("General Story Idea: ", "").trim();
+        const wordList = wordsLine?.replace("List 2–8 Random Words: ", "").trim();
+
+        prompt = `You are a creative AI crafting a Mad Libs-style short story for an improv comedy show.
+
+Story premise: ${storyIdea}
+Words to include: ${wordList}
+
+Write a short, absurd, and energetic story (3–5 sentences) that uses these words as blanks filled in for comedic effect. Bold the filled-in words in the output. Format it so it can be read aloud on stage.`;
+        break;
+
+      default:
+        prompt = `You are a creative AI for a live improv comedy site. Format not recognized. Respond with a funny one-liner instead.`;
+        break;
+    }
+
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+        "HTTP-Referer": "https://your-site-name.com", // Optional for OpenRouter tracking
+        "X-Title": "The Cold Open Generator"
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3-70b-instruct",
+        model,
         messages: [
           {
             role: "system",
@@ -54,12 +81,13 @@ Input: ${input}`;
     const data = await response.json();
 
     if (data?.choices?.length > 0) {
-      return res.status(200).json({ result: data.choices[0].message.content.trim() });
+      const output = data.choices[0].message.content.trim();
+      return res.status(200).json({ result: output });
     }
 
-    return res.status(500).json({ error: "No result returned", data });
+    return res.status(500).json({ error: "No response from OpenRouter", data });
   } catch (err) {
-    console.error("API Error:", err);
+    console.error("❌ API Error:", err);
     return res.status(500).json({ error: "Something went wrong", details: err.message });
   }
 }
