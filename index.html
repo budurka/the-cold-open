@@ -10,23 +10,26 @@
 <body class="light">
   <div class="container">
     <header>
-      <h1>The Cold Open 🎭</h1>
+      <h1>The Cold Open <span class="emoji">🎭</span></h1>
       <button id="theme-toggle" title="Toggle theme">🌙</button>
     </header>
 
     <main>
-      <label for="format">Choose a Format:</label>
-      <select id="format">
-        <option value="">-- Select Format --</option>
-        <option value="Taboops!">🧠 Taboops!</option>
-        <option value="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</option>
-      </select>
+      <div class="form-group">
+        <label for="format">Choose a Format:</label>
+        <select id="format">
+          <option value="">-- Select Format --</option>
+          <option value="Taboops!">🧠 Taboops!</option>
+          <option value="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</option>
+        </select>
+      </div>
 
       <div id="fields-container"></div>
 
-      <button id="generate">Generate</button>
-      <div id="spinner" style="display:none;">✨ Generating...</div>
-      <pre id="result"></pre>
+      <button id="generate">✨ Generate Scene Start</button>
+      <div id="spinner" style="display:none;">🔄 Thinking...</div>
+
+      <pre id="result" class="output"></pre>
       <button id="copy-button" style="display:none;">📋 Copy to Clipboard</button>
     </main>
   </div>
