@@ -8,13 +8,10 @@ const themeSelect = document.getElementById("theme-select");
 
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
+// Theme handling
 function applyTheme(theme) {
   if (theme === "system") {
-    document.documentElement.removeAttribute("data-theme");
-    document.documentElement.setAttribute(
-      "data-theme",
-      prefersDark.matches ? "dark" : "light"
-    );
+    document.documentElement.setAttribute("data-theme", prefersDark.matches ? "dark" : "light");
   } else {
     document.documentElement.setAttribute("data-theme", theme);
   }
@@ -26,15 +23,15 @@ themeSelect.addEventListener("change", (e) => {
   applyTheme(e.target.value);
 });
 
-// React to system theme changes
 prefersDark.addEventListener("change", () => {
-  const saved = localStorage.getItem("theme") || "system";
-  if (saved === "system") applyTheme("system");
+  if (localStorage.getItem("theme") === "system") {
+    applyTheme("system");
+  }
 });
 
 applyTheme(localStorage.getItem("theme") || "system");
 
-// Re-render fields based on format
+// Handle format changes
 formatSelector.addEventListener("change", () => {
   const format = formatSelector.value;
   fieldsContainer.innerHTML = "";
@@ -100,9 +97,10 @@ formatSelector.addEventListener("change", () => {
   }
 });
 
+// Generate click
 generateButton.addEventListener("click", async () => {
   const format = formatSelector.value;
-  const inputs = {};
+  const payload = { format };
 
   if (!format) return alert("Please select a format.");
 
@@ -110,23 +108,22 @@ generateButton.addEventListener("click", async () => {
     const word = document.getElementById("tabooWord")?.value;
     const afterDark = document.getElementById("afterDark")?.checked;
     if (!word) return alert("Please enter a taboo word.");
-    inputs.word = word;
-    inputs.isAfterDark = afterDark;
+    payload.tabooWord = word;
+    payload.afterDark = afterDark;
   }
 
   if (format === "Buzzwords & Bullsh*t") {
     const buzzword = document.getElementById("buzzTopic")?.value;
     if (!buzzword) return alert("Please enter a buzzword or topic.");
-    inputs.buzzword = buzzword;
-    inputs.industry = "corporate";
+    payload.buzzTopic = buzzword;
   }
 
   if (format === "Fill in the Bleep!") {
-    const ids = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
-    for (let id of ids) {
-      const val = document.getElementById(id)?.value;
-      if (!val) return alert(`Please enter a value for ${id}.`);
-      inputs[id] = val;
+    const fields = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
+    for (let field of fields) {
+      const val = document.getElementById(field)?.value;
+      if (!val) return alert(`Please enter a value for ${field}.`);
+      payload[field] = val;
     }
   }
 
@@ -138,20 +135,21 @@ generateButton.addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, inputs, isAfterDark: inputs.isAfterDark || false }),
+      body: JSON.stringify(payload),
     });
 
     const data = await res.json();
-    resultEl.textContent = data.result || "No result.";
+    resultEl.textContent = data.result || "🤯 Whoa! We’re out of ideas for a second. Try again?";
     copyButton.style.display = "block";
   } catch (err) {
     console.error("Generation error:", err);
-    resultEl.textContent = "Something went wrong.";
+    resultEl.textContent = "❌ Something went wrong. Maybe the improv gods are taking five.";
   } finally {
     spinner.style.display = "none";
   }
 });
 
+// Copy to clipboard
 copyButton.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(resultEl.textContent);
