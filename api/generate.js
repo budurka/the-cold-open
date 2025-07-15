@@ -1,74 +1,55 @@
-import { OpenRouterStream } from "openrouter-stream";
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
 
-export const config = {
-  runtime: "edge"
-};
+  const { format, input } = req.body;
 
-const handler = async (req) => {
+  const prompt = generatePrompt(format, input);
+
   try {
-    const { format, input } = await req.json();
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3-8b-instruct",
+        messages: [
+          { role: "system", content: "You are a creative assistant for a live improv show generator site." },
+          { role: "user", content: prompt }
+        ],
+        temperature: 0.9
+      })
+    });
 
-    const promptMap = {
-      "Taboops!": `You're generating a creative taboo-style word guessing game.
-Generate a list of 6 words that are associated with the word: "${input}".
-These should be things the player cannot say while teammates try to guess the main word.
-Return the response in a playful and direct tone like a party game.
-Format it like:
-Main Word: [word]
-Taboo Words: [word1], [word2], [word3], [word4], [word5], [word6]`,
+    const data = await response.json();
 
-      "Buzzwords & Bullsh*t": `You're creating funny cards for an adult party game inspired by Cards Against Humanity or Apples to Apples.
-The theme is: "${input}"
-
-Generate 10 outrageous, edgy, or absurd phrases that could be printed on cards related to this theme.
-Keep them short, punchy, and hilarious.`,
-
-      "Fill In The Bleep!": `You're writing a short, hilarious Mad Libs-style story.
-The show theme is: "${input}"
-The audience has submitted the following words to fill in:
-- Noun
-- Adjective
-- Place
-- Noun
-- Verb
-- Random Thing 1
-- Random Thing 2
-
-Use those placeholders and write a short, absurd, and comedically-timed story in 2-3 paragraphs.
-Clearly highlight the filled-in words in **bold** so the cast can read it aloud with dramatic flair.`
-    };
-
-    const prompt = promptMap[format];
-
-    if (!prompt) {
-      return new Response(JSON.stringify({ result: "Invalid format selected." }), {
-        status: 400,
-        headers: { "Content-Type": "application/json" }
-      });
+    if (!data.choices || !data.choices[0]?.message?.content) {
+      return res.status(500).json({ result: "No response from model." });
     }
 
-    const stream = await OpenRouterStream({
-      model: "meta-llama/llama-3-8b-instruct",
-      messages: [
-        {
-          role: "system",
-          content: "You are a creative improv and party game generator. Respond in a casual, funny tone unless otherwise directed."
-        },
-        {
-          role: "user",
-          content: prompt
-        }
-      ],
-      apiKey: process.env.OPENROUTER_API_KEY
-    });
-
-    return new Response(stream);
-  } catch (err) {
-    return new Response(JSON.stringify({ result: "Something went wrong." }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" }
-    });
+    res.status(200).json({ result: data.choices[0].message.content });
+  } catch (error) {
+    console.error("Error generating response:", error);
+    res.status(500).json({ result: "Something went wrong." });
   }
-};
+}
 
-export default handler;
+function generatePrompt(format, input) {
+  switch (format) {
+    case "Taboops!":
+      return `You're hosting a taboo-style game show. A contestant accidentally says the taboo word "${input}". Set the scene and escalate the chaos.`;
+
+    case "Buzzwords & Bullsh*t":
+      return `Use corporate buzzwords to deliver an overly dramatic announcement about: ${input}. Make it confusing, cringey, and full of flair.`;
+
+    case "Fill In The Bleep!":
+      const [title, ...words] = input.split(" | ");
+      return `Create a short Mad Libs-style story titled "${title}". Use these audience-supplied words in fun and absurd ways: ${words.join(", ")}. Format it like a short dramatic scene.`;
+
+    default:
+      return `Create a hilarious improv show concept using this audience input: ${input}`;
+  }
+}
