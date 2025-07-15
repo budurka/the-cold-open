@@ -46,38 +46,23 @@ formatButtons.forEach((button) => {
     copyButton.style.display = "none";
     fieldsContainer.innerHTML = "";
 
+    const panel = document.createElement("div");
+    panel.className = "input-panel";
+
     if (currentFormat === "Taboops!") {
-      const label = document.createElement("label");
-      label.textContent = "Taboo Word:";
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = "tabooWord";
-      input.placeholder = "Enter your taboo word";
-
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.id = "afterDark";
-
-      const checkboxLabel = document.createElement("label");
-      checkboxLabel.setAttribute("for", "afterDark");
-      checkboxLabel.textContent = "Taboops After Dark 🌒";
-
-      fieldsContainer.appendChild(label);
-      fieldsContainer.appendChild(input);
-      fieldsContainer.appendChild(checkbox);
-      fieldsContainer.appendChild(checkboxLabel);
+      panel.innerHTML = `
+        <label for="tabooWord">Taboo Word:</label>
+        <input type="text" id="tabooWord" placeholder="Enter your taboo word">
+        <div class="checkbox-group">
+          <input type="checkbox" id="afterDark">
+          <label for="afterDark">Taboops After Dark 🌒</label>
+        </div>`;
     }
 
     if (currentFormat === "Buzzwords & Bullsh*t") {
-      const label = document.createElement("label");
-      label.textContent = "Buzzword or Topic:";
-      const input = document.createElement("input");
-      input.type = "text";
-      input.id = "buzzTopic";
-      input.placeholder = "Enter a corporate buzzword or topic";
-
-      fieldsContainer.appendChild(label);
-      fieldsContainer.appendChild(input);
+      panel.innerHTML = `
+        <label for="buzzTopic">Buzzword or Topic:</label>
+        <input type="text" id="buzzTopic" placeholder="Enter a corporate buzzword or topic">`;
     }
 
     if (currentFormat === "Fill in the Bleep!") {
@@ -93,18 +78,15 @@ formatButtons.forEach((button) => {
       ];
 
       prompts.forEach(({ id, label, placeholder }) => {
-        const labelEl = document.createElement("label");
-        labelEl.textContent = label;
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.id = id;
-        input.placeholder = placeholder;
-
-        fieldsContainer.appendChild(labelEl);
-        fieldsContainer.appendChild(input);
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = `
+          <label for="${id}">${label}</label>
+          <input type="text" id="${id}" placeholder="${placeholder}">`;
+        panel.appendChild(wrapper);
       });
     }
+
+    fieldsContainer.appendChild(panel);
   });
 });
 
