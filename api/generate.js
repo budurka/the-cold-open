@@ -1,64 +1,65 @@
-// ✅ Updated generate.js to support all 3 formats correctly and use OpenRouter API
+// generate.js (Express backend route)
+import express from "express";
+import fetch from "node-fetch";
 
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+const router = express.Router();
+
+router.post("/generate", async (req, res) => {
+  const { format, input } = req.body;
+
+  let prompt = "";
+
+  switch (format) {
+    case "Taboops!":
+      prompt = `Create a high-energy, fast-paced improv game intro based on a taboo word. The word is: ${input}. Keep it short and engaging.`;
+      break;
+
+    case "Buzzwords & Bullsh*t":
+      prompt = `Create a ridiculous corporate-themed improv scene start using the topic: ${input}. Include over-the-top buzzwords and jargon.`;
+      break;
+
+    case "Fill In The Bleep":
+      prompt = `You're generating a MADLIBS-style scene. A user provided the following as a pretend story title and input list:\n\n${input}\n\nCreate a 4-6 sentence absurd short story based on that info, keeping it fun and theatrical.`;
+      break;
+
+    default:
+      return res.status(400).json({ result: "Unknown format." });
   }
 
   try {
-    const { format, input } = req.body;
-
-    if (!format || !input) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const apiKey = process.env.OPENROUTER_API_KEY;
-    const endpoint = "https://openrouter.ai/api/v1/chat/completions";
-
-    let prompt = "";
-
-    if (format === "Taboops!") {
-      prompt = `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.\n\nRespond with:\n- A **bolded and punny title** for the card\n- A **short, playful rule** for the performers based on the input word\n- A **bulleted list** of 5 to 7 \"taboo\" words the performers must avoid\n\nTaboo word: ${input}`;
-    } else if (format === "Buzzwords & Bullsh*t") {
-      prompt = `You are a creative AI generating hilarious card text for a game similar to Apples to Apples or Cards Against Humanity.\n\nCreate 10 possible cards that would be featured in this absurd or edgy card game.\n\nGame Theme: ${input}`;
-    } else if (format === "Fill In The Bleep!") {
-      prompt = `You are a creative AI that writes absurd Mad Libs-style short stories to inspire improv comedy scenes.\n\nAudience provides typical Mad Libs-style words. Ask them for the following:\n- Noun\n- Adjective\n- Place\n- Noun\n- Verb\n- Two random things\n\nThen, using these inputs, write a short 5-7 sentence funny story that sounds like it could be straight out of a children's book with a twist.\n\nStory Prompt: ${input}`;
-    } else {
-      prompt = `Format not recognized: ${format}`;
-    }
-
-    const response = await fetch(endpoint, {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "mistralai/mixtral-8x7b",
+        model: "google/gemma-2b-it",
         messages: [
           {
             role: "system",
-            content: "You are a helpful, creative assistant for a live improv comedy generator site."
+            content: "You are a clever, playful AI generating creative improv show openers in different formats. Be bold, brief, and original.",
           },
           {
             role: "user",
-            content: prompt
-          }
+            content: prompt,
+          },
         ],
-        temperature: 0.9
-      })
+      }),
     });
 
     const data = await response.json();
 
-    if (data?.choices?.length > 0) {
-      const output = data.choices[0].message.content.trim();
-      return res.status(200).json({ result: output });
+    if (!data || !data.choices || !data.choices.length) {
+      return res.json({ result: "No response from model." });
     }
 
-    return res.status(500).json({ error: "No response from OpenRouter", data });
-  } catch (err) {
-    console.error("❌ API Error:", err);
-    return res.status(500).json({ error: "Something went wrong", details: err.message });
+    const output = data.choices[0].message.content;
+    res.json({ result: output });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ result: "Error generating response." });
   }
-}
+});
+
+export default router;
