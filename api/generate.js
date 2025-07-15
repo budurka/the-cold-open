@@ -1,81 +1,99 @@
-export default async function handler(req, res) {
+export const config = {
+  runtime: 'edge',
+};
+
+export default async function handler(req) {
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
-
-  const { format, inputs, isAfterDark } = req.body;
-
-  const prompt = createPrompt(format, inputs, isAfterDark);
-  if (!prompt) {
-    return res.status(400).json({ error: 'Invalid format or input' });
-  }
-
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'meta-llama/llama-3-8b-instruct',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are a creative and hilarious improv show writer.'
-          },
-          {
-            role: 'user',
-            content: prompt
-          }
-        ]
-      })
+    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
+      status: 405,
+      headers: { 'Content-Type': 'application/json' },
     });
-
-    const data = await response.json();
-    const output = data?.choices?.[0]?.message?.content;
-
-    if (!output) {
-      return res.status(500).json({ error: 'No response from model.' });
-    }
-
-    res.status(200).json({ result: output.trim() });
-  } catch (err) {
-    console.error('API error:', err);
-    res.status(500).json({ error: 'Something went wrong.' });
   }
+
+  const { format, inputs, isAfterDark } = await req.json();
+
+  if (!format) {
+    return new Response(JSON.stringify({ error: 'No format selected' }), {
+      status: 400,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const prompt = buildPrompt(format, inputs, isAfterDark);
+
+  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'meta-llama/llama-3.2-3b-instruct:free',
+      messages: [
+        {
+          role: 'system',
+          content: 'You are a witty scene and game prompt generator for improv comedy shows. Your answers should be funny, creative, and formatted like a short monologue or setup.',
+        },
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    return new Response(JSON.stringify({ error: `API error: ${errorText}` }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  const data = await response.json();
+  const result = data?.choices?.[0]?.message?.content;
+
+  if (!result) {
+    return new Response(JSON.stringify({ error: 'No response from model.' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
+  return new Response(JSON.stringify({ result }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
 
-function createPrompt(format, inputs, isAfterDark) {
+function buildPrompt(format, inputs, isAfterDark) {
   switch (format) {
-    case 'Taboops!':
-      return `Generate a creative and fun Taboo-style card. The word to guess is "${inputs.word}". Provide exactly five “do not say” words. ${isAfterDark ? 'Make the card cheeky or adult-themed for an After Dark version.' : 'Keep it PG for a regular show.'} Format it like:
-      
-Word: [Main Word]
-Do Not Say:
-- Word 1
-- Word 2
-- Word 3
-- Word 4
-- Word 5`;
+    case 'Taboops!': {
+      const base = `Generate a new Taboo-style card. The guess word is "${inputs.word}". List 5 words that CANNOT be said when describing it. Format the response like:
+GUESS WORD: [word]
+NO WORDS: 1. ..., 2. ..., 3. ..., 4. ..., 5. ...`;
+
+      const afterDarkTag = isAfterDark
+        ? ' Make the theme spicy, mature, and inappropriate for a family-friendly audience. Add innuendos or raunchy connections.'
+        : ' Keep it clean and PG-rated for a family-friendly audience.';
+
+      return base + afterDarkTag;
+    }
 
     case 'Buzzwords & Bullsh*t':
-      return `Create an over-the-top fictional workplace or product announcement using the buzzword "${inputs.buzzword}" and industry "${inputs.industry}". Make it absurd, like something from a corporate improv sketch.`;
+      return `Write a scene intro inspired by buzzword "${inputs.buzzword}" in the "${inputs.industry}" industry. Use over-the-top corporate jargon.`;
 
     case 'Fill in the Bleep!':
-      return `Create a short and hilarious Mad Libs-style story titled "${inputs.storyTitle}". Fill it using the following audience-provided words:
-
+      return `Create a funny short Mad Libs-style story titled "${inputs.storyTitle}", using the following words:
 - Noun: ${inputs.noun}
 - Adjective: ${inputs.adjective}
 - Place: ${inputs.place}
-- Second Noun: ${inputs.noun2}
+- Another noun: ${inputs.noun2}
 - Verb: ${inputs.verb}
-- Random Thing 1: ${inputs.random1}
-- Random Thing 2: ${inputs.random2}
-
-Keep it silly, punchy, and suitable for improv inspiration.`;
+- Random thing 1: ${inputs.random1}
+- Random thing 2: ${inputs.random2}
+Make it absurd and short (under 150 words) and easy to read aloud on stage.`;
 
     default:
-      return null;
+      return 'Generate a random improv scene prompt.';
   }
 }
