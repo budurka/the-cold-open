@@ -18,6 +18,16 @@ export default async function handler(req, res) {
     random2
   } = req.body;
 
+  const fallbackMessages = [
+    "Whoa! We’re out of ideas for a second. Try again?",
+    "Even improv needs a coffee break. Try once more?",
+    "My brain cell just tripped. Can you ask that again?",
+    "💨 That idea went poof. Wanna hit regenerate?",
+    "Oops! Our creative hamster fell off the wheel. Try again?",
+    "AI got stage fright. Let's try another take.",
+    "404: Funny bone not found. Retry?",
+  ];
+
   let prompt = '';
 
   switch (format) {
@@ -82,14 +92,16 @@ Output the complete story in 3–5 short paragraphs using these words in absurd 
     });
 
     const data = await response.json();
+    const fallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
 
     if (data && data.choices && data.choices.length > 0) {
       return res.status(200).json({ result: data.choices[0].message.content });
     } else {
-      return res.status(500).json({ error: 'No response from model.' });
+      return res.status(200).json({ result: fallback });
     }
   } catch (error) {
     console.error('Error from Groq:', error);
-    return res.status(500).json({ error: 'Something went wrong.' });
+    const fallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+    return res.status(200).json({ result: fallback });
   }
 }
