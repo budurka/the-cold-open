@@ -4,16 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#ffffff" />
-  <title>The Cold Open</title>
+  <title>The Cold Open 🎭</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
+  <!-- Particle background container -->
+  <div id="particles-js"></div>
+
+  <div class="container glass">
     <header>
       <h1>The Cold Open 🎭</h1>
-
       <div>
-        <label for="theme-select" style="font-weight: 600;">Theme:</label>
+        <label for="theme-select">Theme:</label>
         <select id="theme-select" title="Toggle theme">
           <option value="light">☀️ Light</option>
           <option value="dark">🌙 Dark</option>
@@ -23,16 +25,15 @@
     </header>
 
     <main>
-      <label>Choose a Format:</label>
+      <label class="section-label">Choose a Format:</label>
       <div id="format-buttons" class="format-buttons">
         <button type="button" data-format="Taboops!">🧠 Taboops!</button>
         <button type="button" data-format="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</button>
         <button type="button" data-format="Fill in the Bleep!">📕 Fill in the Bleep!</button>
       </div>
 
-      <div id="fields-container"></div>
+      <div id="fields-container" class="fields-container"></div>
 
-      <!-- Taboops After Dark toggle (conditionally shown by script) -->
       <div id="after-dark-container" style="display: none;">
         <input type="checkbox" id="after-dark" />
         <label for="after-dark">Taboops After Dark 🌒</label>
@@ -46,5 +47,6 @@
   </div>
 
   <script src="scripts.js"></script>
+  <!-- Optional: Include particles.js or similar library here -->
 </body>
 </html>
