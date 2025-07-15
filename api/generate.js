@@ -13,31 +13,32 @@ export default async function handler(req, res) {
     const apiKey = process.env.OPENAI_API_KEY;
     const endpoint = "https://api.openai.com/v1/chat/completions";
 
-    // Custom prompt logic for Taboops!
-    const prompt =
-      format === "Taboops!"
-        ? `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
+    let prompt = "";
 
-Respond with:
-- A **bolded and punny title** for the card
-- A **short, playful rule** for the performers based on the input word
-- A **bulleted list** of 5 to 7 "taboo" words the performers must avoid
+    if (format === "Taboops!") {
+      prompt = `You are a creative AI generating *Taboo-style improv game cards* for a live comedy show.
 
-Taboo word: ${input}`
-        : `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
+Your job:
+1. Create a **punny, bolded title** based on the user's taboo word.
+2. Write a **funny one-sentence rule** for the performers.
+3. List 5–7 *taboo words* that must be avoided.
 
-You never write full scenes. Your responses are short, clear, and formatted to be read aloud on stage. Always respond with bolded section titles and a fun tone. Each format is under 200 words.
+Your tone is witty, fast-paced, and made to get laughs on stage. Never explain what the game is. Just output the card.
 
-Supported Formats:
-1. 🎬 P-AI-lot Episode
-2. 🎥 Trailer Trash
-3. 🎲 Game Show Mayhem
-4. 🛳️ Real Drama
-5. 🧠 Taboops!
-6. 🧩 Buzzwords & Bullsh*t
+Taboo Word: ${input}`;
+    } else if (format === "Buzzwords & Bullsh*t") {
+      prompt = `You are a creative AI that generates hilarious cards for a party game like Cards Against Humanity or Apples to Apples.
 
-Format: ${format}
-Input: ${input}`;
+The user will provide a theme. Based on that theme, respond with:
+- A **bolded and witty title**
+- A list of **10 outrageous phrases** that could be cards in that themed deck
+
+Your tone is wild, clever, unexpected, and laugh-out-loud funny. Never explain yourself. Just drop the cards.
+
+Theme: ${input}`;
+    } else {
+      return res.status(400).json({ error: "Unsupported format" });
+    }
 
     const response = await fetch(endpoint, {
       method: "POST",
