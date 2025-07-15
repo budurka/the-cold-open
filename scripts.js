@@ -6,13 +6,21 @@ const copyBtn = document.getElementById("copy-button");
 const toggleBtn = document.getElementById("theme-toggle");
 
 const formatFields = {
-  "Taboops!": [{ id: "word", label: "Taboo Word" }],
-  "Buzzwords & Bullsh*t": [{ id: "topic", label: "Topic or Theme" }]
+  "Taboops!": [
+    { id: "word", label: "Taboo Word" }
+  ],
+  "Buzzwords & Bullsh*t": [
+    { id: "topic", label: "Topic or Theme" }
+  ],
+  "Fill in the Bleep!": [
+    { id: "idea", label: "What's a general story idea or setting?" },
+    { id: "words", label: "Enter 4–8 random words or things" }
+  ]
 };
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
-  resultBox.textContent = "";
+  resultBox.textContent = ""; // Auto-clear result when format changes
   copyBtn.style.display = "none";
 
   if (!formatFields[format]) return;
@@ -41,7 +49,7 @@ document.getElementById("generate").addEventListener("click", async () => {
   const inputs = fieldsContainer.querySelectorAll("input");
   const inputPairs = [];
 
-  inputs.forEach((input) => {
+  inputs.forEach(input => {
     const label = fieldsContainer.querySelector(`label[for="${input.id}"]`);
     inputPairs.push(`${label.textContent}: ${input.value}`);
   });
@@ -74,9 +82,8 @@ copyBtn.addEventListener("click", () => {
   });
 });
 
-// 🌙 Dark mode toggle using data-theme attribute
 toggleBtn.addEventListener("click", () => {
-  const currentTheme = document.documentElement.getAttribute("data-theme") || "light";
-  const nextTheme = currentTheme === "dark" ? "light" : "dark";
-  document.documentElement.setAttribute("data-theme", nextTheme);
+  const isDark = document.body.classList.toggle("dark");
+  document.body.classList.toggle("light", !isDark);
+  toggleBtn.classList.toggle("active");
 });
