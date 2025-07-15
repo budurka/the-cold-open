@@ -1,155 +1,163 @@
-// scripts.js
+const formatSelector = document.getElementById("format");
+const fieldsContainer = document.getElementById("fields-container");
+const generateButton = document.getElementById("generate");
+const resultEl = document.getElementById("result");
+const spinner = document.getElementById("spinner");
+const copyButton = document.getElementById("copy-button");
+const themeToggle = document.getElementById("theme-toggle");
 
-const formatSelect = document.getElementById('format');
-const fieldsContainer = document.getElementById('fields-container');
-const generateButton = document.getElementById('generate');
-const resultEl = document.getElementById('result');
-const spinner = document.getElementById('spinner');
-const copyButton = document.getElementById('copy-button');
-const themeToggle = document.getElementById('theme-toggle');
-
-function getSystemTheme() {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-}
+let currentTheme = localStorage.getItem("theme") || "system";
 
 function applyTheme(theme) {
-  if (theme === 'system') {
-    document.documentElement.removeAttribute('data-theme');
+  if (theme === "system") {
+    document.documentElement.removeAttribute("data-theme");
   } else {
-    document.documentElement.setAttribute('data-theme', theme);
+    document.documentElement.setAttribute("data-theme", theme);
   }
-  localStorage.setItem('theme', theme);
-  updateThemeIcon(theme);
+  localStorage.setItem("theme", theme);
+  themeToggle.innerText =
+    theme === "dark" ? "🌙 Dark" : theme === "light" ? "☀️ Light" : "🖥️ System";
 }
 
-function updateThemeIcon(theme) {
-  const icon = theme === 'dark' ? '🌙' : theme === 'light' ? '☀️' : '🖥️';
-  themeToggle.textContent = icon;
-}
+themeToggle.addEventListener("click", () => {
+  currentTheme =
+    currentTheme === "light"
+      ? "dark"
+      : currentTheme === "dark"
+      ? "system"
+      : "light";
+  applyTheme(currentTheme);
+});
 
-// Cycle through light -> dark -> system
-function cycleTheme() {
-  const current = localStorage.getItem('theme') || 'system';
-  const next = current === 'light' ? 'dark' : current === 'dark' ? 'system' : 'light';
-  applyTheme(next);
-}
+applyTheme(currentTheme);
 
-// On load
-const savedTheme = localStorage.getItem('theme') || 'system';
-applyTheme(savedTheme);
+// Update fields when format changes
+formatSelector.addEventListener("change", () => {
+  const format = formatSelector.value;
+  fieldsContainer.innerHTML = "";
 
-themeToggle.addEventListener('click', cycleTheme);
+  if (format === "Taboops!") {
+    const tabooInput = document.createElement("input");
+    tabooInput.type = "text";
+    tabooInput.id = "tabooWord";
+    tabooInput.placeholder = "Enter your taboo word";
+    tabooInput.required = true;
 
-formatSelect.addEventListener('change', () => {
-  const format = formatSelect.value;
-  fieldsContainer.innerHTML = '';
+    const tabooLabel = document.createElement("label");
+    tabooLabel.htmlFor = "tabooWord";
+    tabooLabel.textContent = "Taboo Word:";
 
-  if (format === 'Taboops!') {
-    const wordLabel = document.createElement('label');
-    wordLabel.textContent = 'Enter a word to guess:';
-    const wordInput = document.createElement('input');
-    wordInput.type = 'text';
-    wordInput.id = 'word';
+    const afterDarkLabel = document.createElement("label");
+    afterDarkLabel.textContent = "Taboops After Dark 🌒";
 
-    const afterDarkContainer = document.createElement('label');
-    afterDarkContainer.style.display = 'flex';
-    afterDarkContainer.style.alignItems = 'center';
-    const afterDark = document.createElement('input');
-    afterDark.type = 'checkbox';
-    afterDark.id = 'after-dark';
-    afterDarkContainer.appendChild(afterDark);
-    afterDarkContainer.appendChild(document.createTextNode(' Taboo After Dark'));
+    const afterDarkCheckbox = document.createElement("input");
+    afterDarkCheckbox.type = "checkbox";
+    afterDarkCheckbox.id = "afterDark";
 
-    fieldsContainer.appendChild(wordLabel);
-    fieldsContainer.appendChild(wordInput);
-    fieldsContainer.appendChild(afterDarkContainer);
+    fieldsContainer.appendChild(tabooLabel);
+    fieldsContainer.appendChild(tabooInput);
+    fieldsContainer.appendChild(afterDarkCheckbox);
+    fieldsContainer.appendChild(afterDarkLabel);
+  }
 
-  } else if (format === 'Buzzwords & Bullsh*t') {
-    const buzzwordLabel = document.createElement('label');
-    buzzwordLabel.textContent = 'Buzzword:';
-    const buzzwordInput = document.createElement('input');
-    buzzwordInput.type = 'text';
-    buzzwordInput.id = 'buzzword';
+  if (format === "Buzzwords & Bullsh*t") {
+    const buzzInput = document.createElement("input");
+    buzzInput.type = "text";
+    buzzInput.id = "buzzTopic";
+    buzzInput.placeholder = "Enter a corporate buzzword or topic";
+    buzzInput.required = true;
 
-    const industryLabel = document.createElement('label');
-    industryLabel.textContent = 'Industry:';
-    const industryInput = document.createElement('input');
-    industryInput.type = 'text';
-    industryInput.id = 'industry';
+    const buzzLabel = document.createElement("label");
+    buzzLabel.htmlFor = "buzzTopic";
+    buzzLabel.textContent = "Buzzword or Topic:";
 
-    fieldsContainer.appendChild(buzzwordLabel);
-    fieldsContainer.appendChild(buzzwordInput);
-    fieldsContainer.appendChild(industryLabel);
-    fieldsContainer.appendChild(industryInput);
+    fieldsContainer.appendChild(buzzLabel);
+    fieldsContainer.appendChild(buzzInput);
+  }
 
-  } else if (format === 'Fill in the Bleep!') {
-    const fields = [
-      { id: 'storyTitle', label: 'Story Title' },
-      { id: 'noun', label: 'Noun' },
-      { id: 'adjective', label: 'Adjective' },
-      { id: 'place', label: 'Place' },
-      { id: 'noun2', label: 'Another Noun' },
-      { id: 'verb', label: 'Verb' },
-      { id: 'random1', label: 'Random Thing 1' },
-      { id: 'random2', label: 'Random Thing 2' }
+  if (format === "Fill in the Bleep!") {
+    const prompts = [
+      { id: "storyTitle", label: "Name a story or genre you wish was a Mad Lib", placeholder: "e.g., The Godfather, Star Wars" },
+      { id: "noun1", label: "Noun", placeholder: "Enter a noun" },
+      { id: "adjective", label: "Adjective", placeholder: "Enter an adjective" },
+      { id: "place", label: "Place", placeholder: "Enter a place" },
+      { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
+      { id: "verb", label: "Verb", placeholder: "Enter a verb" },
+      { id: "random1", label: "Random Thing #1", placeholder: "Something weird or funny" },
+      { id: "random2", label: "Random Thing #2", placeholder: "Something else strange" },
     ];
-    fields.forEach(({ id, label }) => {
-      const lbl = document.createElement('label');
-      lbl.textContent = label + ':';
-      const input = document.createElement('input');
-      input.type = 'text';
+
+    prompts.forEach(({ id, label, placeholder }) => {
+      const input = document.createElement("input");
+      input.type = "text";
       input.id = id;
-      fieldsContainer.appendChild(lbl);
+      input.placeholder = placeholder;
+      input.required = true;
+
+      const inputLabel = document.createElement("label");
+      inputLabel.htmlFor = id;
+      inputLabel.textContent = label;
+
+      fieldsContainer.appendChild(inputLabel);
       fieldsContainer.appendChild(input);
     });
   }
 });
 
-generateButton.addEventListener('click', async () => {
-  const format = formatSelect.value;
+generateButton.addEventListener("click", async () => {
+  const format = formatSelector.value;
   const inputs = {};
 
-  if (format === 'Taboops!') {
-    inputs.word = document.getElementById('word').value;
-    inputs.isAfterDark = document.getElementById('after-dark').checked;
-  } else if (format === 'Buzzwords & Bullsh*t') {
-    inputs.buzzword = document.getElementById('buzzword').value;
-    inputs.industry = document.getElementById('industry').value;
-  } else if (format === 'Fill in the Bleep!') {
-    ['storyTitle', 'noun', 'adjective', 'place', 'noun2', 'verb', 'random1', 'random2'].forEach(id => {
-      inputs[id] = document.getElementById(id).value;
-    });
+  if (!format) return alert("Please select a format first.");
+
+  if (format === "Taboops!") {
+    inputs.tabooWord = document.getElementById("tabooWord")?.value;
+    inputs.afterDark = document.getElementById("afterDark")?.checked;
+    if (!inputs.tabooWord) return alert("Please enter a taboo word.");
   }
 
-  spinner.style.display = 'block';
-  resultEl.textContent = '';
-  copyButton.style.display = 'none';
+  if (format === "Buzzwords & Bullsh*t") {
+    inputs.buzzTopic = document.getElementById("buzzTopic")?.value;
+    if (!inputs.buzzTopic) return alert("Please enter a buzzword or topic.");
+  }
+
+  if (format === "Fill in the Bleep!") {
+    ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"].forEach((id) => {
+      inputs[id] = document.getElementById(id)?.value;
+    });
+    if (Object.values(inputs).some((v) => !v)) {
+      return alert("Please fill in all the fields for Fill in the Bleep.");
+    }
+  }
 
   try {
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ format, inputs, isAfterDark: inputs.isAfterDark })
+    spinner.style.display = "block";
+    resultEl.textContent = "";
+    copyButton.style.display = "none";
+
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ format, ...inputs }),
     });
 
-    const data = await response.json();
-
-    if (data.result) {
-      resultEl.textContent = data.result;
-      copyButton.style.display = 'block';
-    } else {
-      resultEl.textContent = data.error || 'Unexpected error.';
-    }
+    const data = await res.json();
+    resultEl.textContent = data.result || "No result.";
+    copyButton.style.display = "block";
   } catch (err) {
-    resultEl.textContent = 'Something went wrong.';
+    console.error("Generation error:", err);
+    resultEl.textContent = "Something went wrong.";
   } finally {
-    spinner.style.display = 'none';
+    spinner.style.display = "none";
   }
 });
 
-copyButton.addEventListener('click', () => {
-  navigator.clipboard.writeText(resultEl.textContent).then(() => {
-    copyButton.textContent = '✅ Copied!';
-    setTimeout(() => (copyButton.textContent = '📋 Copy to Clipboard'), 2000);
-  });
+copyButton.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(resultEl.textContent);
+    copyButton.textContent = "✅ Copied!";
+    setTimeout(() => (copyButton.textContent = "📋 Copy to Clipboard"), 2000);
+  } catch (err) {
+    copyButton.textContent = "❌ Failed";
+  }
 });
