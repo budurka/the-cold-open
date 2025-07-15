@@ -1,3 +1,4 @@
+/* === BASE THEME COLORS === */
 :root {
   --bg-color: #ffffff;
   --text-color: #111111;
@@ -6,7 +7,7 @@
   --accent-color: #ff3b30;
   --result-bg: #f7f7f7;
   --toggle-color: #111111;
-  --font-family: 'Inter', system-ui, sans-serif;
+  --font-family: 'Space Grotesk', system-ui, sans-serif;
 }
 
 [data-theme="dark"] {
@@ -19,10 +20,11 @@
   --toggle-color: #f5f5f5;
 }
 
+/* === GLOBAL ELEMENTS === */
 body {
   margin: 0;
   font-family: var(--font-family);
-  background-color: var(--bg-color);
+  background: linear-gradient(145deg, #0f0f0f 0%, #1c1c1c 100%);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -45,14 +47,26 @@ header h1 {
   line-height: 1.2;
   font-weight: 800;
   margin: 0;
+  position: relative;
+}
+
+header h1::after {
+  content: "✨";
+  margin-left: 0.4rem;
+  animation: twinkle 1.5s infinite alternate;
+}
+
+@keyframes twinkle {
+  from { transform: rotate(0deg); opacity: 0.7; }
+  to { transform: rotate(10deg); opacity: 1; }
 }
 
 label {
   display: block;
-  font-weight: 700;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   margin-top: 2rem;
-  font-size: 1.25rem;
+  font-size: 1.15rem;
 }
 
 input[type="checkbox"] {
@@ -61,7 +75,6 @@ input[type="checkbox"] {
   vertical-align: middle;
 }
 
-/* Align checkbox + label */
 input[type="checkbox"] + label {
   display: inline-block;
   margin-top: 0.25rem;
@@ -76,7 +89,7 @@ select,
 input[type="text"] {
   width: 100%;
   padding: 14px 20px;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 500;
   color: var(--text-color);
   background-color: var(--input-bg);
@@ -87,7 +100,6 @@ input[type="text"] {
   transition: border 0.2s ease;
 }
 
-/* Format dropdown (optional if deprecated) */
 select {
   appearance: none;
   background-image: url("data:image/svg+xml;utf8,<svg fill='%23666' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
@@ -96,19 +108,6 @@ select {
   background-size: 18px;
 }
 
-select:focus,
-input:focus {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.3);
-}
-
-select option {
-  background-color: var(--input-bg);
-  color: var(--text-color);
-}
-
-/* Theme dropdown styling */
 #theme-select {
   font-size: 1rem;
   padding: 0.5rem 2rem 0.5rem 1rem;
@@ -125,13 +124,53 @@ select option {
   vertical-align: middle;
 }
 
-#theme-select:focus {
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.25);
+#theme-select:focus,
+select:focus,
+input:focus {
   outline: none;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 0 3px rgba(255, 82, 82, 0.3);
 }
 
-/* Buttons */
+select option {
+  background-color: var(--input-bg);
+  color: var(--text-color);
+}
+
+/* === FORMAT BUTTONS === */
+#format-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+#format-buttons button {
+  padding: 0.7rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  background-color: transparent;
+  color: var(--text-color);
+  border: 2px solid var(--border-color);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 0 0 auto;
+}
+
+#format-buttons button:hover {
+  background-color: var(--border-color);
+}
+
+#format-buttons button.active {
+  background-color: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+/* === BUTTONS === */
 button {
   display: block;
   width: 100%;
@@ -145,14 +184,14 @@ button {
   cursor: pointer;
   margin-top: 1.5rem;
   transition: background-color 0.3s ease, transform 0.15s ease;
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.3);
 }
 
 button:hover {
   background-color: #e62e26;
-  transform: scale(1.02);
+  transform: translateY(-1px) scale(1.03);
 }
 
-/* Result display */
 #spinner {
   text-align: center;
   font-size: 1.1rem;
@@ -171,6 +210,14 @@ pre#result {
   font-family: 'Courier New', monospace;
   color: var(--text-color);
   transition: background-color 0.3s ease;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+pre#result.show {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 #copy-button {
@@ -182,37 +229,4 @@ pre#result {
   color: var(--bg-color);
   width: 100%;
   font-weight: 600;
-}
-
-/* === Format Button Toggle === */
-#format-buttons {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
-  margin-bottom: 2.5rem;
-}
-
-#format-buttons button {
-  flex: 1 1 auto;
-  min-width: 140px;
-  padding: 0.85rem 1.25rem;
-  font-size: 1.05rem;
-  font-weight: 600;
-  background-color: transparent;
-  color: var(--text-color);
-  border: 2px solid var(--border-color);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-#format-buttons button:hover {
-  background-color: var(--border-color);
-}
-
-#format-buttons button.active {
-  background-color: var(--accent-color);
-  border-color: var(--accent-color);
-  color: #fff;
 }
