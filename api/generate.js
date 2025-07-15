@@ -62,17 +62,17 @@ Buzzwords & Bullsh*t Theme: ${buzzTopic}
       break;
 
     case 'Fill in the Bleep!':
-      prompt = `Create a short, funny Mad Libs-style story titled "${storyTitle}". The story should include and emphasize the following:
+      prompt = `Create a short, funny Mad Libs-style story titled "${storyTitle}". Use the following words in unexpected and absurd ways:
 
-- A noun: ${noun1}
-- An adjective: ${adjective}
-- A place: ${place}
+- Noun: ${noun1}
+- Adjective: ${adjective}
+- Place: ${place}
 - Another noun: ${noun2}
-- A verb: ${verb}
+- Verb: ${verb}
 - Random thing 1: ${random1}
 - Random thing 2: ${random2}
 
-Output the complete story in 3–5 short paragraphs using these words in absurd or unexpected ways. End with a silly twist.`;
+The story should be 3–5 short paragraphs, feel like a classic Mad Libs, and playfully exaggerate the use of the words. It should be absurd, energetic, and inspired by the story title. No need for a twist ending — just make it fun and wild.`;
       break;
 
     default:
