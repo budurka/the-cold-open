@@ -32,7 +32,15 @@ export default async function handler(req, res) {
 
   switch (format) {
     case 'Taboops!':
-      prompt = `Create a new Taboo-style card. The guess word is "${tabooWord}". List five creative words that are not allowed to be said during the game. Format the output as:
+      prompt = `Create a Taboo-style party game card using the word "${tabooWord}" as the guess word.
+
+List 5 creative, unexpected *banned words* the player can't say — but make them juicy.
+
+Tone: ${afterDark
+        ? 'Very adult, unfiltered, a little dirty, innuendo-heavy. Think Cards Against Humanity meets Taboo.'
+        : 'Playful, clever, and family-friendly — suitable for all ages.'}
+
+Output format:
 
 Word: ${tabooWord}
 Taboo Words:
@@ -40,9 +48,7 @@ Taboo Words:
 2.
 3.
 4.
-5.
-
-Tone: ${afterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-friendly'}.`;
+5.`;
       break;
 
     case 'Buzzwords & Bullsh*t':
