@@ -4,7 +4,6 @@ export default async function handler(req, res) {
   }
 
   const { format, input } = req.body;
-
   const prompt = generatePrompt(format, input);
 
   try {
@@ -15,41 +14,48 @@ export default async function handler(req, res) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3-8b-instruct",
+        model: "meta-llama/llama-3.2-3b-instruct:free",
         messages: [
-          { role: "system", content: "You are a creative assistant for a live improv show generator site." },
-          { role: "user", content: prompt }
+          {
+            role: "system",
+            content: "You are a funny and creative improv assistant who generates scenes based on short prompts."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
         ],
-        temperature: 0.9
+        temperature: 0.85
       })
     });
 
     const data = await response.json();
 
-    if (!data.choices || !data.choices[0]?.message?.content) {
+    const content = data?.choices?.[0]?.message?.content;
+    if (!content) {
       return res.status(500).json({ result: "No response from model." });
     }
 
-    res.status(200).json({ result: data.choices[0].message.content });
+    return res.status(200).json({ result: content.trim() });
   } catch (error) {
-    console.error("Error generating response:", error);
-    res.status(500).json({ result: "Something went wrong." });
+    console.error("Fetch error:", error);
+    return res.status(500).json({ result: "Something went wrong." });
   }
 }
 
 function generatePrompt(format, input) {
   switch (format) {
     case "Taboops!":
-      return `You're hosting a taboo-style game show. A contestant accidentally says the taboo word "${input}". Set the scene and escalate the chaos.`;
+      return `A contestant says the taboo word "${input}". Write a chaotic game show scene where things go off the rails. Keep it funny and exaggerated.`;
 
     case "Buzzwords & Bullsh*t":
-      return `Use corporate buzzwords to deliver an overly dramatic announcement about: ${input}. Make it confusing, cringey, and full of flair.`;
+      return `Write a fake over-the-top corporate announcement using buzzwords about: ${input}. Make it cringe-worthy and dramatic.`;
 
     case "Fill In The Bleep!":
       const [title, ...words] = input.split(" | ");
-      return `Create a short Mad Libs-style story titled "${title}". Use these audience-supplied words in fun and absurd ways: ${words.join(", ")}. Format it like a short dramatic scene.`;
+      return `Create a short silly Mad Libs story titled "${title}". Use these audience words in weird and funny ways: ${words.join(", ")}.`;
 
     default:
-      return `Create a hilarious improv show concept using this audience input: ${input}`;
+      return `Use this audience suggestion to generate a short improv show idea: ${input}`;
   }
 }
