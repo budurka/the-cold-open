@@ -4,6 +4,8 @@ const resultBox = document.getElementById("result");
 const spinner = document.getElementById("spinner");
 const copyBtn = document.getElementById("copy-button");
 const toggleBtn = document.getElementById("theme-toggle");
+const afterDarkToggle = document.getElementById("after-dark-toggle");
+const afterDarkCheckbox = document.getElementById("after-dark-checkbox");
 
 const formatFields = {
   "Taboops!": [
@@ -12,12 +14,12 @@ const formatFields = {
   "Buzzwords & Bullsh*t": [
     { id: "topic", label: "Topic or Theme" }
   ],
-  "Fill In The Bleep!": [
-    { id: "title", label: "Name of the Story You Wish Existed" },
+  "Fill in the Bleep!": [
+    { id: "title", label: "Story Title" },
     { id: "noun1", label: "Noun" },
     { id: "adjective", label: "Adjective" },
     { id: "place", label: "Place" },
-    { id: "noun2", label: "Another Noun" },
+    { id: "noun2", label: "Second Noun" },
     { id: "verb", label: "Verb" },
     { id: "random1", label: "Random Thing 1" },
     { id: "random2", label: "Random Thing 2" }
@@ -26,8 +28,9 @@ const formatFields = {
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
-  resultBox.textContent = ""; // Auto-clear result when format changes
+  resultBox.textContent = "";
   copyBtn.style.display = "none";
+  afterDarkToggle.style.display = format === "Taboops!" ? "block" : "none";
 
   if (!formatFields[format]) return;
 
@@ -60,6 +63,10 @@ document.getElementById("generate").addEventListener("click", async () => {
     inputPairs.push(`${label.textContent}: ${input.value}`);
   });
 
+  if (format === "Taboops!" && afterDarkCheckbox.checked) {
+    inputPairs.push("Taboo After Dark: true");
+  }
+
   spinner.style.display = "block";
   resultBox.textContent = "";
   copyBtn.style.display = "none";
@@ -68,7 +75,10 @@ document.getElementById("generate").addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, input: inputPairs.join(" | ") })
+      body: JSON.stringify({
+        format,
+        input: inputPairs.join(" | ")
+      })
     });
 
     const data = await res.json();
@@ -89,15 +99,7 @@ copyBtn.addEventListener("click", () => {
 });
 
 toggleBtn.addEventListener("click", () => {
-  const isDark = document.body.classList.contains("dark");
-
-  if (isDark) {
-    document.body.classList.remove("dark");
-    document.body.classList.add("light");
-    toggleBtn.textContent = "🌙";
-  } else {
-    document.body.classList.remove("light");
-    document.body.classList.add("dark");
-    toggleBtn.textContent = "☀️";
-  }
+  const isDark = document.body.classList.toggle("dark");
+  document.body.classList.toggle("light", !isDark);
+  toggleBtn.classList.toggle("active");
 });
