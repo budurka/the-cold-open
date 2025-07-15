@@ -3,12 +3,29 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { format, tabooWord, afterDark, buzzTopic, storyTitle, noun1, adjective, place, noun2, verb, random1, random2 } = req.body;
+  const {
+    format,
+    inputs: {
+      tabooWord,
+      afterDark,
+      buzzTopic,
+      storyTitle,
+      noun1,
+      adjective,
+      place,
+      noun2,
+      verb,
+      random1,
+      random2
+    } = {}
+  } = req.body;
 
   let prompt = '';
 
   switch (format) {
     case 'Taboops!':
+      if (!tabooWord) return res.status(400).json({ error: 'Missing taboo word.' });
+
       prompt = `Create a new Taboo-style card. The guess word is "${tabooWord}". List five creative words that are not allowed to be said during the game. Format the output as:
 
 Word: ${tabooWord}
@@ -23,10 +40,19 @@ Tone: ${afterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-fr
       break;
 
     case 'Buzzwords & Bullsh*t':
+      if (!buzzTopic) return res.status(400).json({ error: 'Missing buzzword or topic.' });
+
       prompt = `You are a jaded corporate trainer. Create a fake, over-the-top corporate presentation opener that uses the buzzword "${buzzTopic}" in an absurd context. Make it sound dramatic, cheesy, and filled with meaningless jargon.`;
       break;
 
     case 'Fill in the Bleep!':
+      if (
+        !storyTitle || !noun1 || !adjective || !place ||
+        !noun2 || !verb || !random1 || !random2
+      ) {
+        return res.status(400).json({ error: 'Missing fields for Fill in the Bleep.' });
+      }
+
       prompt = `Create a short, funny Mad Libs-style story titled "${storyTitle}". The story should include and emphasize the following:
 
 - A noun: ${noun1}
@@ -70,7 +96,7 @@ Output the complete story in 3–5 short paragraphs using these words in absurd 
 
     const data = await response.json();
 
-    if (data && data.choices && data.choices.length > 0) {
+    if (data?.choices?.[0]?.message?.content) {
       return res.status(200).json({ result: data.choices[0].message.content });
     } else {
       return res.status(500).json({ error: 'No response from model.' });
