@@ -1,103 +1,71 @@
 body {
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: system-ui, sans-serif;
   margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff;
-  color: #000000;
+  padding: 2rem;
   transition: background-color 0.3s, color 0.3s;
 }
 
-.wrapper {
-  width: 90%;
+.container {
   max-width: 600px;
-  padding: 2rem;
+  margin: auto;
   text-align: center;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-  border-radius: 12px;
-  background-color: #f9f9f9;
 }
 
-.title {
+h1 {
   font-size: 2.5rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 label {
   display: block;
-  margin: 1.5rem 0 0.5rem;
-  font-weight: 600;
+  margin: 1rem 0 0.5rem;
 }
 
-select,
-input {
+select, input, button {
   width: 100%;
   padding: 0.75rem;
   font-size: 1rem;
   margin-bottom: 1rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-
-button {
-  display: inline-block;
-  padding: 0.75rem 1.25rem;
-  margin-top: 1rem;
-  font-size: 1rem;
-  font-weight: bold;
-  border: none;
-  border-radius: 6px;
-  background-color: #007bff;
-  color: #ffffff;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-button:hover {
-  background-color: #0056b3;
 }
 
 pre {
-  background-color: #f0f0f0;
-  border: 1px dashed #bbb;
+  border: 1px dashed #999;
   padding: 1rem;
-  min-height: 120px;
+  min-height: 100px;
   white-space: pre-wrap;
   word-wrap: break-word;
-  text-align: left;
-  border-radius: 8px;
-  margin-top: 1rem;
+  background-color: #f8f8f8;
+}
+
+button {
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: white;
 }
 
 #spinner {
   font-style: italic;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.light {
+  background-color: #ffffff;
+  color: #000000;
 }
 
 .dark {
   background-color: #121212;
-  color: #f1f1f1;
-}
-
-.dark .wrapper {
-  background-color: #1e1e1e;
+  color: #ffffff;
 }
 
 .dark pre {
-  background-color: #2b2b2b;
-  color: #f8f8f8;
+  background-color: #1e1e1e;
+  color: #f1f1f1;
 }
 
 #theme-toggle {
-  background-color: #555;
-  color: white;
-  margin-top: 2rem;
-}
-
-.dark #theme-toggle {
-  background-color: #ddd;
-  color: black;
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin-top: 1rem;
 }

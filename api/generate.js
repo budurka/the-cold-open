@@ -1,65 +1,42 @@
+import { OpenAI } from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+    return res.status(405).end();
+  }
+
+  const { format, input } = req.body;
+
+  let prompt = "";
+
+  if (format === "Taboops!") {
+    prompt = `You are a creative AI used in a live improv comedy show. Your job is to generate a hilarious setup for the game Taboops! using the provided taboo word. Only respond with a single scene idea that follows this structure:
+
+**Title: [Funny Scene Name]**
+
+Welcome to **Taboops!** The hilarious show where the performers have to avoid the word '[TABOO WORD]'. The cast must perform a series of scenes where this word is forbidden. If someone says it, a punishment happens (like interpretive dance, weird noise, or buzzers). Here's your scene idea:
+
+Taboo Word: ${input}`;
+  } else if (format === "Buzzwords & Bullsh*t") {
+    prompt = `You are a creative AI designing cards for a party game like Cards Against Humanity or Apples to Apples. Your goal is to create 10 outrageous, funny, or clever cards based on the user's input. Each card should be one line and reflect the theme.
+
+User Prompt: ${input}`;
+  } else {
+    prompt = `Generate a comedy improv idea based on: ${input}`;
   }
 
   try {
-    const { format, input } = req.body;
-
-    if (!format || !input) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-
-    // Handle each format with its own specialized prompt
-    let prompt;
-
-    if (format === "Taboops!") {
-      prompt = `You are designing a Taboo-style game card. The card has one main word that the player must guess, and five \"taboo\" words that the clue-giver cannot say.
-
-Create a single funny card that fits the following theme:
-\"${input}\"
-
-Return only the card in this format:
-
-**Guess Word:** <word>
-**Taboo Words:** <word 1>, <word 2>, <word 3>, <word 4>, <word 5>`;
-    } else if (format === "Buzzwords & Bullsh*t") {
-      prompt = `You are a comedy writer creating content for a party card game like Cards Against Humanity or Incohearent.
-
-Create 10 hilarious card entries based on the following theme:
-\"${input}\"
-
-Return just the 10 card phrases in a simple numbered list, no intro or extra commentary.`;
-    } else {
-      return res.status(400).json({ error: "Unsupported format" });
-    }
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model: "gpt-4",
-        messages: [{ role: "user", content: prompt }],
-        temperature: 0.8,
-        max_tokens: 500
-      })
+    const chat = await openai.chat.completions.create({
+      messages: [{ role: "user", content: prompt }],
+      model: "gpt-4",
     });
 
-    const data = await response.json();
-
-    if (data?.choices?.length > 0) {
-      const output = data.choices[0].message.content;
-      return res.status(200).json({ result: output });
-    }
-
-    return res.status(500).json({ error: "No response from OpenAI", data });
-  } catch (err) {
-    console.error("❌ API Error:", err);
-    return res.status(500).json({ error: "Something went wrong", details: err.message });
+    res.status(200).json({ result: chat.choices[0].message.content });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 }

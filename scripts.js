@@ -6,36 +6,31 @@ const copyBtn = document.getElementById("copy-button");
 const toggleBtn = document.getElementById("theme-toggle");
 
 const formatFields = {
-  "Taboops!": [
-    { id: "word", label: "Taboo Word" }
-  ],
-  "Buzzwords & Bullsh*t": [
-    { id: "topic", label: "What kind of card game are you making?" }
+  "🧠 Taboops!": [{ id: "word", label: "Taboo Word" }],
+  "🧩 Buzzwords & Bullsh*t": [
+    { id: "topic", label: "Topic or Theme" },
+    { id: "quantity", label: "How many?" }
   ]
 };
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
   if (!formatFields[format]) return;
-
   formatFields[format].forEach(({ id, label }) => {
     const labelEl = document.createElement("label");
     labelEl.setAttribute("for", id);
     labelEl.textContent = label;
-
     const inputEl = document.createElement("input");
     inputEl.type = "text";
     inputEl.id = id;
     inputEl.name = id;
-
     fieldsContainer.appendChild(labelEl);
     fieldsContainer.appendChild(inputEl);
   });
 }
 
 formatSelector.addEventListener("change", () => {
-  const selectedFormat = formatSelector.value;
-  renderFields(selectedFormat);
+  renderFields(formatSelector.value);
 });
 
 document.getElementById("generate").addEventListener("click", async () => {
@@ -58,7 +53,6 @@ document.getElementById("generate").addEventListener("click", async () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ format, input: inputPairs.join(" | ") })
     });
-
     const data = await res.json();
     resultBox.textContent = data.result || "No response.";
     copyBtn.style.display = "inline-block";
