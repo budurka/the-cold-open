@@ -6,26 +6,11 @@ const copyBtn = document.getElementById("copy-button");
 const toggleBtn = document.getElementById("theme-toggle");
 
 const formatFields = {
-  "P-AI-lot Episode": [
-    { id: "location", label: "Bizarre Location" },
-    { id: "object", label: "Unlikely Object" },
-    { id: "emotion", label: "Over-the-top Emotion or Goal" }
-  ],
-  "Trailer Trash": [
-    { id: "concept", label: "Concept or Keyword(s)" }
-  ],
-  "Game Show Mayhem": [
-    { id: "classic", label: "Classic Game" }
-  ],
-  "Real Drama": [
-    { id: "setting", label: "Location or Type of Drama" }
-  ],
   "Taboops!": [
     { id: "word", label: "Taboo Word" }
   ],
   "Buzzwords & Bullsh*t": [
-    { id: "topic", label: "Topic or Theme" },
-    { id: "quantity", label: "How many?" }
+    { id: "topic", label: "Topic or Theme" }
   ]
 };
 
@@ -47,6 +32,9 @@ function renderFields(format) {
     fieldsContainer.appendChild(inputEl);
   });
 }
+
+// Load fields for default selected format
+renderFields(formatSelector.value);
 
 formatSelector.addEventListener("change", () => {
   renderFields(formatSelector.value);
