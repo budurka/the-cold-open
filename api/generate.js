@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     noun2,
     verb,
     random1,
-    random2,
+    random2
   } = req.body;
 
   const fallbackMessages = [
@@ -42,27 +42,24 @@ Taboo Words:
 4.
 5.
 
-Tone: ${afterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-friendly'}.`;
+Tone: ${afterDark ? 'lean into adult humor and innuendo (but not crude for crude’s sake)' : 'keep it weird and family-friendly fun'}. Be clever.`;
       break;
 
     case 'Buzzwords & Bullsh*t':
       prompt = `You are a comedy writer creating content for a party card game like Cards Against Humanity or Incohearent.
 
-Create 10 hilarious card entries based on the following theme: "${buzzTopic}".
+Create a themed card pack with 10 funny, absurd, or buzzword-filled entries based on this topic: "${buzzTopic}".
 
-Each entry should be short (1–6 words), ridiculous, punchy, and absurdly specific. Prioritize irony, adult humor, unexpected combinations, and pop culture twists. Avoid explanations or intros — just return the list in this format:
+Each entry should be a short phrase, slang expression, pun, or fake corporate buzzword. Keep it clever, weird, and usable in a live improv setting.
 
-Buzzwords & Bullsh*t Theme: ${buzzTopic}
-
-1.
-2.
-3.
-...
-10.`;
+Output:
+- A short theme label
+- A numbered list of 10 words or phrases
+- A fun challenge or usage suggestion (e.g., “Sneak these into a TED Talk” or “Act out a product pitch”)`;
       break;
 
     case 'Fill in the Bleep!':
-      prompt = `Create a short, funny Mad Libs-style story titled "${storyTitle}". Use the following words in unexpected and absurd ways:
+      prompt = `Write a ridiculous, Mad Libs-style story titled "${storyTitle}". Use all of the following words in the story in chaotic and unexpected ways:
 
 - Noun: ${noun1}
 - Adjective: ${adjective}
@@ -72,7 +69,7 @@ Buzzwords & Bullsh*t Theme: ${buzzTopic}
 - Random thing 1: ${random1}
 - Random thing 2: ${random2}
 
-The story should be 3–5 short paragraphs, feel like a classic Mad Libs, and playfully exaggerate the use of the words. It should be absurd, energetic, and inspired by the story title. No need for a twist ending — just make it fun and wild.`;
+The story should be 3–5 SHORT paragraphs, very weird, fast-paced, and full of punchy imagery. Treat the title like a creative theme, not a romance. Don't over-explain, don't make it serious. Just wild, funny, and playful. Avoid any twist endings.`;
       break;
 
     default:
@@ -91,7 +88,7 @@ The story should be 3–5 short paragraphs, feel like a classic Mad Libs, and pl
         messages: [
           {
             role: 'system',
-            content: 'You are a witty and imaginative improvisation game generator. Respond only with the generated scene or list—no extra commentary.',
+            content: 'You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.',
           },
           {
             role: 'user',
@@ -99,7 +96,7 @@ The story should be 3–5 short paragraphs, feel like a classic Mad Libs, and pl
           },
         ],
         temperature: 0.85,
-        max_tokens: 1000,
+        max_tokens: 800,
       }),
     });
 
