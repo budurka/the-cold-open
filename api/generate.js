@@ -11,13 +11,13 @@ export default async function handler(req, res) {
     }
 
     const apiKey = process.env.OPENROUTER_API_KEY;
-    const endpoint = "https://openrouter.ai/api/v1/chat/completions";
-    const model = "meta-llama/llama-3-70b-instruct"; // or try claude-3-opus or another
+    const endpoint = "https://openrouter.ai/api/v1/chat";
 
     let prompt = "";
 
     switch (format) {
-      case "Taboops!":
+      case "Taboops!": {
+        const tabooWord = input.split(": ")[1];
         prompt = `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
 
 Respond with:
@@ -25,45 +25,67 @@ Respond with:
 - A **short, playful rule** for the performers based on the input word
 - A **bulleted list** of 5 to 7 "taboo" words the performers must avoid
 
-Taboo word: ${input}`;
+Taboo word: ${tabooWord}`;
         break;
+      }
 
-      case "Buzzwords & Bullsh*t":
-        prompt = `You are a creative AI that invents hilarious party card content for a Cards Against Humanity-style game.
+      case "Buzzwords & Bullsh*t": {
+        const topic = input.split(": ")[1];
+        prompt = `You're an over-the-top consultant who turns boring business topics into absurd corporate jargon.
 
-Topic: ${input}
+Topic: ${topic}
 
-Generate 10 funny, absurd, or outrageous phrases, quotes, or ideas that would be cards in this themed party game. Keep the tone edgy but playful. Format them as a simple bullet list.`;
+Generate a hilarious "corporate innovation pitch" that includes:
+- A **bold, nonsense slogan**
+- 3 **buzzword-packed bullet points**
+- A **closing line** that’s all flair, no substance.
+
+Use parody and satire. This will be read out loud at a comedy show.`;
         break;
+      }
 
-      case "Fill in the Bleep!":
-        const [ideaLine, wordsLine] = input.split(" | ");
-        const storyIdea = ideaLine?.replace("General Story Idea: ", "").trim();
-        const wordList = wordsLine?.replace("List 2–8 Random Words: ", "").trim();
+      case "Fill in the Bleep!": {
+        const lines = input.split(" | ");
+        const values = Object.fromEntries(lines.map(line => {
+          const [key, val] = line.split(": ");
+          return [key.toLowerCase(), val];
+        }));
 
-        prompt = `You are a creative AI crafting a Mad Libs-style short story for an improv comedy show.
+        prompt = `You are a creative AI crafting a Mad Libs-style story for a live improv comedy show.
 
-Story premise: ${storyIdea}
-Words to include: ${wordList}
+**Story idea:** ${values["what should the story be about?"]}
+**Words to include:**
+- Noun: ${values["noun"]}
+- Adjective: ${values["adjective"]}
+- Place: ${values["place"]}
+- Another Noun: ${values["another noun"]}
+- Verb: ${values["verb"]}
+- Random Thing #1: ${values["random thing #1"]}
+- Random Thing #2: ${values["random thing #2"]}
 
-Write a short, absurd, and energetic story (3–5 sentences) that uses these words as blanks filled in for comedic effect. Bold the filled-in words in the output. Format it so it can be read aloud on stage.`;
+Write a funny 3–5 sentence Mad Libs-style short story using all the words above. Bold each audience-supplied word in the story. Keep it absurd, high-energy, and use the story idea as inspiration.`;
         break;
+      }
 
-      default:
-        prompt = `You are a creative AI for a live improv comedy site. Format not recognized. Respond with a funny one-liner instead.`;
+      default: {
+        prompt = `You are a creative AI used in a live improv comedy show. Your job is to generate one of several hilarious show formats for human performers based on audience suggestions.
+
+You never write full scenes. Your responses are short, clear, and formatted to be read aloud on stage. Always respond with bolded section titles and a fun tone. Each format is under 200 words.
+
+Format: ${format}
+Input: ${input}`;
         break;
+      }
     }
 
     const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json",
-        "HTTP-Referer": "https://your-site-name.com", // Optional for OpenRouter tracking
-        "X-Title": "The Cold Open Generator"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model,
+        model: "openai/gpt-4",
         messages: [
           {
             role: "system",
@@ -80,9 +102,8 @@ Write a short, absurd, and energetic story (3–5 sentences) that uses these wor
 
     const data = await response.json();
 
-    if (data?.choices?.length > 0) {
-      const output = data.choices[0].message.content.trim();
-      return res.status(200).json({ result: output });
+    if (data?.choices?.[0]?.message?.content) {
+      return res.status(200).json({ result: data.choices[0].message.content.trim() });
     }
 
     return res.status(500).json({ error: "No response from OpenRouter", data });
