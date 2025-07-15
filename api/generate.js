@@ -15,7 +15,7 @@ export default async function handler(req, res) {
     noun2,
     verb,
     random1,
-    random2
+    random2,
   } = req.body;
 
   const fallbackMessages = [
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
   switch (format) {
     case 'Taboops!':
-      prompt = `Create a new Taboo-style game card. The guess word is "${tabooWord}". Provide five creative and clever words that players are NOT allowed to say when giving clues. Format like this:
+      prompt = `Create a new Taboo-style card. The guess word is "${tabooWord}". List five creative words that are not allowed to be said during the game. Format the output as:
 
 Word: ${tabooWord}
 Taboo Words:
@@ -42,12 +42,23 @@ Taboo Words:
 4.
 5.
 
-Keep it ${afterDark ? "cheeky, suggestive, and a bit naughty (like a late-night game with friends)" : "lighthearted and family-friendly (appropriate for all ages)"}.
-Avoid listing the guess word itself or obvious variations as taboo words. Be creative!`;
+Tone: ${afterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-friendly'}.`;
       break;
 
     case 'Buzzwords & Bullsh*t':
-      prompt = `You are a jaded corporate trainer. Create a fake, over-the-top corporate presentation opener that uses the buzzword "${buzzTopic}" in an absurd context. Make it sound dramatic, cheesy, and filled with meaningless jargon.`;
+      prompt = `You are a comedy writer creating content for a party card game like Cards Against Humanity or Incohearent.
+
+Create 10 hilarious card entries based on the following theme: "${buzzTopic}".
+
+Each entry should be short (1–6 words), ridiculous, punchy, and absurdly specific. Prioritize irony, adult humor, unexpected combinations, and pop culture twists. Avoid explanations or intros — just return the list in this format:
+
+Buzzwords & Bullsh*t Theme: ${buzzTopic}
+
+1.
+2.
+3.
+...
+10.`;
       break;
 
     case 'Fill in the Bleep!':
@@ -61,7 +72,7 @@ Avoid listing the guess word itself or obvious variations as taboo words. Be cre
 - Random thing 1: ${random1}
 - Random thing 2: ${random2}
 
-Use these in hilarious, unexpected ways over 3–5 short paragraphs. Wrap it up with a silly twist. Keep the tone playful and imaginative.`;
+Output the complete story in 3–5 short paragraphs using these words in absurd or unexpected ways. End with a silly twist.`;
       break;
 
     default:
@@ -88,7 +99,7 @@ Use these in hilarious, unexpected ways over 3–5 short paragraphs. Wrap it up 
           },
         ],
         temperature: 0.85,
-        max_tokens: 800,
+        max_tokens: 1000,
       }),
     });
 
