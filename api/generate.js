@@ -1,87 +1,92 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const fetch = require("node-fetch");
-require("dotenv").config();
-
-const app = express();
-app.use(bodyParser.json());
-
-const API_URL = "https://openrouter.ai/api/v1/chat/completions";
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-
-function generatePrompt(format, input, options = {}) {
-  const isAdult = options.tabooAfterDark || false;
-
-  switch (format) {
-    case "Taboops!":
-      return isAdult
-        ? `Create a Taboo-style adult party game card using the taboo word "${input}". Include sexual innuendo or adult humor. Provide the card in this format:
-
-Main Word: [Your Taboo Word]  
-Forbidden Words: [Five words or phrases that are closely associated with the main word, which cannot be used as clues]`
-        : `Create a Taboo-style game card using the taboo word "${input}". Provide the card in this format:
-
-Main Word: [Your Taboo Word]  
-Forbidden Words: [Five words or phrases that are closely associated with the main word, which cannot be used as clues]`;
-
-    case "Buzzwords & Bullsh*t":
-      return `Write a short corporate-speak, buzzword-heavy speech or email about: ${input}. Use cliches and vague language.`;
-
-    case "Fill In The Bleep!":
-      return `You are a comedic writer creating a Mad Libs-style story. The user has titled the story: "${input.title}". Use their word submissions below in the story:
-
-Noun: ${input.noun}
-Adjective: ${input.adjective}
-Place: ${input.place}
-Second Noun: ${input.noun2}
-Verb: ${input.verb}
-Random Thing 1: ${input.random1}
-Random Thing 2: ${input.random2}
-
-Write a short, absurd, and funny Mad Libs-style story using these inputs. Make it under 200 words.`;
-
-    default:
-      return `Format not supported.`;
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
-}
 
-app.post("/api/generate", async (req, res) => {
   const { format, input } = req.body;
-  const tabooAfterDark = req.body.tabooAfterDark || false;
 
-  let parsedInput = input;
-  if (format === "Fill In The Bleep!") {
-    try {
-      parsedInput = JSON.parse(input);
-    } catch (e) {
-      return res.status(400).json({ result: "Invalid input format for Fill In The Bleep!" });
-    }
+  let prompt = "";
+
+  if (format === "Taboops!") {
+    const afterDark = input.includes("Taboo After Dark: true");
+    const wordMatch = input.match(/Taboo Word: ([^|]+)/);
+    const word = wordMatch ? wordMatch[1].trim() : "mystery";
+
+    prompt = `Create a new "Taboops!" card based on the taboo word "${word}". 
+Respond only with the card content, in this format:
+
+Taboo Word: [Main word]
+❌ [No word 1]
+❌ [No word 2]
+❌ [No word 3]
+❌ [No word 4]
+❌ [No word 5]
+
+Keep it ${afterDark ? "edgy and adult-themed" : "family-friendly"} and fun.`;
+  } else if (format === "Buzzwords & Bullsh*t") {
+    const topicMatch = input.match(/Topic or Theme: ([^|]+)/);
+    const topic = topicMatch ? topicMatch[1].trim() : "corporate synergy";
+
+    prompt = `Write a short improv game premise for a segment called "Buzzwords & Bullsh*t" based on the topic: "${topic}". 
+Include over-the-top jargon, corporate nonsense, and ridiculous business logic. 
+Make it sound like a motivational meeting gone off the rails.`;
+  } else if (format === "Fill in the Bleep!") {
+    const words = {};
+    input.split("|").forEach(part => {
+      const [label, value] = part.trim().split(":");
+      if (label && value) {
+        words[label.trim().toLowerCase()] = value.trim();
+      }
+    });
+
+    prompt = `Write a short, funny madlibs-style scene based on this idea: "${words["story title"] || "Untitled Adventure"}".
+
+Use the following audience-supplied words:
+- Noun: ${words["noun"] || "cat"}
+- Adjective: ${words["adjective"] || "smelly"}
+- Place: ${words["place"] || "Canada"}
+- Second Noun: ${words["second noun"] || "toaster"}
+- Verb: ${words["verb"] || "yell"}
+- Random Thing 1: ${words["random thing 1"] || "glitter bomb"}
+- Random Thing 2: ${words["random thing 2"] || "left shoe"}
+
+Weave these into a very short, absurd story or sketch that can inspire an improv scene.`;
+  } else {
+    return res.status(400).json({ error: "Unsupported format." });
   }
-
-  const messages = [
-    { role: "system", content: "You are a creative and funny game content generator." },
-    { role: "user", content: generatePrompt(format, parsedInput, { tabooAfterDark }) },
-  ];
 
   try {
-    const response = await fetch(API_URL, {
+    const aiRes = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         model: "meta-llama/llama-3.2-3b-instruct:free",
-        messages,
-      }),
+        messages: [
+          {
+            role: "system",
+            content: "You are a witty improv comedy assistant generating scene inspiration."
+          },
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      })
     });
 
-    const data = await response.json();
-    const result = data?.choices?.[0]?.message?.content;
-    res.json({ result: result || "No response from model." });
-  } catch (error) {
+    const data = await aiRes.json();
+
+    if (!data.choices || !data.choices.length) {
+      return res.status(500).json({ result: "No response from model." });
+    }
+
+    const result = data.choices[0].message.content.trim();
+    res.status(200).json({ result });
+  } catch (err) {
+    console.error("AI error:", err);
     res.status(500).json({ result: "Something went wrong." });
   }
-});
-
-module.exports = app;
+}
