@@ -16,6 +16,9 @@ const formatFields = {
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
+  resultBox.textContent = ""; // Auto-clear result when format changes
+  copyBtn.style.display = "none";
+
   if (!formatFields[format]) return;
 
   formatFields[format].forEach(({ id, label }) => {
@@ -32,9 +35,6 @@ function renderFields(format) {
     fieldsContainer.appendChild(inputEl);
   });
 }
-
-// Load fields for default selected format
-renderFields(formatSelector.value);
 
 formatSelector.addEventListener("change", () => {
   renderFields(formatSelector.value);
@@ -81,4 +81,5 @@ copyBtn.addEventListener("click", () => {
 toggleBtn.addEventListener("click", () => {
   const isDark = document.body.classList.toggle("dark");
   document.body.classList.toggle("light", !isDark);
+  toggleBtn.classList.toggle("active");
 });
