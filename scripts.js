@@ -12,21 +12,21 @@ const formatFields = {
   "Buzzwords & Bullsh*t": [
     { id: "topic", label: "Topic or Theme" }
   ],
-  "Fill in the Bleep!": [
-    { id: "idea", label: "What should the story be about?" },
-    { id: "noun", label: "Noun" },
+  "Fill In The Bleep!": [
+    { id: "title", label: "Name of the Story You Wish Existed" },
+    { id: "noun1", label: "Noun" },
     { id: "adjective", label: "Adjective" },
     { id: "place", label: "Place" },
     { id: "noun2", label: "Another Noun" },
     { id: "verb", label: "Verb" },
-    { id: "random1", label: "Random Thing #1" },
-    { id: "random2", label: "Random Thing #2" }
+    { id: "random1", label: "Random Thing 1" },
+    { id: "random2", label: "Random Thing 2" }
   ]
 };
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
-  resultBox.textContent = ""; // Auto-clear
+  resultBox.textContent = ""; // Auto-clear result when format changes
   copyBtn.style.display = "none";
 
   if (!formatFields[format]) return;
@@ -89,7 +89,15 @@ copyBtn.addEventListener("click", () => {
 });
 
 toggleBtn.addEventListener("click", () => {
-  const isDark = document.body.classList.toggle("dark");
-  document.body.classList.toggle("light", !isDark);
-  toggleBtn.classList.toggle("active");
+  const isDark = document.body.classList.contains("dark");
+
+  if (isDark) {
+    document.body.classList.remove("dark");
+    document.body.classList.add("light");
+    toggleBtn.textContent = "🌙";
+  } else {
+    document.body.classList.remove("light");
+    document.body.classList.add("dark");
+    toggleBtn.textContent = "☀️";
+  }
 });
