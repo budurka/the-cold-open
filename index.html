@@ -23,13 +23,12 @@
     </header>
 
     <main>
-      <label for="format">Choose a Format:</label>
-      <select id="format">
-        <option value="">-- Select Format --</option>
-        <option value="Taboops!">🧠 Taboops!</option>
-        <option value="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</option>
-        <option value="Fill in the Bleep!">📕 Fill in the Bleep!</option>
-      </select>
+      <label>Choose a Format:</label>
+      <div id="format-buttons" class="format-buttons">
+        <button type="button" data-format="Taboops!">🧠 Taboops!</button>
+        <button type="button" data-format="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</button>
+        <button type="button" data-format="Fill in the Bleep!">📕 Fill in the Bleep!</button>
+      </div>
 
       <div id="fields-container"></div>
 
