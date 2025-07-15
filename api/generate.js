@@ -1,99 +1,82 @@
-export const config = {
-  runtime: 'edge',
-};
-
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { format, inputs, isAfterDark } = await req.json();
+  const { format, inputs, isAfterDark } = req.body;
 
-  if (!format) {
-    return new Response(JSON.stringify({ error: 'No format selected' }), {
-      status: 400,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  let prompt = '';
 
-  const prompt = buildPrompt(format, inputs, isAfterDark);
-
-  const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: 'meta-llama/llama-3.2-3b-instruct:free',
-      messages: [
-        {
-          role: 'system',
-          content: 'You are a witty scene and game prompt generator for improv comedy shows. Your answers should be funny, creative, and formatted like a short monologue or setup.',
-        },
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    return new Response(JSON.stringify({ error: `API error: ${errorText}` }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  const data = await response.json();
-  const result = data?.choices?.[0]?.message?.content;
-
-  if (!result) {
-    return new Response(JSON.stringify({ error: 'No response from model.' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
-
-  return new Response(JSON.stringify({ result }), {
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-function buildPrompt(format, inputs, isAfterDark) {
   switch (format) {
-    case 'Taboops!': {
-      const base = `Generate a new Taboo-style card. The guess word is "${inputs.word}". List 5 words that CANNOT be said when describing it. Format the response like:
-GUESS WORD: [word]
-NO WORDS: 1. ..., 2. ..., 3. ..., 4. ..., 5. ...`;
+    case 'Taboops!':
+      prompt = `Create a new Taboo-style card. The guess word is "${inputs.word}". List five creative words that are not allowed to be said during the game. Format the output as:
 
-      const afterDarkTag = isAfterDark
-        ? ' Make the theme spicy, mature, and inappropriate for a family-friendly audience. Add innuendos or raunchy connections.'
-        : ' Keep it clean and PG-rated for a family-friendly audience.';
+Word: ${inputs.word}
+Taboo Words:
+1.
+2.
+3.
+4.
+5.
 
-      return base + afterDarkTag;
-    }
+Tone: ${isAfterDark ? 'spicy and unfiltered, adult humor' : 'playful but family-friendly'}.`;
+      break;
 
     case 'Buzzwords & Bullsh*t':
-      return `Write a scene intro inspired by buzzword "${inputs.buzzword}" in the "${inputs.industry}" industry. Use over-the-top corporate jargon.`;
+      prompt = `You are a jaded corporate trainer. Create a fake, over-the-top corporate presentation opener that uses the buzzword "${inputs.buzzword}" and ties it to the "${inputs.industry}" industry. Make it sound dramatic, cheesy, and filled with meaningless jargon.`;
+      break;
 
     case 'Fill in the Bleep!':
-      return `Create a funny short Mad Libs-style story titled "${inputs.storyTitle}", using the following words:
-- Noun: ${inputs.noun}
-- Adjective: ${inputs.adjective}
-- Place: ${inputs.place}
+      prompt = `Create a short, funny Mad Libs-style story titled "${inputs.storyTitle}". The story should include and emphasize the following:
+
+- A noun: ${inputs.noun}
+- An adjective: ${inputs.adjective}
+- A place: ${inputs.place}
 - Another noun: ${inputs.noun2}
-- Verb: ${inputs.verb}
+- A verb: ${inputs.verb}
 - Random thing 1: ${inputs.random1}
 - Random thing 2: ${inputs.random2}
-Make it absurd and short (under 150 words) and easy to read aloud on stage.`;
+
+Output the complete story in 3–5 short paragraphs using these words in absurd or unexpected ways. End with a silly twist.`;
+      break;
 
     default:
-      return 'Generate a random improv scene prompt.';
+      return res.status(400).json({ error: 'Invalid format' });
+  }
+
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'meta-llama/llama-3.2-3b-instruct:free',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a witty and imaginative improvisation game generator. Respond only with the generated scene or list—no extra commentary.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.85,
+        max_tokens: 800,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data && data.choices && data.choices.length > 0) {
+      return res.status(200).json({ result: data.choices[0].message.content });
+    } else {
+      return res.status(500).json({ error: 'No response from model.' });
+    }
+  } catch (error) {
+    console.error('Error from OpenRouter:', error);
+    return res.status(500).json({ error: 'Something went wrong.' });
   }
 }
