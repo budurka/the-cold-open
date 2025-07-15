@@ -6,10 +6,11 @@ const spinner = document.getElementById("spinner");
 const copyButton = document.getElementById("copy-button");
 const themeSelect = document.getElementById("theme-select");
 
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 
 function applyTheme(theme) {
   if (theme === "system") {
+    document.documentElement.removeAttribute("data-theme");
     document.documentElement.setAttribute(
       "data-theme",
       prefersDark.matches ? "dark" : "light"
@@ -35,9 +36,7 @@ applyTheme(localStorage.getItem("theme") || "system");
 formatSelector.addEventListener("change", () => {
   const format = formatSelector.value;
   fieldsContainer.innerHTML = "";
-
-  // Clear result and hide copy button when switching formats
-  resultEl.textContent = "";
+  resultEl.textContent = ""; // Clear generated result
   copyButton.style.display = "none";
 
   if (format === "Taboops!") {
@@ -108,18 +107,17 @@ generateButton.addEventListener("click", async () => {
   if (!format) return alert("Please select a format.");
 
   if (format === "Taboops!") {
-    const word = document.getElementById("tabooWord")?.value;
+    const tabooWord = document.getElementById("tabooWord")?.value;
     const afterDark = document.getElementById("afterDark")?.checked;
-    if (!word) return alert("Please enter a taboo word.");
-    inputs.word = word;
-    inputs.isAfterDark = afterDark;
+    if (!tabooWord) return alert("Please enter a taboo word.");
+    inputs.tabooWord = tabooWord;
+    inputs.afterDark = afterDark;
   }
 
   if (format === "Buzzwords & Bullsh*t") {
     const buzzword = document.getElementById("buzzTopic")?.value;
     if (!buzzword) return alert("Please enter a buzzword or topic.");
-    inputs.buzzword = buzzword;
-    inputs.industry = "corporate";
+    inputs.buzzTopic = buzzword;
   }
 
   if (format === "Fill in the Bleep!") {
@@ -139,7 +137,7 @@ generateButton.addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, inputs, isAfterDark: inputs.isAfterDark || false }),
+      body: JSON.stringify({ format, ...inputs }),
     });
 
     const data = await res.json();
