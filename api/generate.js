@@ -32,15 +32,7 @@ export default async function handler(req, res) {
 
   switch (format) {
     case 'Taboops!':
-      prompt = `Create a Taboo-style party game card using the word "${tabooWord}" as the guess word.
-
-List 5 creative, unexpected *banned words* the player can't say — but make them juicy.
-
-Tone: ${afterDark
-        ? 'Very adult, unfiltered, a little dirty, innuendo-heavy. Think Cards Against Humanity meets Taboo.'
-        : 'Playful, clever, and family-friendly — suitable for all ages.'}
-
-Output format:
+      prompt = `Create a new Taboo-style game card. The guess word is "${tabooWord}". Provide five creative and clever words that players are NOT allowed to say when giving clues. Format like this:
 
 Word: ${tabooWord}
 Taboo Words:
@@ -48,7 +40,10 @@ Taboo Words:
 2.
 3.
 4.
-5.`;
+5.
+
+Keep it ${afterDark ? "cheeky, suggestive, and a bit naughty (like a late-night game with friends)" : "lighthearted and family-friendly (appropriate for all ages)"}.
+Avoid listing the guess word itself or obvious variations as taboo words. Be creative!`;
       break;
 
     case 'Buzzwords & Bullsh*t':
@@ -66,7 +61,7 @@ Taboo Words:
 - Random thing 1: ${random1}
 - Random thing 2: ${random2}
 
-Output the complete story in 3–5 short paragraphs using these words in absurd or unexpected ways. End with a silly twist.`;
+Use these in hilarious, unexpected ways over 3–5 short paragraphs. Wrap it up with a silly twist. Keep the tone playful and imaginative.`;
       break;
 
     default:
