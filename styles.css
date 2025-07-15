@@ -21,13 +21,13 @@ body {
 
 /* Theme Styles */
 body.light {
-  background: linear-gradient(to bottom right, #ffffff, #f2f2f2);
+  background: #f9f9f9;
   color: #111;
 }
 
 body.dark {
-  background: linear-gradient(to bottom right, #111, #222);
-  color: #f8f8f8;
+  background: #121212;
+  color: #f0f0f0;
 }
 
 /* Header */
@@ -53,20 +53,21 @@ h1 {
 }
 
 #theme-toggle:hover {
-  transform: rotate(15deg);
+  transform: rotate(20deg);
 }
 
 /* Form Controls */
 label {
   display: block;
-  margin-top: 1rem;
+  margin-top: 1.25rem;
   font-weight: 600;
+  font-size: 0.95rem;
 }
 
 input,
 select {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem;
   margin-top: 0.25rem;
   border-radius: 6px;
   border: 1px solid #ccc;
@@ -77,9 +78,9 @@ select {
 
 body.dark input,
 body.dark select {
-  background-color: #333;
+  background-color: #2c2c2c;
   color: #fff;
-  border: 1px solid #666;
+  border: 1px solid #555;
 }
 
 select option {
@@ -91,7 +92,7 @@ select option {
 button {
   padding: 0.75rem 1.25rem;
   font-size: 1rem;
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   border-radius: 8px;
   border: none;
   cursor: pointer;
@@ -99,22 +100,22 @@ button {
 }
 
 #generate {
-  background-color: #e7001e;
+  background-color: #d90429;
   color: #fff;
 }
 
 #generate:hover {
-  background-color: #c10019;
+  background-color: #a90322;
 }
 
 #copy-button {
-  background-color: #555;
+  background-color: #444;
   color: #fff;
   margin-left: 0.5rem;
 }
 
 #copy-button:hover {
-  background-color: #333;
+  background-color: #222;
 }
 
 /* Spinner */
@@ -127,16 +128,18 @@ button {
 pre#result {
   margin-top: 2rem;
   white-space: pre-wrap;
-  background: rgba(0, 0, 0, 0.05);
+  background: rgba(0, 0, 0, 0.04);
   padding: 1rem;
   border-radius: 8px;
   font-size: 1rem;
   line-height: 1.5;
   word-wrap: break-word;
+  border: 1px solid rgba(0,0,0,0.1);
 }
 
 body.dark pre#result {
   background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 /* Responsive */
