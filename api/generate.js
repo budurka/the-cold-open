@@ -3,51 +3,40 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  const { format, input } = req.body;
+
+  if (!format || !input) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  const apiKey = process.env.OPENROUTER_API_KEY; // Store in Vercel or .env
+
+  const prompt =
+    format === "Taboops!"
+      ? `You are a creative AI that generates Taboo-style game cards for a live improv comedy show.
+
+Respond with:
+- A **bolded and punny title** for the card
+- A **short, playful rule** for the performers based on the input word
+- A **bulleted list** of 5 to 7 "taboo" words the performers must avoid
+
+Taboo word: ${input}`
+      : `You are a creative AI used in a live improv comedy show. Your job is to generate one of six hilarious show formats for human performers based on audience suggestions.
+
+You never write full scenes. Your responses are short, clear, and formatted to be read aloud on stage. Always respond with bolded section titles and a fun tone. Each format is under 200 words.
+
+Format: ${format}
+Input: ${input}`;
+
   try {
-    const { format, input } = req.body;
-
-    if (!format || !input) {
-      return res.status(400).json({ error: "Missing required fields" });
-    }
-
-    const apiKey = process.env.OPENAI_API_KEY;
-    const endpoint = "https://api.openai.com/v1/chat/completions";
-
-    let prompt = "";
-
-    if (format === "Taboops!") {
-      prompt = `You are a creative AI generating *Taboo-style improv game cards* for a live comedy show.
-
-Your job:
-1. Create a **punny, bolded title** based on the user's taboo word.
-2. Write a **funny one-sentence rule** for the performers.
-3. List 5–7 *taboo words* that must be avoided.
-
-Your tone is witty, fast-paced, and made to get laughs on stage. Never explain what the game is. Just output the card.
-
-Taboo Word: ${input}`;
-    } else if (format === "Buzzwords & Bullsh*t") {
-      prompt = `You are a creative AI that generates hilarious cards for a party game like Cards Against Humanity or Apples to Apples.
-
-The user will provide a theme. Based on that theme, respond with:
-- A **bolded and witty title**
-- A list of **10 outrageous phrases** that could be cards in that themed deck
-
-Your tone is wild, clever, unexpected, and laugh-out-loud funny. Never explain yourself. Just drop the cards.
-
-Theme: ${input}`;
-    } else {
-      return res.status(400).json({ error: "Unsupported format" });
-    }
-
-    const response = await fetch(endpoint, {
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        model: "gpt-4",
+        model: "meta-llama/llama-3-70b-instruct",
         messages: [
           {
             role: "system",
@@ -65,13 +54,12 @@ Theme: ${input}`;
     const data = await response.json();
 
     if (data?.choices?.length > 0) {
-      const output = data.choices[0].message.content.trim();
-      return res.status(200).json({ result: output });
+      return res.status(200).json({ result: data.choices[0].message.content.trim() });
     }
 
-    return res.status(500).json({ error: "No response from OpenAI", data });
+    return res.status(500).json({ error: "No result returned", data });
   } catch (err) {
-    console.error("❌ API Error:", err);
+    console.error("API Error:", err);
     return res.status(500).json({ error: "Something went wrong", details: err.message });
   }
 }
