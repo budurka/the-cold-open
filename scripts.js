@@ -6,96 +6,95 @@ const spinner = document.getElementById("spinner");
 const copyButton = document.getElementById("copy-button");
 const themeSelect = document.getElementById("theme-select");
 
-// Apply theme preference
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+
 function applyTheme(theme) {
   if (theme === "system") {
     document.documentElement.removeAttribute("data-theme");
+    document.documentElement.setAttribute(
+      "data-theme",
+      prefersDark.matches ? "dark" : "light"
+    );
   } else {
     document.documentElement.setAttribute("data-theme", theme);
   }
   localStorage.setItem("theme", theme);
+  themeSelect.value = theme;
 }
 
-// Initialize theme on load
-const savedTheme = localStorage.getItem("theme") || "system";
-themeSelect.value = savedTheme;
-applyTheme(savedTheme);
-
-// Listen for theme change
-themeSelect.addEventListener("change", () => {
-  const selectedTheme = themeSelect.value;
-  applyTheme(selectedTheme);
+themeSelect.addEventListener("change", (e) => {
+  applyTheme(e.target.value);
 });
 
-// Update fields when format changes
+// React to system theme changes
+prefersDark.addEventListener("change", () => {
+  const saved = localStorage.getItem("theme") || "system";
+  if (saved === "system") applyTheme("system");
+});
+
+applyTheme(localStorage.getItem("theme") || "system");
+
+// Re-render fields based on format
 formatSelector.addEventListener("change", () => {
   const format = formatSelector.value;
   fieldsContainer.innerHTML = "";
 
   if (format === "Taboops!") {
-    const tabooLabel = document.createElement("label");
-    tabooLabel.htmlFor = "tabooWord";
-    tabooLabel.textContent = "Taboo Word:";
+    const label = document.createElement("label");
+    label.textContent = "Taboo Word:";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "tabooWord";
+    input.placeholder = "Enter your taboo word";
 
-    const tabooInput = document.createElement("input");
-    tabooInput.type = "text";
-    tabooInput.id = "tabooWord";
-    tabooInput.placeholder = "Enter your taboo word";
-    tabooInput.required = true;
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.id = "afterDark";
 
-    const afterDarkCheckbox = document.createElement("input");
-    afterDarkCheckbox.type = "checkbox";
-    afterDarkCheckbox.id = "afterDark";
+    const checkboxLabel = document.createElement("label");
+    checkboxLabel.setAttribute("for", "afterDark");
+    checkboxLabel.textContent = "Taboops After Dark 🌒";
 
-    const afterDarkLabel = document.createElement("label");
-    afterDarkLabel.htmlFor = "afterDark";
-    afterDarkLabel.textContent = "Taboops After Dark 🌒";
-
-    fieldsContainer.appendChild(tabooLabel);
-    fieldsContainer.appendChild(tabooInput);
-    fieldsContainer.appendChild(afterDarkCheckbox);
-    fieldsContainer.appendChild(afterDarkLabel);
+    fieldsContainer.appendChild(label);
+    fieldsContainer.appendChild(input);
+    fieldsContainer.appendChild(checkbox);
+    fieldsContainer.appendChild(checkboxLabel);
   }
 
   if (format === "Buzzwords & Bullsh*t") {
-    const buzzLabel = document.createElement("label");
-    buzzLabel.htmlFor = "buzzTopic";
-    buzzLabel.textContent = "Buzzword or Topic:";
+    const label = document.createElement("label");
+    label.textContent = "Buzzword or Topic:";
+    const input = document.createElement("input");
+    input.type = "text";
+    input.id = "buzzTopic";
+    input.placeholder = "Enter a corporate buzzword or topic";
 
-    const buzzInput = document.createElement("input");
-    buzzInput.type = "text";
-    buzzInput.id = "buzzTopic";
-    buzzInput.placeholder = "Enter a corporate buzzword or topic";
-    buzzInput.required = true;
-
-    fieldsContainer.appendChild(buzzLabel);
-    fieldsContainer.appendChild(buzzInput);
+    fieldsContainer.appendChild(label);
+    fieldsContainer.appendChild(input);
   }
 
   if (format === "Fill in the Bleep!") {
     const prompts = [
-      { id: "storyTitle", label: "Story Title or Genre", placeholder: "e.g., The Godfather, Star Wars" },
-      { id: "noun", label: "Noun", placeholder: "Enter a noun" },
+      { id: "storyTitle", label: "Story or Genre", placeholder: "e.g., The Godfather" },
+      { id: "noun1", label: "Noun", placeholder: "Enter a noun" },
       { id: "adjective", label: "Adjective", placeholder: "Enter an adjective" },
       { id: "place", label: "Place", placeholder: "Enter a place" },
       { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
       { id: "verb", label: "Verb", placeholder: "Enter a verb" },
-      { id: "random1", label: "Random Thing #1", placeholder: "Something weird or funny" },
-      { id: "random2", label: "Random Thing #2", placeholder: "Something else strange" },
+      { id: "random1", label: "Random Thing #1", placeholder: "Something silly" },
+      { id: "random2", label: "Random Thing #2", placeholder: "Another weird thing" },
     ];
 
     prompts.forEach(({ id, label, placeholder }) => {
-      const inputLabel = document.createElement("label");
-      inputLabel.htmlFor = id;
-      inputLabel.textContent = label;
+      const labelEl = document.createElement("label");
+      labelEl.textContent = label;
 
       const input = document.createElement("input");
       input.type = "text";
       input.id = id;
       input.placeholder = placeholder;
-      input.required = true;
 
-      fieldsContainer.appendChild(inputLabel);
+      fieldsContainer.appendChild(labelEl);
       fieldsContainer.appendChild(input);
     });
   }
@@ -105,25 +104,29 @@ generateButton.addEventListener("click", async () => {
   const format = formatSelector.value;
   const inputs = {};
 
-  if (!format) return alert("Please select a format first.");
+  if (!format) return alert("Please select a format.");
 
   if (format === "Taboops!") {
-    inputs.word = document.getElementById("tabooWord")?.value;
-    inputs.isAfterDark = document.getElementById("afterDark")?.checked;
-    if (!inputs.word) return alert("Please enter a taboo word.");
+    const word = document.getElementById("tabooWord")?.value;
+    const afterDark = document.getElementById("afterDark")?.checked;
+    if (!word) return alert("Please enter a taboo word.");
+    inputs.word = word;
+    inputs.isAfterDark = afterDark;
   }
 
   if (format === "Buzzwords & Bullsh*t") {
-    inputs.buzzword = document.getElementById("buzzTopic")?.value;
-    if (!inputs.buzzword) return alert("Please enter a buzzword or topic.");
+    const buzzword = document.getElementById("buzzTopic")?.value;
+    if (!buzzword) return alert("Please enter a buzzword or topic.");
+    inputs.buzzword = buzzword;
+    inputs.industry = "corporate";
   }
 
   if (format === "Fill in the Bleep!") {
-    ["storyTitle", "noun", "adjective", "place", "noun2", "verb", "random1", "random2"].forEach((id) => {
-      inputs[id] = document.getElementById(id)?.value;
-    });
-    if (Object.values(inputs).some((v) => !v)) {
-      return alert("Please fill in all the fields for Fill in the Bleep.");
+    const ids = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
+    for (let id of ids) {
+      const val = document.getElementById(id)?.value;
+      if (!val) return alert(`Please enter a value for ${id}.`);
+      inputs[id] = val;
     }
   }
 
@@ -135,7 +138,7 @@ generateButton.addEventListener("click", async () => {
     const res = await fetch("/api/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format, ...inputs }),
+      body: JSON.stringify({ format, inputs, isAfterDark: inputs.isAfterDark || false }),
     });
 
     const data = await res.json();
@@ -154,7 +157,7 @@ copyButton.addEventListener("click", async () => {
     await navigator.clipboard.writeText(resultEl.textContent);
     copyButton.textContent = "✅ Copied!";
     setTimeout(() => (copyButton.textContent = "📋 Copy to Clipboard"), 2000);
-  } catch (err) {
+  } catch {
     copyButton.textContent = "❌ Failed";
   }
 });
