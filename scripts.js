@@ -13,14 +13,14 @@ const formatFields = {
     { id: "topic", label: "Topic or Theme" }
   ],
   "Fill in the Bleep!": [
-    { id: "idea", label: "What's a general story idea or setting?" },
-    { id: "words", label: "Enter 4–8 random words or things" }
+    { id: "story", label: "General Story Idea" },
+    { id: "words", label: "List 2–8 Random Words" }
   ]
 };
 
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
-  resultBox.textContent = ""; // Auto-clear result when format changes
+  resultBox.textContent = "";
   copyBtn.style.display = "none";
 
   if (!formatFields[format]) return;
