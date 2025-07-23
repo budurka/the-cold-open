@@ -50,7 +50,7 @@ function renderFields(format) {
   if (format === "Buzzwords & Bullsh*t") {
     panel.innerHTML = `
       <label for="buzzword">Buzzword or Topic</label>
-      <input type="text" id="buzzword" placeholder="Enter a corporate buzzword">`;
+      <input type="text" id="buzzword" placeholder="e.g., vape store breakroom, Gen Z texts">
   }
 
   if (format === "Fill in the Bleep!") {
