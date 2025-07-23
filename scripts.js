@@ -49,8 +49,8 @@ function renderFields(format) {
 
   if (format === "Buzzwords & Bullsh*t") {
     panel.innerHTML = `
-      <label for="buzzword">Buzzword or Topic</label>
-      <input type="text" id="buzzword" placeholder="e.g., vape store breakroom, Gen Z texts">
+      <label for="buzzword">Give a theme or idea</label>
+      <input type="text" id="buzzword" placeholder="e.g., Ice Cream boardroom, Gen Z texts, haunted HR meeting">`;
   }
 
   if (format === "Fill in the Bleep!") {
@@ -85,7 +85,7 @@ generateButton.addEventListener("click", async () => {
     inputs = { tabooWord: word };
   } else if (currentFormat === "Buzzwords & Bullsh*t") {
     const buzzword = document.getElementById("buzzword").value;
-    if (!buzzword) return alert("Enter a buzzword.");
+    if (!buzzword) return alert("Enter a buzzword or scene idea.");
     inputs = { buzzTopic: buzzword };
   } else if (currentFormat === "Fill in the Bleep!") {
     const ids = ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"];
