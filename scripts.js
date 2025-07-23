@@ -1,121 +1,85 @@
-// scripts.js
-const themeToggle = document.getElementById("theme-toggle");
-const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
-const root = document.documentElement;
+document.addEventListener('DOMContentLoaded', () => {
+  const themeToggle = document.getElementById('theme-toggle');
+  const formatButtons = document.querySelectorAll('.format-button');
+  const fieldsContainer = document.getElementById('fields-container');
+  const generateButton = document.getElementById('generate');
+  const resultBox = document.getElementById('result');
 
-function applyTheme(theme) {
-  root.setAttribute("data-theme", theme);
-  localStorage.setItem("theme", theme);
-}
+  const fieldTemplates = {
+    'Taboops!': [
+      { label: 'Taboo Word', placeholder: 'Enter your taboo word' }
+    ],
+    'Buzzwords & Bullsh*t': [
+      { label: 'Theme', placeholder: "e.g., Things you'd hear in an ice cream boardroom" }
+    ],
+    'Fill in the Bleep!': [
+      { label: 'Story or Genre', placeholder: 'e.g., The Godfather' },
+      { label: 'Noun', placeholder: 'Enter a noun' },
+      { label: 'Adjective', placeholder: 'Enter an adjective' },
+      { label: 'Place', placeholder: 'Enter a place' },
+      { label: 'Another Noun', placeholder: 'Enter another noun' },
+      { label: 'Verb', placeholder: 'Enter a verb' },
+      { label: 'Random Thing #1', placeholder: 'Something silly' },
+      { label: 'Random Thing #2', placeholder: 'Another weird thing' }
+    ]
+  };
 
-function toggleTheme() {
-  const newTheme = themeToggle.checked ? "dark" : "light";
-  applyTheme(newTheme);
-}
+  function updateFields(format) {
+    fieldsContainer.innerHTML = '';
+    const fields = fieldTemplates[format];
+    fields.forEach((field, index) => {
+      const label = document.createElement('label');
+      label.textContent = field.label;
+      label.htmlFor = `input-${index}`;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.id = `input-${index}`;
+      input.placeholder = field.placeholder;
+      input.className = 'input-box';
+      fieldsContainer.appendChild(label);
+      fieldsContainer.appendChild(input);
+    });
+  }
 
-themeToggle.addEventListener("change", toggleTheme);
-
-const savedTheme = localStorage.getItem("theme") || "light";
-themeToggle.checked = savedTheme === "dark";
-applyTheme(savedTheme);
-
-const formatButtons = document.querySelectorAll(".format-button");
-const fieldsContainer = document.getElementById("fields-container");
-const generateButton = document.getElementById("generate");
-const resultBox = document.getElementById("result");
-
-let currentFormat = "Taboops!";
-
-formatButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    formatButtons.forEach((b) => b.classList.remove("active"));
-    button.classList.add("active");
-    currentFormat = button.dataset.format;
-    resultBox.textContent = "";
-    renderFields(currentFormat);
+  formatButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      formatButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      updateFields(btn.dataset.format);
+    });
   });
-});
 
-function renderFields(format) {
-  fieldsContainer.innerHTML = "";
-  const panel = document.createElement("div");
-  panel.className = "input-panel";
+  generateButton.addEventListener('click', async () => {
+    const activeFormat = document.querySelector('.format-button.active').dataset.format;
+    const inputs = Array.from(fieldsContainer.querySelectorAll('input')).map(i => i.value);
+    const body = JSON.stringify({ format: activeFormat, inputs });
 
-  if (format === "Taboops!") {
-    panel.innerHTML = `
-      <div class="field-group">
-        <label for="taboo">Taboo Word</label>
-        <input type="text" id="taboo" placeholder="Enter your taboo word">
-      </div>`;
-  }
+    try {
+      const response = await fetch('/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body
+      });
 
-  if (format === "Buzzwords & Bullsh*t") {
-    panel.innerHTML = `
-      <div class="field-group">
-        <label for="buzzword">Theme</label>
-        <input type="text" id="buzzword" placeholder="e.g., Things you'd hear in an ice cream boardroom">
-      </div>`;
-  }
-
-  if (format === "Fill in the Bleep!") {
-    const prompts = [
-      { id: "story", label: "Story or Genre", placeholder: "e.g., The Godfather" },
-      { id: "noun1", label: "Noun", placeholder: "Enter a noun" },
-      { id: "adj", label: "Adjective", placeholder: "Enter an adjective" },
-      { id: "place", label: "Place", placeholder: "Enter a place" },
-      { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
-      { id: "verb", label: "Verb", placeholder: "Enter a verb" },
-      { id: "random1", label: "Random Thing #1", placeholder: "Something silly" },
-      { id: "random2", label: "Random Thing #2", placeholder: "Another weird thing" }
-    ];
-
-    prompts.forEach(({ id, label, placeholder }) => {
-      const group = document.createElement("div");
-      group.className = "field-group";
-      group.innerHTML = `
-        <label for="${id}">${label}</label>
-        <input type="text" id="${id}" placeholder="${placeholder}">`;
-      panel.appendChild(group);
-    });
-  }
-
-  fieldsContainer.appendChild(panel);
-}
-
-generateButton.addEventListener("click", async () => {
-  let inputs = {};
-  if (currentFormat === "Taboops!") {
-    const word = document.getElementById("taboo").value;
-    if (!word) return alert("Please enter a taboo word.");
-    inputs = { tabooWord: word };
-  } else if (currentFormat === "Buzzwords & Bullsh*t") {
-    const buzzword = document.getElementById("buzzword").value;
-    if (!buzzword) return alert("Enter a theme.");
-    inputs = { buzzTopic: buzzword };
-  } else if (currentFormat === "Fill in the Bleep!") {
-    const ids = ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"];
-    for (const id of ids) {
-      const val = document.getElementById(id).value;
-      if (!val) return alert(`Enter a value for ${id}.`);
-      inputs[id] = val;
+      const data = await response.json();
+      if (data.result) {
+        resultBox.innerHTML = data.result
+          .replace(/(?:\*\*(.*?)\*\*)/g, '<strong>$1</strong>')
+          .replace(/(?:^|\n)(\d+\.)/g, '<br><strong>$1</strong>')
+          .replace(/\n/g, '<br>');
+      } else {
+        resultBox.textContent = '❌ Error generating scene.';
+      }
+    } catch (error) {
+      resultBox.textContent = '❌ Error generating scene.';
     }
-  }
+  });
 
-  resultBox.textContent = "⏳ Generating...";
+  themeToggle.addEventListener('change', () => {
+    const html = document.documentElement;
+    html.setAttribute('data-theme', themeToggle.checked ? 'dark' : 'light');
+  });
 
-  try {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ format: currentFormat, ...inputs }),
-    });
-
-    const data = await res.json();
-    resultBox.textContent = data.result || "No result.";
-  } catch (err) {
-    resultBox.textContent = "❌ Error generating scene.";
-    console.error(err);
-  }
+  // Initialize defaults
+  updateFields('Taboops!');
 });
-
-renderFields(currentFormat);
