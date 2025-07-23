@@ -65,18 +65,23 @@ Tone: ${
         return res.status(400).json({ error: "Missing buzzword topic." });
       }
 
-      prompt = `You are a comedy writer creating content for a party card game like Cards Against Humanity or Incohearent.
+      prompt = `You're writing for a live improv show where players need absurdly believable material.
 
-Create a themed card pack with 10 funny, absurd, or buzzword-filled entries based on this topic: "${clean(
-        buzzTopic
-      )}".
+Your job: Based on the audience topic "${clean(buzzTopic)}", generate a list of 10 phrases, statements, or expressions that are exaggerated, hilarious, or strangely specific — but still sound like something someone might *actually* say.
 
-Each entry should be a short phrase, slang expression, pun, or fake corporate buzzword. Keep it clever, weird, and usable in a live improv setting.
+The phrases should be performable: great for guessing games, parody TED Talks, chaotic debates, character inspiration, or ridiculous exclamations.
+
+Guidelines:
+- Stick to the topic.
+- Avoid made-up words or nonsense slang.
+- Phrases can be questions, exclamations, advice, awkward confessions, or jargony one-liners.
+- Should make people laugh by how *real-but-weird* they sound.
+- Don’t try to explain the jokes. Just list them.
 
 Output:
-- A short theme label
-- A numbered list of 10 words or phrases
-- A fun challenge or usage suggestion (e.g., “Sneak these into a TED Talk” or “Act out a product pitch”)`;
+1. A short theme subheading (based on the topic)
+2. A numbered list of 10 phrases
+3. A brief challenge suggestion (e.g. “Debate these on Shark Tank” or “Use them in a breakup scene”)`;
       break;
 
     case "Fill in the Bleep!":
@@ -100,10 +105,11 @@ Output:
         });
       }
 
-      prompt = `Write a ridiculous, Mad Libs-style story titled "${clean(
-        storyTitle
-      )}". Use all of the following words in the story in chaotic and unexpected ways:
+      prompt = `You're writing a short, fast-paced setup for an improv scene based on this audience-generated title: "${clean(storyTitle)}".
 
+Incorporate all of the following words into the story, but don't over-explain or make it serious. Be funny, weird, and relatable — not random for random’s sake. The story should sound like the *beginning* of something wild, not a complete narrative. Think: “What else could possibly happen?”
+
+Use these words creatively and unexpectedly:
 - Noun: ${clean(noun1)}
 - Adjective: ${clean(adjective)}
 - Place: ${clean(place)}
@@ -112,7 +118,13 @@ Output:
 - Random thing 1: ${clean(random1)}
 - Random thing 2: ${clean(random2)}
 
-The story should be 3–5 SHORT paragraphs, very weird, fast-paced, and full of punchy imagery. Treat the title like a creative theme, not a romance. Don't over-explain, don't make it serious. Just wild, funny, and playful. Avoid any twist endings.`;
+Guidelines:
+- Only 5 to 7 short sentences.
+- Don't end with a twist — leave it open for live performers.
+- Keep the tone ridiculous, performable, and character-driven.
+- Treat the title like a loose creative theme, not a literal plot.
+
+Your job is to tee up the chaos. Let the improvisers finish it.`;
       break;
 
     default:
