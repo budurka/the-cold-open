@@ -1,84 +1,121 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("theme-toggle");
-  const html = document.documentElement;
-  const formatButtons = document.querySelectorAll(".format-button");
-  const fieldsContainer = document.getElementById("fields-container");
-  const generateButton = document.getElementById("generate");
-  const resultBox = document.getElementById("result");
+// scripts.js
+const themeToggle = document.getElementById("theme-toggle");
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+const root = document.documentElement;
 
-  // Theme Toggle
-  themeToggle.addEventListener("change", () => {
-    html.setAttribute("data-theme", themeToggle.checked ? "dark" : "light");
+function applyTheme(theme) {
+  root.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+
+function toggleTheme() {
+  const newTheme = themeToggle.checked ? "dark" : "light";
+  applyTheme(newTheme);
+}
+
+themeToggle.addEventListener("change", toggleTheme);
+
+const savedTheme = localStorage.getItem("theme") || "light";
+themeToggle.checked = savedTheme === "dark";
+applyTheme(savedTheme);
+
+const formatButtons = document.querySelectorAll(".format-button");
+const fieldsContainer = document.getElementById("fields-container");
+const generateButton = document.getElementById("generate");
+const resultBox = document.getElementById("result");
+
+let currentFormat = "Taboops!";
+
+formatButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    formatButtons.forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+    currentFormat = button.dataset.format;
+    resultBox.textContent = "";
+    renderFields(currentFormat);
   });
-
-  // Handle Format Change
-  formatButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      formatButtons.forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
-      generateFields(button.dataset.format);
-    });
-  });
-
-  // Generate based on active format
-  generateButton.addEventListener("click", () => {
-    const format = document.querySelector(".format-button.active").dataset.format;
-    const inputs = fieldsContainer.querySelectorAll("input");
-    const values = Array.from(inputs).map(i => i.value);
-
-    let output = "";
-
-    if (format === "Taboops!") {
-      output = `You can't say: "${values[0]}" — good luck!`;
-    } else if (format === "Buzzwords & Bullsh*t") {
-      const theme = values[0] || "Corporate synergy pitch";
-      const list = Array.from({ length: 10 }, (_, i) => `${i + 1}. ${generateBuzzword()}`);
-      output = `🧩 ${theme} 🧩\n${list.join("\n")}`;
-    } else if (format === "Fill in the Bleep!") {
-      const [story, noun, adj, place, noun2, verb, thing1, thing2] = values;
-      output = `🎬 Title: ${story}\n\nOnce upon a time, a ${adj} ${noun} went to ${place}. There, they met a ${noun2} who made them ${verb}. Then ${thing1} exploded and ${thing2} became president.`;
-    }
-
-    resultBox.textContent = output;
-  });
-
-  function generateFields(format) {
-    fieldsContainer.innerHTML = "";
-
-    if (format === "Taboops!") {
-      fieldsContainer.innerHTML = `<label>Taboo Word<br><input type="text" placeholder="Enter your taboo word" /></label>`;
-    } else if (format === "Buzzwords & Bullsh*t") {
-      fieldsContainer.innerHTML = `<label>Theme<br><input type="text" placeholder="e.g., Things you'd hear in an ice cream boardroom" /></label>`;
-    } else if (format === "Fill in the Bleep!") {
-      fieldsContainer.innerHTML = `
-        <label>Story or Genre<br><input type="text" placeholder="e.g., The Godfather" /></label>
-        <label>Noun<br><input type="text" placeholder="Enter a noun" /></label>
-        <label>Adjective<br><input type="text" placeholder="Enter an adjective" /></label>
-        <label>Place<br><input type="text" placeholder="Enter a place" /></label>
-        <label>Another Noun<br><input type="text" placeholder="Enter another noun" /></label>
-        <label>Verb<br><input type="text" placeholder="Enter a verb" /></label>
-        <label>Random Thing #1<br><input type="text" placeholder="Something silly" /></label>
-        <label>Random Thing #2<br><input type="text" placeholder="Another weird thing" /></label>
-      `;
-    }
-  }
-
-  function generateBuzzword() {
-    const buzz = [
-      "Synergize the sprinkle stack",
-      "Disrupt the fudge layer",
-      "Leverage creamstream innovation",
-      "Reinvent cold chain delight",
-      "Double churn cross-collaboration",
-      "Elevate cone-first thinking",
-      "Gamify the sundae matrix",
-      "Monetize vanilla vision",
-      "Streamline toppings architecture",
-      "Pivot to popsicle-driven ROI"
-    ];
-    return buzz[Math.floor(Math.random() * buzz.length)];
-  }
-
-  // Init default
-  generateFields("Taboops!");
 });
+
+function renderFields(format) {
+  fieldsContainer.innerHTML = "";
+  const panel = document.createElement("div");
+  panel.className = "input-panel";
+
+  if (format === "Taboops!") {
+    panel.innerHTML = `
+      <div class="field-group">
+        <label for="taboo">Taboo Word</label>
+        <input type="text" id="taboo" placeholder="Enter your taboo word">
+      </div>`;
+  }
+
+  if (format === "Buzzwords & Bullsh*t") {
+    panel.innerHTML = `
+      <div class="field-group">
+        <label for="buzzword">Theme</label>
+        <input type="text" id="buzzword" placeholder="e.g., Things you'd hear in an ice cream boardroom">
+      </div>`;
+  }
+
+  if (format === "Fill in the Bleep!") {
+    const prompts = [
+      { id: "story", label: "Story or Genre", placeholder: "e.g., The Godfather" },
+      { id: "noun1", label: "Noun", placeholder: "Enter a noun" },
+      { id: "adj", label: "Adjective", placeholder: "Enter an adjective" },
+      { id: "place", label: "Place", placeholder: "Enter a place" },
+      { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
+      { id: "verb", label: "Verb", placeholder: "Enter a verb" },
+      { id: "random1", label: "Random Thing #1", placeholder: "Something silly" },
+      { id: "random2", label: "Random Thing #2", placeholder: "Another weird thing" }
+    ];
+
+    prompts.forEach(({ id, label, placeholder }) => {
+      const group = document.createElement("div");
+      group.className = "field-group";
+      group.innerHTML = `
+        <label for="${id}">${label}</label>
+        <input type="text" id="${id}" placeholder="${placeholder}">`;
+      panel.appendChild(group);
+    });
+  }
+
+  fieldsContainer.appendChild(panel);
+}
+
+generateButton.addEventListener("click", async () => {
+  let inputs = {};
+  if (currentFormat === "Taboops!") {
+    const word = document.getElementById("taboo").value;
+    if (!word) return alert("Please enter a taboo word.");
+    inputs = { tabooWord: word };
+  } else if (currentFormat === "Buzzwords & Bullsh*t") {
+    const buzzword = document.getElementById("buzzword").value;
+    if (!buzzword) return alert("Enter a theme.");
+    inputs = { buzzTopic: buzzword };
+  } else if (currentFormat === "Fill in the Bleep!") {
+    const ids = ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"];
+    for (const id of ids) {
+      const val = document.getElementById(id).value;
+      if (!val) return alert(`Enter a value for ${id}.`);
+      inputs[id] = val;
+    }
+  }
+
+  resultBox.textContent = "⏳ Generating...";
+
+  try {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ format: currentFormat, ...inputs }),
+    });
+
+    const data = await res.json();
+    resultBox.textContent = data.result || "No result.";
+  } catch (err) {
+    resultBox.textContent = "❌ Error generating scene.";
+    console.error(err);
+  }
+});
+
+renderFields(currentFormat);
