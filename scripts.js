@@ -8,15 +8,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let selectedFormat = null;
 
+  // Handle format button selection
   formatButtons.forEach(button => {
     button.addEventListener("click", () => {
       formatButtons.forEach(btn => btn.classList.remove("active"));
       button.classList.add("active");
-      selectedFormat = button.textContent.trim();
-      renderFields(selectedFormat);
+      selectedFormat = button.dataset.format;
+      renderFields();
     });
   });
 
+  // Generate scene content
   generateBtn.addEventListener("click", () => {
     if (!selectedFormat) {
       resultArea.textContent = "Please select a format.";
@@ -26,14 +28,14 @@ document.addEventListener("DOMContentLoaded", () => {
     resultArea.textContent = "";
     spinner.style.display = "block";
 
-    // Fake loading for demo
     setTimeout(() => {
       const prompt = generatePrompt(selectedFormat);
       resultArea.textContent = prompt;
       spinner.style.display = "none";
-    }, 600);
+    }, 500);
   });
 
+  // Copy result
   copyBtn.addEventListener("click", () => {
     const text = resultArea.textContent;
     if (text) {
@@ -46,48 +48,54 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  // Theme toggle
   themeToggle.addEventListener("change", () => {
-    document.documentElement.setAttribute(
-      "data-theme",
-      themeToggle.checked ? "dark" : "light"
-    );
+    const mode = themeToggle.checked ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme", mode);
   });
 
-  function renderFields(format) {
+  // Update dynamic field rendering
+  function renderFields() {
     const container = document.getElementById("fields-container");
-    const afterDark = document.getElementById("after-dark-container");
-    container.innerHTML = "";
+    const afterDarkContainer = document.getElementById("after-dark-container");
 
-    if (format === "Taboops!") {
+    container.innerHTML = "";
+    afterDarkContainer.style.display = "none";
+
+    if (selectedFormat === "taboops") {
+      const label = document.createElement("label");
+      label.textContent = "Taboo Word:";
+      label.setAttribute("for", "taboo-input");
+
       const input = document.createElement("input");
       input.type = "text";
       input.placeholder = "Enter your taboo word";
       input.id = "taboo-input";
       input.className = "input-field";
+
+      container.appendChild(label);
       container.appendChild(input);
-      afterDark.style.display = "inline-block";
-    } else {
-      afterDark.style.display = "none";
+      afterDarkContainer.style.display = "inline-flex";
     }
   }
 
+  // Generate content per format
   function generatePrompt(format) {
-    if (format === "Taboops!") {
+    if (format === "taboops") {
       const tabooWord = document.getElementById("taboo-input")?.value.trim();
       const isAfterDark = document.getElementById("after-dark")?.checked;
       if (!tabooWord) return "Please enter a taboo word.";
-
-      return `Your scene prompt must avoid saying the word "${tabooWord}".${isAfterDark ? " Watch your mouth—it's After Dark." : ""}`;
+      return `🎭 Avoid saying: "${tabooWord}" in your scene!${isAfterDark ? " And it's After Dark… so no filters allowed. 🌙" : ""}`;
     }
 
-    if (format === "Buzzwords & Bullsh*t") {
-      return `You're in a corporate meeting. Incorporate as many meaningless buzzwords as possible while pretending you know what you're talking about.`;
+    if (format === "buzzwords") {
+      return `📈 Your job: deliver a fake presentation packed with buzzwords like "synergy," "pivot," and "AI-powered innovation."`;
     }
 
-    if (format === "Fill in the Bleep!") {
-      return `You're given a sentence with a missing word—your job is to act out the scene and let your partner figure out the missing "bleep."`;
+    if (format === "bleep") {
+      return `🔇 You've got a key word you're not allowed to say. Act out the scene and let your partner guess the missing "bleep"!`;
     }
 
-    return "Invalid format.";
+    return "Format not recognized.";
   }
 });
