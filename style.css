@@ -1,4 +1,4 @@
-/* Reset & Base */
+/* Base and Reset */
 body {
   margin: 0;
   padding: 0;
@@ -10,27 +10,29 @@ body {
 
 /* Theme Variables */
 :root[data-theme='light'] {
-  --background: #f8f9fa;
-  --text: #212529;
-  --primary: #007bff;
+  --background: #fdfcfc;
+  --text: #1a1a1a;
+  --primary: #b00020;
+  --primary-hover: #8a001a;
   --button-bg: #ffffff;
-  --button-border: #007bff;
+  --button-border: #b00020;
   --input-bg: #ffffff;
-  --input-border: #ced4da;
+  --input-border: #ccc;
   --result-bg: #ffffff;
-  --result-text: #212529;
+  --result-text: #1a1a1a;
 }
 
 :root[data-theme='dark'] {
-  --background: #121212;
-  --text: #e0e0e0;
-  --primary: #90caf9;
-  --button-bg: #1f1f1f;
-  --button-border: #90caf9;
-  --input-bg: #1e1e1e;
+  --background: #1a1a1a;
+  --text: #f0f0f0;
+  --primary: #ff4b5c;
+  --primary-hover: #e63946;
+  --button-bg: #2a2a2a;
+  --button-border: #ff4b5c;
+  --input-bg: #2a2a2a;
   --input-border: #444;
-  --result-bg: #1e1e1e;
-  --result-text: #f1f1f1;
+  --result-bg: #2a2a2a;
+  --result-text: #f0f0f0;
 }
 
 /* Container */
@@ -155,7 +157,7 @@ input:checked + .slider::before {
 }
 
 .generate-button:hover {
-  background-color: darken(var(--primary), 10%);
+  background-color: var(--primary-hover);
 }
 
 /* Result Box */
@@ -177,7 +179,6 @@ input:checked + .slider::before {
   margin: 0;
   font-family: 'Courier New', monospace;
   font-size: 1rem;
-  line-height: 1.6;
   white-space: pre-wrap;
   word-wrap: break-word;
 }
