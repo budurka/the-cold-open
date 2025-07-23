@@ -1,35 +1,38 @@
 :root {
-  --accent: #ff4b4b;
-  --background-light: #ffffff;
-  --background-dark: #1e1e24;
-  --text-light: #000000;
-  --text-dark: #ffffff;
-  --button-hover: #ff3333;
+  --bg-color-light: #ffffff;
+  --bg-color-dark: #121212;
+  --text-color-light: #000000;
+  --text-color-dark: #ffffff;
+  --accent-color: #ff4b4b;
+  --button-bg: #eeeeee;
+  --button-active: #ff4b4b;
+  --button-text: #000;
+  --input-bg: #fff;
+  --input-border: #ccc;
 }
 
-html, body {
+[data-theme='light'] {
+  --bg-color: var(--bg-color-light);
+  --text-color: var(--text-color-light);
+}
+
+[data-theme='dark'] {
+  --bg-color: var(--bg-color-dark);
+  --text-color: var(--text-color-dark);
+}
+
+body {
+  font-family: 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
   margin: 0;
-  padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
-    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-[data-theme="light"] {
-  background-color: var(--background-light);
-  color: var(--text-light);
-}
-
-[data-theme="dark"] {
-  background-color: var(--background-dark);
-  color: var(--text-dark);
+  padding: 2rem;
+  text-align: center;
 }
 
 .container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  text-align: center;
+  max-width: 600px;
+  margin: auto;
 }
 
 h1 {
@@ -38,7 +41,7 @@ h1 {
 }
 
 .subtitle {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   margin-bottom: 2rem;
 }
 
@@ -47,7 +50,6 @@ h1 {
   justify-content: center;
   align-items: center;
   margin-bottom: 1.5rem;
-  gap: 0.5rem;
 }
 
 .switch {
@@ -55,6 +57,7 @@ h1 {
   display: inline-block;
   width: 48px;
   height: 24px;
+  margin-left: 0.5rem;
 }
 
 .switch input {
@@ -66,27 +69,29 @@ h1 {
 .slider {
   position: absolute;
   cursor: pointer;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ccc;
-  border-radius: 34px;
   transition: 0.3s;
+  border-radius: 24px;
 }
 
 .slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
+  height: 20px;
+  width: 20px;
+  left: 2px;
+  bottom: 2px;
   background-color: white;
-  border-radius: 50%;
   transition: 0.3s;
+  border-radius: 50%;
 }
 
 input:checked + .slider {
-  background-color: var(--accent);
+  background-color: var(--accent-color);
 }
 
 input:checked + .slider:before {
@@ -102,70 +107,70 @@ input:checked + .slider:before {
 }
 
 .format-button {
-  background: #eee;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--button-bg);
   border: none;
-  padding: 0.6rem 1rem;
   border-radius: 12px;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
 .format-button.active {
-  background: var(--accent);
-  color: white;
-  box-shadow: 0 0 10px var(--accent);
+  background-color: var(--button-active);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(255, 75, 75, 0.5);
 }
 
 .input-panel {
-  text-align: left;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 1rem;
   margin-bottom: 2rem;
 }
 
-.input-panel label {
-  font-weight: 600;
-  margin-bottom: 0.2rem;
+.field-group {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.input-panel input {
+.field-group label {
+  margin-bottom: 0.3rem;
+  font-weight: bold;
+}
+
+.field-group input {
   width: 100%;
   padding: 0.75rem;
-  font-size: 1rem;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
-  border: 1px solid #ccc;
+  background-color: var(--input-bg);
+  font-size: 1rem;
 }
 
 .generate-button {
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  font-weight: bold;
-  background-color: var(--accent);
-  color: white;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background-color: var(--accent-color);
+  color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: background 0.2s;
-  margin-bottom: 1.5rem;
-}
-
-.generate-button:hover {
-  background-color: var(--button-hover);
+  margin-bottom: 2rem;
 }
 
 .result-box {
   font-size: 1.1rem;
-  text-align: left;
-  white-space: pre-wrap;
-  margin-bottom: 2rem;
+  padding: 1rem;
+  border-radius: 8px;
+  min-height: 60px;
 }
 
 .back-link {
-  display: block;
-  margin-top: 2rem;
-  color: var(--accent);
+  color: var(--accent-color);
   font-weight: bold;
   text-decoration: none;
 }
@@ -174,21 +179,12 @@ input:checked + .slider:before {
   text-decoration: underline;
 }
 
-@media (max-width: 600px) {
-  h1 {
-    font-size: 2rem;
-  }
-
+@media (max-width: 500px) {
   .format-button {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
+    flex: 1 1 100%;
   }
 
-  .generate-button {
-    width: 100%;
-  }
-
-  .input-panel input {
-    font-size: 0.95rem;
+  .field-group input {
+    font-size: 1rem;
   }
 }
