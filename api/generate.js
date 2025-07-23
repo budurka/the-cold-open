@@ -31,7 +31,7 @@ export default async function handler(req, res) {
     random2,
   } = req.body;
 
-  console.log("Incoming request:", req.body); // You can remove or comment out this line
+  console.log("Incoming request:", req.body);
 
   let prompt = "";
 
@@ -147,19 +147,30 @@ The story should be 3–5 SHORT paragraphs, very weird, fast-paced, and full of 
       }
     );
 
-    const data = await response.json();
-    const fallback =
-      fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+    const raw = await response.text();
+    console.log("Raw Groq response:", raw);
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      console.error("JSON parsing failed:", err);
+      return res.status(200).json({
+        result: fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)],
+      });
+    }
 
     if (data && data.choices && data.choices.length > 0) {
       return res.status(200).json({ result: data.choices[0].message.content });
     } else {
-      return res.status(200).json({ result: fallback });
+      return res.status(200).json({
+        result: fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)],
+      });
     }
   } catch (error) {
     console.error("Error from Groq:", error);
-    const fallback =
-      fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
-    return res.status(200).json({ result: fallback });
+    return res.status(200).json({
+      result: fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)],
+    });
   }
 }
