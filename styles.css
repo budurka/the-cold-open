@@ -4,7 +4,7 @@
   --accent: #ff4433;
   --input-bg: #f2f2f2;
   --result-bg: #f6f6f6;
-  --link: #6c2bd9;
+  --link: #555555;
 }
 
 [data-theme="dark"] {
@@ -13,7 +13,7 @@
   --accent: #ff4433;
   --input-bg: #2a2a3d;
   --result-bg: #1a1a2a;
-  --link: #bd93f9;
+  --link: #cccccc;
 }
 
 body {
@@ -66,10 +66,8 @@ h1 {
 
 .slider {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
   background-color: #ccc;
   border-radius: 26px;
   transition: 0.4s;
@@ -78,10 +76,8 @@ h1 {
 .slider:before {
   position: absolute;
   content: "";
-  height: 18px;
-  width: 18px;
-  left: 4px;
-  bottom: 4px;
+  height: 18px; width: 18px;
+  left: 4px; bottom: 4px;
   background-color: white;
   border-radius: 50%;
   transition: 0.4s;
@@ -111,16 +107,16 @@ input:checked + .slider:before {
   color: white;
   border-radius: 0.6rem;
   cursor: pointer;
-  transition: transform 0.1s ease-in-out, background 0.2s;
+  transition: transform 0.1s ease-in-out, box-shadow 0.2s;
+}
+
+.format-button.active {
+  box-shadow: 0 0 10px var(--accent), 0 0 4px var(--accent);
+  z-index: 1;
 }
 
 .format-button:hover {
   transform: scale(1.05);
-}
-
-.format-button.active {
-  background: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .input-panel {
@@ -181,20 +177,9 @@ input:checked + .slider:before {
   color: var(--link);
   text-decoration: underline;
   font-size: 0.95rem;
+  transition: color 0.2s ease-in-out;
 }
 
-/* 💥 Kill the purple glow on focus for all interactive elements */
-button:focus,
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 2px var(--accent) !important;
-  border: 1px solid var(--accent) !important;
-}
-
-.format-button:focus {
-  outline: none !important;
-  box-shadow: none !important;
-  border: none !important;
+.back-link:hover {
+  color: var(--accent);
 }
