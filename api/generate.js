@@ -18,9 +18,9 @@ export default async function handler(req, res) {
 
   const {
     format,
-    tabooWord,
-    buzzTopic,
-    storyTitle,
+    word,
+    buzzword,
+    story,
     noun1,
     adjective,
     place,
@@ -36,15 +36,13 @@ export default async function handler(req, res) {
 
   switch (format) {
     case "Taboops!":
-      if (!tabooWord) {
+      if (!word) {
         return res.status(400).json({ error: "Missing taboo word." });
       }
 
-      prompt = `Create a new Taboo-style card. The guess word is "${clean(tabooWord)}". 
-List five creative words that are not allowed to be said during the game.
+      prompt = `Create a new Taboo-style card. The guess word is "${clean(word)}". List five creative words that are not allowed to be said during the game. Format the output as:
 
-Format:
-Word: ${clean(tabooWord)}
+Word: ${clean(word)}
 Taboo Words:
 1.
 2.
@@ -52,26 +50,28 @@ Taboo Words:
 4.
 5.
 
-Tone: clever, weird, and family-friendly fun — usable in a party or live improv setting.`;
+Tone: keep it weird and family-friendly fun. Be clever.`;
       break;
 
     case "Buzzwords & Bullsh*t":
-      if (!buzzTopic) {
+      if (!buzzword) {
         return res.status(400).json({ error: "Missing buzzword topic." });
       }
 
-      prompt = `Based on the topic: "${clean(buzzTopic)}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases.
+      prompt = `Based on the topic "${clean(
+        buzzword
+      )}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases. These can be used for guessing games, TED Talk parodies, scene inspiration, chaotic debates, one liners, exclamations, etc.
 
-These should feel like things you'd hear in a boardroom, TED Talk, chaotic debate, or improv scene. They can be slogans, corporate lingo, Gen Z slang, confident but ridiculous one-liners, or misused jargon — whatever fits the vibe. Prioritize usable, familiar, and punchy content over randomness.
+Generate:
+• Theme (a short creative label)
+• 10 words/phrases (based on the topic)
 
-Output:
-• A short theme label based on the topic
-• A numbered list of 10 words or phrases`;
+Examples: "Text messages from a Gen Z with a 937 area code", "Things you'd hear in a board meeting of an ice cream company", or "Does my boss really know what that means?"`;
       break;
 
     case "Fill in the Bleep!":
       const fields = {
-        storyTitle,
+        story,
         noun1,
         adjective,
         place,
@@ -90,8 +90,9 @@ Output:
         });
       }
 
-      prompt = `Write a short, Mad Libs-style story titled "${clean(storyTitle)}". 
-Use the following ingredients in chaotic and surprising ways:
+      prompt = `Write a ridiculous, Mad Libs-style story titled "${clean(
+        story
+      )}". Use all of the following words in the story in chaotic and unexpected ways:
 
 - Noun: ${clean(noun1)}
 - Adjective: ${clean(adjective)}
@@ -101,11 +102,7 @@ Use the following ingredients in chaotic and surprising ways:
 - Random thing 1: ${clean(random1)}
 - Random thing 2: ${clean(random2)}
 
-Rules:
-- Make it fast-paced, punchy, and memorable.
-- Only 5–7 short sentences total.
-- Relatable, playful, and a little weird — like a weird thing your friend told you over drinks.
-- Avoid any twist endings or serious tone — leave the rest to the improvisers.`;
+The story should be 5 to 7 short sentences. Make it weird but memorable, fast-paced, and full of chaotic storylines that leave the audience wondering "what happens next?" Treat the title like a creative theme, not a romance. Don’t over-explain. Don’t be serious. Just relatable, funny, and playful. No twist endings. Save those for the improvisers.`;
       break;
 
     default:
@@ -113,35 +110,32 @@ Rules:
   }
 
   try {
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "llama3-70b-8192",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
-          },
-          {
-            role: "user",
-            content: prompt,
-          },
-        ],
-        temperature: 0.85,
-        max_tokens: 800,
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.json();
-      console.error("Groq API error:", err);
-      return res.status(500).json({ error: err.error || "Groq API error." });
-    }
+    const response = await fetch(
+      "https://api.groq.com/openai/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "llama3-70b-8192",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
+            },
+            {
+              role: "user",
+              content: prompt,
+            },
+          ],
+          temperature: 0.85,
+          max_tokens: 800,
+        }),
+      }
+    );
 
     const data = await response.json();
     const fallback =
@@ -153,7 +147,7 @@ Rules:
       return res.status(200).json({ result: fallback });
     }
   } catch (error) {
-    console.error("Fetch failed:", error);
+    console.error("Error from Groq:", error);
     const fallback =
       fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
     return res.status(200).json({ result: fallback });
