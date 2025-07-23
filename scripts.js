@@ -1,3 +1,4 @@
+// scripts.js
 const themeToggle = document.getElementById("theme-toggle");
 const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
 const root = document.documentElement;
@@ -49,8 +50,8 @@ function renderFields(format) {
 
   if (format === "Buzzwords & Bullsh*t") {
     panel.innerHTML = `
-      <label for="buzzword">Give a theme or idea</label>
-      <input type="text" id="buzzword" placeholder="e.g., Ice Cream boardroom, Gen Z texts, haunted HR meeting">`;
+      <label for="buzzword">Buzzword or Topic</label>
+      <input type="text" id="buzzword" placeholder="e.g., vape store breakroom, Gen Z texts">`;
   }
 
   if (format === "Fill in the Bleep!") {
@@ -85,14 +86,24 @@ generateButton.addEventListener("click", async () => {
     inputs = { tabooWord: word };
   } else if (currentFormat === "Buzzwords & Bullsh*t") {
     const buzzword = document.getElementById("buzzword").value;
-    if (!buzzword) return alert("Enter a buzzword or scene idea.");
+    if (!buzzword) return alert("Enter a buzzword or topic.");
     inputs = { buzzTopic: buzzword };
   } else if (currentFormat === "Fill in the Bleep!") {
-    const ids = ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"];
-    for (const id of ids) {
-      const val = document.getElementById(id).value;
-      if (!val) return alert(`Enter a value for ${id}.`);
-      inputs[id] = val;
+    const ids = [
+      ["story", "storyTitle"],
+      ["noun1", "noun1"],
+      ["adj", "adjective"],
+      ["place", "place"],
+      ["noun2", "noun2"],
+      ["verb", "verb"],
+      ["random1", "random1"],
+      ["random2", "random2"]
+    ];
+
+    for (const [inputId, key] of ids) {
+      const val = document.getElementById(inputId).value;
+      if (!val) return alert(`Enter a value for ${inputId}.`);
+      inputs[key] = val;
     }
   }
 
