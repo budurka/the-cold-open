@@ -5,37 +5,50 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>The Cold Open</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
 </head>
 <body>
+  <header class="header">
+    <div class="container header-content">
+      <h1>The Cold Open</h1>
+      <div id="theme-toggle" class="theme-toggle">
+        <label for="theme-switch">🌞 / 🌙</label>
+        <label class="switch">
+          <input type="checkbox" id="theme-switch" />
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </header>
+
   <main class="container">
-    <h1>The Cold Open</h1>
-    <p class="subtitle">Your AI-powered improv partner</p>
+    <section class="intro">
+      <p class="subtitle">Improv fuel for chaotic minds.</p>
+    </section>
 
-    <div class="toggle-wrapper">
-      <label class="theme-label" for="theme-toggle">Theme</label>
-      <input type="checkbox" id="theme-toggle" />
-    </div>
+    <section class="format-selector">
+      <div id="format-buttons" class="format-buttons">
+        <button data-format="Taboops!">Taboops!</button>
+        <button data-format="Buzzwords & Bullsh*t">Buzzwords & Bullsh*t</button>
+        <button data-format="Fill in the Bleep!">Fill in the Bleep!</button>
+      </div>
+    </section>
 
-    <div class="format-buttons">
-      <button class="format-button" data-format="taboops">🧠 Taboops!</button>
-      <button class="format-button" data-format="buzzwords">🧩 Buzzwords & Bullsh*t</button>
-      <button class="format-button" data-format="bleep">📕 Fill in the Bleep!</button>
-    </div>
+    <section id="fields-container" class="fields"></section>
 
-    <div id="fields-container" class="input-panel"></div>
-
-    <div id="after-dark-container" class="after-dark">
-      <input type="checkbox" id="after-dark" />
-      <label for="after-dark">Taboops After Dark</label>
-    </div>
-
-    <button id="generate-btn">Generate Scene Start</button>
-    <div id="spinner" style="display:none;">Generating...</div>
-
-    <pre id="result"></pre>
-
-    <button id="copy-button">Copy to Clipboard</button>
+    <section>
+      <button id="generate" class="button">Generate</button>
+      <div id="spinner" class="spinner" style="display: none;">🎭 Generating brilliance…</div>
+      <pre id="result" class="result"></pre>
+      <button id="copy-button" class="button small" style="display: none;">📋 Copy to Clipboard</button>
+    </section>
   </main>
+
+  <footer class="footer">
+    <div class="container">
+      <a href="https://gemcityvisual.com" class="footer-link">← Back to Gem City Visual</a>
+    </div>
+  </footer>
 
   <script src="scripts.js"></script>
 </body>
