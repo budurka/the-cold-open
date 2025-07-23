@@ -1,101 +1,153 @@
-document.addEventListener("DOMContentLoaded", () => {
-  const formatButtons = document.querySelectorAll(".format-button");
-  const generateBtn = document.getElementById("generate-btn");
-  const resultArea = document.getElementById("result");
-  const copyBtn = document.getElementById("copy-button");
-  const spinner = document.getElementById("spinner");
-  const themeToggle = document.getElementById("theme-toggle");
+// scripts.js
 
-  let selectedFormat = null;
+const formatButtons = document.querySelectorAll("#format-buttons button");
+const fieldsContainer = document.getElementById("fields-container");
+const generateButton = document.getElementById("generate");
+const resultEl = document.getElementById("result");
+const spinner = document.getElementById("spinner");
+const copyButton = document.getElementById("copy-button");
+const themeToggle = document.getElementById("theme-toggle");
 
-  // Handle format button selection
-  formatButtons.forEach(button => {
-    button.addEventListener("click", () => {
-      formatButtons.forEach(btn => btn.classList.remove("active"));
-      button.classList.add("active");
-      selectedFormat = button.dataset.format;
-      renderFields();
-    });
-  });
+const prefersDark = window.matchMedia("(prefers-color-scheme: dark)");
+let currentFormat = "";
 
-  // Generate scene content
-  generateBtn.addEventListener("click", () => {
-    if (!selectedFormat) {
-      resultArea.textContent = "Please select a format.";
-      return;
+// Theme initialization
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("theme", theme);
+}
+
+function initTheme() {
+  const saved = localStorage.getItem("theme");
+  const systemPref = prefersDark.matches ? "dark" : "light";
+  const theme = saved || systemPref;
+  applyTheme(theme);
+  document.getElementById("theme-switch").checked = theme === "dark";
+}
+
+document.getElementById("theme-switch").addEventListener("change", (e) => {
+  applyTheme(e.target.checked ? "dark" : "light");
+});
+
+initTheme();
+
+// Format switching
+formatButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    currentFormat = button.dataset.format;
+    formatButtons.forEach((b) => b.classList.remove("active"));
+    button.classList.add("active");
+
+    resultEl.textContent = "";
+    copyButton.style.display = "none";
+    fieldsContainer.innerHTML = "";
+
+    const panel = document.createElement("div");
+    panel.className = "input-panel";
+
+    if (currentFormat === "Taboops!") {
+      panel.innerHTML = `
+        <label for="tabooWord">Taboo Word</label>
+        <input type="text" id="tabooWord" placeholder="Enter your taboo word" />
+
+        <div class="theme-toggle" style="margin-top: 1rem;">
+          <label for="afterDark">Taboops After Dark 🌒</label>
+          <label class="switch">
+            <input type="checkbox" id="afterDark">
+            <span class="slider"></span>
+          </label>
+        </div>`;
     }
 
-    resultArea.textContent = "";
-    spinner.style.display = "block";
+    if (currentFormat === "Buzzwords & Bullsh*t") {
+      panel.innerHTML = `
+        <label for="buzzTopic">Buzzword or Topic</label>
+        <input type="text" id="buzzTopic" placeholder="e.g. Agile Synergy">`;
+    }
 
-    setTimeout(() => {
-      const prompt = generatePrompt(selectedFormat);
-      resultArea.textContent = prompt;
-      spinner.style.display = "none";
-    }, 500);
-  });
+    if (currentFormat === "Fill in the Bleep!") {
+      const prompts = [
+        { id: "storyTitle", label: "Story or Genre", placeholder: "e.g., The Godfather" },
+        { id: "noun1", label: "Noun", placeholder: "Enter a noun" },
+        { id: "adjective", label: "Adjective", placeholder: "Enter an adjective" },
+        { id: "place", label: "Place", placeholder: "Enter a place" },
+        { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
+        { id: "verb", label: "Verb", placeholder: "Enter a verb" },
+        { id: "random1", label: "Random Thing #1", placeholder: "Something silly" },
+        { id: "random2", label: "Random Thing #2", placeholder: "Another weird thing" }
+      ];
 
-  // Copy result
-  copyBtn.addEventListener("click", () => {
-    const text = resultArea.textContent;
-    if (text) {
-      navigator.clipboard.writeText(text).then(() => {
-        copyBtn.textContent = "Copied!";
-        setTimeout(() => {
-          copyBtn.textContent = "Copy to Clipboard";
-        }, 1500);
+      prompts.forEach(({ id, label, placeholder }) => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "field-group";
+        wrapper.innerHTML = `
+          <label for="${id}">${label}</label>
+          <input type="text" id="${id}" placeholder="${placeholder}">`;
+        panel.appendChild(wrapper);
       });
     }
+
+    fieldsContainer.appendChild(panel);
   });
+});
 
-  // Theme toggle
-  themeToggle.addEventListener("change", () => {
-    const mode = themeToggle.checked ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", mode);
-  });
+// Generate result
+generateButton.addEventListener("click", async () => {
+  if (!currentFormat) return alert("Please select a format.");
+  const inputs = {};
 
-  // Update dynamic field rendering
-  function renderFields() {
-    const container = document.getElementById("fields-container");
-    const afterDarkContainer = document.getElementById("after-dark-container");
+  if (currentFormat === "Taboops!") {
+    const word = document.getElementById("tabooWord")?.value;
+    const afterDark = document.getElementById("afterDark")?.checked;
+    if (!word) return alert("Please enter a taboo word.");
+    inputs.tabooWord = word;
+    inputs.afterDark = afterDark;
+  }
 
-    container.innerHTML = "";
-    afterDarkContainer.style.display = "none";
+  if (currentFormat === "Buzzwords & Bullsh*t") {
+    const buzzword = document.getElementById("buzzTopic")?.value;
+    if (!buzzword) return alert("Please enter a buzzword or topic.");
+    inputs.buzzTopic = buzzword;
+  }
 
-    if (selectedFormat === "taboops") {
-      const label = document.createElement("label");
-      label.textContent = "Taboo Word:";
-      label.setAttribute("for", "taboo-input");
-
-      const input = document.createElement("input");
-      input.type = "text";
-      input.placeholder = "Enter your taboo word";
-      input.id = "taboo-input";
-      input.className = "input-field";
-
-      container.appendChild(label);
-      container.appendChild(input);
-      afterDarkContainer.style.display = "inline-flex";
+  if (currentFormat === "Fill in the Bleep!") {
+    const ids = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
+    for (const id of ids) {
+      const val = document.getElementById(id)?.value;
+      if (!val) return alert(`Please enter a value for ${id}.`);
+      inputs[id] = val;
     }
   }
 
-  // Generate content per format
-  function generatePrompt(format) {
-    if (format === "taboops") {
-      const tabooWord = document.getElementById("taboo-input")?.value.trim();
-      const isAfterDark = document.getElementById("after-dark")?.checked;
-      if (!tabooWord) return "Please enter a taboo word.";
-      return `🎭 Avoid saying: "${tabooWord}" in your scene!${isAfterDark ? " And it's After Dark… so no filters allowed. 🌙" : ""}`;
-    }
+  try {
+    spinner.style.display = "block";
+    resultEl.textContent = "";
+    copyButton.style.display = "none";
 
-    if (format === "buzzwords") {
-      return `📈 Your job: deliver a fake presentation packed with buzzwords like "synergy," "pivot," and "AI-powered innovation."`;
-    }
+    const response = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ format: currentFormat, ...inputs })
+    });
 
-    if (format === "bleep") {
-      return `🔇 You've got a key word you're not allowed to say. Act out the scene and let your partner guess the missing "bleep"!`;
-    }
+    const data = await response.json();
+    resultEl.textContent = data.result || "No result.";
+    copyButton.style.display = "block";
+  } catch (error) {
+    console.error("Generation error:", error);
+    resultEl.textContent = "Something went wrong.";
+  } finally {
+    spinner.style.display = "none";
+  }
+});
 
-    return "Format not recognized.";
+// Copy to clipboard
+copyButton.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(resultEl.textContent);
+    copyButton.textContent = "✅ Copied!";
+    setTimeout(() => (copyButton.textContent = "📋 Copy to Clipboard"), 2000);
+  } catch {
+    copyButton.textContent = "❌ Failed";
   }
 });
