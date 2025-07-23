@@ -2,24 +2,26 @@
 <html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>The Cold Open</title>
     <link rel="stylesheet" href="style.css" />
+    <script defer src="scripts.js"></script>
   </head>
   <body>
-    <div class="container">
+    <main class="container">
       <h1>The Cold Open</h1>
-      <p class="subtitle">Can we get a…</p>
+      <p class="subtitle">Your audience-powered premise partner</p>
+
       <div class="theme-toggle">
         <span>🌞 / 🌙</span>
         <label class="switch">
           <input type="checkbox" id="theme-toggle" />
-          <span class="slider round"></span>
+          <span class="slider"></span>
         </label>
       </div>
 
       <div id="format-buttons">
-        <button class="format-button active" data-format="Taboops!">🧠 Taboops!</button>
+        <button class="format-button" data-format="Taboops!">🧠 Taboops!</button>
         <button class="format-button" data-format="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</button>
         <button class="format-button" data-format="Fill in the Bleep!">📕 Fill in the Bleep!</button>
       </div>
@@ -30,9 +32,7 @@
 
       <div id="result" class="result-box"></div>
 
-      <a class="back-link" href="https://gemcityvisual.com">← Back to Gem City Visual</a>
-    </div>
-
-    <script src="scripts.js"></script>
+      <p><a href="/" class="back-link">← Back to Gem City Visual</a></p>
+    </main>
   </body>
 </html>
