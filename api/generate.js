@@ -38,9 +38,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "Missing taboo word." });
       }
 
-      prompt = `Create a new Taboo-style card. The guess word is "${clean(
-        tabooWord
-      )}". List five creative words that are not allowed to be said during the game. Format the output exactly like this:
+      prompt = `Create a new Taboo-style card. The guess word is "${clean(tabooWord)}". List five creative words that are not allowed to be said during the game. Format the output as:
 
 Word: ${clean(tabooWord)}
 Taboo Words:
@@ -50,7 +48,7 @@ Taboo Words:
 4.
 5.
 
-Keep it clever, weird, and family-friendly.`;
+Tone: keep it weird and family-friendly fun. Be clever.`;
       break;
 
     case "Buzzwords & Bullsh*t":
@@ -58,18 +56,13 @@ Keep it clever, weird, and family-friendly.`;
         return res.status(400).json({ error: "Missing buzzword topic." });
       }
 
-      prompt = `Based on the topic: "${clean(
-        buzzTopic
-      )}", generate a list of 10 funny, exaggerated, or thematically realistic phrases.
+      prompt = `Based on the topic: "${clean(buzzTopic)}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases. These can be used for guessing games, TED Talk parodies, scene inspiration, chaotic debates, one liners, exclamations, etc.
 
-Format:
-Theme: [clever label]
-1. ...
-2. ...
-...
-10. ...
+Output the following:
+• A brief theme or label
+• A numbered list of 10 phrases
 
-Use real language that people might say in a parody TED Talk or game.`;
+Avoid made-up nonsense or overly fictional phrases. Use clever, vivid, and context-appropriate ideas someone might actually say.`;
       break;
 
     case "Fill in the Bleep!":
@@ -78,15 +71,11 @@ Use real language that people might say in a parody TED Talk or game.`;
 
       if (missing.length > 0) {
         return res.status(400).json({
-          error: `Missing required field(s): ${missing
-            .map(([key]) => key)
-            .join(", ")}`,
+          error: `Missing required field(s): ${missing.map(([key]) => key).join(", ")}`,
         });
       }
 
-      prompt = `Write a short, weird, fast-paced story titled "${clean(
-        story
-      )}" using the following words:
+      prompt = `Write a funny and fast-paced short story titled "${clean(story)}" using the following words:
 
 - Noun: ${clean(noun1)}
 - Adjective: ${clean(adj)}
@@ -96,7 +85,7 @@ Use real language that people might say in a parody TED Talk or game.`;
 - Random thing 1: ${clean(random1)}
 - Random thing 2: ${clean(random2)}
 
-Make it 5–7 short sentences. No plot twist. Just weird and memorable.`;
+The story should be 5–7 SHORT sentences long. Make it weird but memorable, fast-moving, and full of strange details that suggest something bigger. Treat the title like a creative theme, not a romance. Don’t over-explain. Don’t make it serious. No twist endings.`;
       break;
 
     default:
@@ -115,8 +104,7 @@ Make it 5–7 short sentences. No plot twist. Just weird and memorable.`;
         messages: [
           {
             role: "system",
-            content:
-              "You are a witty and imaginative improvisation game generator. Respond only with the generated result. No extra commentary.",
+            content: "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
           },
           {
             role: "user",
@@ -129,8 +117,7 @@ Make it 5–7 short sentences. No plot twist. Just weird and memorable.`;
     });
 
     const data = await response.json();
-    const fallback =
-      fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+    const fallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
 
     if (data && data.choices && data.choices.length > 0) {
       return res.status(200).json({ result: data.choices[0].message.content });
@@ -139,8 +126,7 @@ Make it 5–7 short sentences. No plot twist. Just weird and memorable.`;
     }
   } catch (error) {
     console.error("Error from Groq:", error);
-    const fallback =
-      fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
+    const fallback = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
     return res.status(200).json({ result: fallback });
   }
 }
