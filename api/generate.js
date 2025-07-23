@@ -22,7 +22,7 @@ export default async function handler(req, res) {
     buzzword,
     story,
     noun1,
-    adjective,
+    adj,
     place,
     noun2,
     verb,
@@ -58,22 +58,21 @@ Tone: keep it weird and family-friendly fun. Be clever.`;
         return res.status(400).json({ error: "Missing buzzword topic." });
       }
 
-      prompt = `Based on the topic "${clean(
-        buzzword
-      )}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases. These can be used for guessing games, TED Talk parodies, scene inspiration, chaotic debates, one liners, exclamations, etc.
+      prompt = `Based on the topic "${clean(buzzword)}", generate a themed list of 10 funny, exaggerated, or thematically realistic words or phrases.
 
-Generate:
-• Theme (a short creative label)
-• 10 words/phrases (based on the topic)
+These should reflect something you'd hear in a parody TED Talk, chaotic debate, scene warmup, or party guessing game — all loosely rooted in the original topic.
 
-Examples: "Text messages from a Gen Z with a 937 area code", "Things you'd hear in a board meeting of an ice cream company", or "Does my boss really know what that means?"`;
+Output:
+• Theme (brief label or subheading)
+• 10 numbered words or phrases`;
+
       break;
 
     case "Fill in the Bleep!":
       const fields = {
         story,
         noun1,
-        adjective,
+        adj,
         place,
         noun2,
         verb,
@@ -84,25 +83,24 @@ Examples: "Text messages from a Gen Z with a 937 area code", "Things you'd hear 
       const missing = Object.entries(fields).filter(([_, val]) => !clean(val));
       if (missing.length > 0) {
         return res.status(400).json({
-          error: `Missing required field(s): ${missing
-            .map(([key]) => key)
-            .join(", ")}`,
+          error: `Missing required field(s): ${missing.map(([key]) => key).join(", ")}`,
         });
       }
 
-      prompt = `Write a ridiculous, Mad Libs-style story titled "${clean(
+      prompt = `Write a weird, fast-paced, Mad Libs-style short story titled "${clean(
         story
-      )}". Use all of the following words in the story in chaotic and unexpected ways:
+      )}". Use all the following in unpredictable, memorable ways:
 
 - Noun: ${clean(noun1)}
-- Adjective: ${clean(adjective)}
+- Adjective: ${clean(adj)}
 - Place: ${clean(place)}
 - Another noun: ${clean(noun2)}
 - Verb: ${clean(verb)}
 - Random thing 1: ${clean(random1)}
 - Random thing 2: ${clean(random2)}
 
-The story should be 5 to 7 short sentences. Make it weird but memorable, fast-paced, and full of chaotic storylines that leave the audience wondering "what happens next?" Treat the title like a creative theme, not a romance. Don’t over-explain. Don’t be serious. Just relatable, funny, and playful. No twist endings. Save those for the improvisers.`;
+The story should be 5–7 SHORT sentences. Keep it weird but relatable. No romance, no serious tone, no twist ending. Just chaotic, fun, and playful — let the improvisers carry it from here.`;
+
       break;
 
     default:
@@ -110,32 +108,29 @@ The story should be 5 to 7 short sentences. Make it weird but memorable, fast-pa
   }
 
   try {
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "llama3-70b-8192",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-          temperature: 0.85,
-          max_tokens: 800,
-        }),
-      }
-    );
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama3-70b-8192",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.85,
+        max_tokens: 800,
+      }),
+    });
 
     const data = await response.json();
     const fallback =
