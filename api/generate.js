@@ -16,19 +16,33 @@ export default async function handler(req, res) {
   const clean = (val) =>
     typeof val === "string" ? val.trim() : val === undefined ? "" : val;
 
-  const { format, inputs } = req.body;
+  const {
+    format,
+    tabooWord,
+    buzzTopic,
+    story,
+    noun1,
+    adj,
+    place,
+    noun2,
+    verb,
+    random1,
+    random2,
+  } = req.body;
+
   let prompt = "";
 
   switch (format) {
     case "Taboops!":
-      const tabooWord = clean(inputs[0]);
       if (!tabooWord) {
         return res.status(400).json({ error: "Missing taboo word." });
       }
 
-      prompt = `Create a new Taboo-style card. The guess word is "${tabooWord}". List five creative words that are not allowed to be said during the game. Format the output as:
+      prompt = `Create a new Taboo-style card. The guess word is "${clean(
+        tabooWord
+      )}". List five creative words that are not allowed to be said during the game. Format the output exactly like this:
 
-Word: ${tabooWord}
+Word: ${clean(tabooWord)}
 Taboo Words:
 1.
 2.
@@ -36,42 +50,53 @@ Taboo Words:
 4.
 5.
 
-Tone: keep it weird and family-friendly fun. Be clever.`;
+Keep it clever, weird, and family-friendly.`;
       break;
 
     case "Buzzwords & Bullsh*t":
-      const buzzTopic = clean(inputs[0]);
       if (!buzzTopic) {
         return res.status(400).json({ error: "Missing buzzword topic." });
       }
 
-      prompt = `Based on the topic: "${buzzTopic}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases. These can be used for guessing games, TED Talk parodies, scene inspiration, chaotic debates, one liners, exclamations, etc.
+      prompt = `Based on the topic: "${clean(
+        buzzTopic
+      )}", generate a list of 10 funny, exaggerated, or thematically realistic phrases.
 
-Output the following:
-• A brief theme or label
-• A numbered list of 10 phrases
+Format:
+Theme: [clever label]
+1. ...
+2. ...
+...
+10. ...
 
-Avoid made-up nonsense or overly fictional phrases. Use clever, vivid, and context-appropriate ideas someone might actually say.`;
+Use real language that people might say in a parody TED Talk or game.`;
       break;
 
     case "Fill in the Bleep!":
-      const [story, noun1, adj, place, noun2, verb, random1, random2] = inputs.map(clean);
+      const required = { story, noun1, adj, place, noun2, verb, random1, random2 };
+      const missing = Object.entries(required).filter(([_, val]) => !clean(val));
 
-      if (!story || !noun1 || !adj || !place || !noun2 || !verb || !random1 || !random2) {
-        return res.status(400).json({ error: "Missing required fields." });
+      if (missing.length > 0) {
+        return res.status(400).json({
+          error: `Missing required field(s): ${missing
+            .map(([key]) => key)
+            .join(", ")}`,
+        });
       }
 
-      prompt = `Write a funny and fast-paced short story titled "${story}" using the following words:
+      prompt = `Write a short, weird, fast-paced story titled "${clean(
+        story
+      )}" using the following words:
 
-- Noun: ${noun1}
-- Adjective: ${adj}
-- Place: ${place}
-- Another noun: ${noun2}
-- Verb: ${verb}
-- Random thing 1: ${random1}
-- Random thing 2: ${random2}
+- Noun: ${clean(noun1)}
+- Adjective: ${clean(adj)}
+- Place: ${clean(place)}
+- Another noun: ${clean(noun2)}
+- Verb: ${clean(verb)}
+- Random thing 1: ${clean(random1)}
+- Random thing 2: ${clean(random2)}
 
-The story should be 5–7 SHORT sentences long. Make it weird but memorable, fast-moving, and full of strange details that suggest something bigger. Treat the title like a creative theme, not a romance. Don’t over-explain. Don’t make it serious. No twist endings.`;
+Make it 5–7 short sentences. No plot twist. Just weird and memorable.`;
       break;
 
     default:
@@ -91,7 +116,7 @@ The story should be 5–7 SHORT sentences long. Make it weird but memorable, fas
           {
             role: "system",
             content:
-              "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
+              "You are a witty and imaginative improvisation game generator. Respond only with the generated result. No extra commentary.",
           },
           {
             role: "user",
