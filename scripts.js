@@ -43,25 +43,21 @@ function renderFields(format) {
 
   if (format === "Taboops!") {
     panel.innerHTML = `
-      <label for="tabooWord">Taboo Word</label>
-      <input type="text" id="tabooWord" placeholder="Enter your taboo word">
-      <div class="checkbox-group">
-        <input type="checkbox" id="afterDark">
-        <label for="afterDark">Taboops After Dark 🌒</label>
-      </div>`;
+      <label for="taboo">Taboo Word</label>
+      <input type="text" id="taboo" placeholder="Enter your taboo word">`;
   }
 
   if (format === "Buzzwords & Bullsh*t") {
     panel.innerHTML = `
-      <label for="buzzTopic">Buzzword or Topic</label>
-      <input type="text" id="buzzTopic" placeholder="Enter a corporate buzzword">`;
+      <label for="buzzword">Buzzword or Topic</label>
+      <input type="text" id="buzzword" placeholder="Enter a corporate buzzword">`;
   }
 
   if (format === "Fill in the Bleep!") {
     const prompts = [
-      { id: "storyTitle", label: "Story or Genre", placeholder: "e.g., The Godfather" },
+      { id: "story", label: "Story or Genre", placeholder: "e.g., The Godfather" },
       { id: "noun1", label: "Noun", placeholder: "Enter a noun" },
-      { id: "adjective", label: "Adjective", placeholder: "Enter an adjective" },
+      { id: "adj", label: "Adjective", placeholder: "Enter an adjective" },
       { id: "place", label: "Place", placeholder: "Enter a place" },
       { id: "noun2", label: "Another Noun", placeholder: "Enter another noun" },
       { id: "verb", label: "Verb", placeholder: "Enter a verb" },
@@ -84,16 +80,15 @@ function renderFields(format) {
 generateButton.addEventListener("click", async () => {
   let inputs = {};
   if (currentFormat === "Taboops!") {
-    const tabooWord = document.getElementById("tabooWord").value;
-    const afterDark = document.getElementById("afterDark").checked;
-    if (!tabooWord) return alert("Please enter a taboo word.");
-    inputs = { tabooWord, afterDark };
+    const word = document.getElementById("taboo").value;
+    if (!word) return alert("Please enter a taboo word.");
+    inputs = { tabooWord: word };
   } else if (currentFormat === "Buzzwords & Bullsh*t") {
-    const buzzTopic = document.getElementById("buzzTopic").value;
-    if (!buzzTopic) return alert("Enter a buzzword.");
-    inputs = { buzzTopic };
+    const buzzword = document.getElementById("buzzword").value;
+    if (!buzzword) return alert("Enter a buzzword.");
+    inputs = { buzzTopic: buzzword };
   } else if (currentFormat === "Fill in the Bleep!") {
-    const ids = ["storyTitle", "noun1", "adjective", "place", "noun2", "verb", "random1", "random2"];
+    const ids = ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"];
     for (const id of ids) {
       const val = document.getElementById(id).value;
       if (!val) return alert(`Enter a value for ${id}.`);
