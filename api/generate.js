@@ -1,5 +1,3 @@
-// pages/api/generate.js
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -18,33 +16,19 @@ export default async function handler(req, res) {
   const clean = (val) =>
     typeof val === "string" ? val.trim() : val === undefined ? "" : val;
 
-  const {
-    format,
-    tabooWord,
-    buzzTopic,
-    story,
-    noun1,
-    adj,
-    place,
-    noun2,
-    verb,
-    random1,
-    random2,
-  } = req.body;
-
+  const { format, inputs } = req.body;
   let prompt = "";
 
   switch (format) {
     case "Taboops!":
+      const tabooWord = clean(inputs[0]);
       if (!tabooWord) {
         return res.status(400).json({ error: "Missing taboo word." });
       }
 
-      prompt = `Create a new Taboo-style card. The guess word is "${clean(
-        tabooWord
-      )}". List five creative words that are not allowed to be said during the game. Format the output as:
+      prompt = `Create a new Taboo-style card. The guess word is "${tabooWord}". List five creative words that are not allowed to be said during the game. Format the output as:
 
-Word: ${clean(tabooWord)}
+Word: ${tabooWord}
 Taboo Words:
 1.
 2.
@@ -56,13 +40,12 @@ Tone: keep it weird and family-friendly fun. Be clever.`;
       break;
 
     case "Buzzwords & Bullsh*t":
+      const buzzTopic = clean(inputs[0]);
       if (!buzzTopic) {
         return res.status(400).json({ error: "Missing buzzword topic." });
       }
 
-      prompt = `Based on the topic: "${clean(
-        buzzTopic
-      )}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases. These can be used for guessing games, TED Talk parodies, scene inspiration, chaotic debates, one liners, exclamations, etc.
+      prompt = `Based on the topic: "${buzzTopic}", generate a list of 10 funny, exaggerated, or thematically realistic words or phrases. These can be used for guessing games, TED Talk parodies, scene inspiration, chaotic debates, one liners, exclamations, etc.
 
 Output the following:
 • A brief theme or label
@@ -72,28 +55,21 @@ Avoid made-up nonsense or overly fictional phrases. Use clever, vivid, and conte
       break;
 
     case "Fill in the Bleep!":
-      const required = { story, noun1, adj, place, noun2, verb, random1, random2 };
-      const missing = Object.entries(required).filter(([_, val]) => !clean(val));
+      const [story, noun1, adj, place, noun2, verb, random1, random2] = inputs.map(clean);
 
-      if (missing.length > 0) {
-        return res.status(400).json({
-          error: `Missing required field(s): ${missing
-            .map(([key]) => key)
-            .join(", ")}`,
-        });
+      if (!story || !noun1 || !adj || !place || !noun2 || !verb || !random1 || !random2) {
+        return res.status(400).json({ error: "Missing required fields." });
       }
 
-      prompt = `Write a funny and fast-paced short story titled "${clean(
-        story
-      )}" using the following words:
+      prompt = `Write a funny and fast-paced short story titled "${story}" using the following words:
 
-- Noun: ${clean(noun1)}
-- Adjective: ${clean(adj)}
-- Place: ${clean(place)}
-- Another noun: ${clean(noun2)}
-- Verb: ${clean(verb)}
-- Random thing 1: ${clean(random1)}
-- Random thing 2: ${clean(random2)}
+- Noun: ${noun1}
+- Adjective: ${adj}
+- Place: ${place}
+- Another noun: ${noun2}
+- Verb: ${verb}
+- Random thing 1: ${random1}
+- Random thing 2: ${random2}
 
 The story should be 5–7 SHORT sentences long. Make it weird but memorable, fast-moving, and full of strange details that suggest something bigger. Treat the title like a creative theme, not a romance. Don’t over-explain. Don’t make it serious. No twist endings.`;
       break;
@@ -103,32 +79,29 @@ The story should be 5–7 SHORT sentences long. Make it weird but memorable, fas
   }
 
   try {
-    const response = await fetch(
-      "https://api.groq.com/openai/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "llama3-70b-8192",
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
-            },
-            {
-              role: "user",
-              content: prompt,
-            },
-          ],
-          temperature: 0.85,
-          max_tokens: 800,
-        }),
-      }
-    );
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "llama3-70b-8192",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are a witty and imaginative improvisation game generator. Respond only with the generated scene, list, or story — no extra commentary.",
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
+        ],
+        temperature: 0.85,
+        max_tokens: 800,
+      }),
+    });
 
     const data = await response.json();
     const fallback =
