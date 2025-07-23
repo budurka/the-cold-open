@@ -66,8 +66,10 @@ h1 {
 
 .slider {
   position: absolute;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background-color: #ccc;
   border-radius: 26px;
   transition: 0.4s;
@@ -76,8 +78,10 @@ h1 {
 .slider:before {
   position: absolute;
   content: "";
-  height: 18px; width: 18px;
-  left: 4px; bottom: 4px;
+  height: 18px;
+  width: 18px;
+  left: 4px;
+  bottom: 4px;
   background-color: white;
   border-radius: 50%;
   transition: 0.4s;
@@ -107,15 +111,16 @@ input:checked + .slider:before {
   color: white;
   border-radius: 0.6rem;
   cursor: pointer;
-  transition: transform 0.1s ease-in-out;
-}
-
-.format-button.active {
-  background: rebeccapurple;
+  transition: transform 0.1s ease-in-out, background 0.2s;
 }
 
 .format-button:hover {
   transform: scale(1.05);
+}
+
+.format-button.active {
+  background: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent);
 }
 
 .input-panel {
@@ -177,12 +182,19 @@ input:checked + .slider:before {
   text-decoration: underline;
   font-size: 0.95rem;
 }
-/* Remove default purple outline on focus and use a subtle accent instead */
-input:focus,
+
+/* 💥 Kill the purple glow on focus for all interactive elements */
 button:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--accent);
-  border-color: var(--accent);
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--accent) !important;
+  border: 1px solid var(--accent) !important;
+}
+
+.format-button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
 }
