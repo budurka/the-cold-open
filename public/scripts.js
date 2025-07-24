@@ -3,8 +3,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const fieldsContainer = document.getElementById("fields-container");
   const resultContainer = document.getElementById("result");
   const generateButton = document.getElementById("generate");
-  const copyButton = document.getElementById("copy-button");
-  const backLink = document.getElementById("back-link");
   const themeToggle = document.getElementById("theme-toggle");
 
   let currentFormat = "Taboops!";
@@ -20,13 +18,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // === THEME TOGGLE ===
+  // === THEME TOGGLE BUTTON ===
   themeToggle.addEventListener("click", () => {
     const html = document.documentElement;
-    const currentTheme = html.getAttribute("data-theme") || "light";
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    const isDark = html.getAttribute("data-theme") === "dark";
+    const newTheme = isDark ? "light" : "dark";
     html.setAttribute("data-theme", newTheme);
-    themeToggle.classList.toggle("active", newTheme === "dark");
+    themeToggle.textContent = newTheme === "dark" ? "🌞 / 🌙" : "🌙 / 🌞";
   });
 
   // === INPUT FIELD LOGIC ===
@@ -62,7 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFields(); // Initial load
 
   // === GENERATE BUTTON ===
-  generateButton.addEventListener("click", async () => {
+  generateButton.addEventListener("click", async (e) => {
+    e.preventDefault();
     resultContainer.innerHTML = "<span class='loading'>Generating...</span>";
 
     const data = { format: currentFormat };
@@ -72,8 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data.buzzTopic = document.getElementById("buzzTopic").value.trim();
     } else if (currentFormat === "Fill in the Bleep!") {
       ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"].forEach(id => {
-        const val = document.getElementById(id).value.trim();
-        data[id] = val;
+        data[id] = document.getElementById(id).value.trim();
       });
     }
 
@@ -89,27 +87,19 @@ document.addEventListener("DOMContentLoaded", () => {
         resultContainer.innerHTML = `<div class='error'>❌ ${res.error}</div>`;
       } else {
         resultContainer.innerHTML = `
-          <pre>${res.result}</pre>
+          <div class="result-text">${res.result}</div>
           <button class="copy-btn" id="copy-button">📋 Copy</button>
         `;
-
-        // Copy Button Logic
         document.getElementById("copy-button").addEventListener("click", () => {
           navigator.clipboard.writeText(res.result);
-          document.getElementById("copy-button").innerText = "✅ Copied!";
-          setTimeout(() => {
-            document.getElementById("copy-button").innerText = "📋 Copy";
-          }, 2000);
+          const btn = document.getElementById("copy-button");
+          btn.innerText = "✅ Copied!";
+          setTimeout(() => (btn.innerText = "📋 Copy"), 2000);
         });
       }
     } catch (err) {
       resultContainer.innerHTML = `<div class='error'>❌ Something went wrong.</div>`;
       console.error(err);
     }
-  });
-
-  // === BACK LINK ===
-  backLink.addEventListener("click", () => {
-    window.location.href = "https://chasebudurka.com";
   });
 });
