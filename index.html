@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Cold Open</title>
   <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
   <div class="container">
     <h1>The Cold Open</h1>
@@ -14,28 +16,31 @@
     <div class="toggle-wrapper">
       <span>🌞</span>
       <label class="switch">
-        <input type="checkbox" id="themeToggle" />
+        <input type="checkbox" id="theme-toggle" />
         <span class="slider round"></span>
       </label>
       <span>🌙</span>
     </div>
 
-    <div class="button-group">
-      <button class="format-button active" id="taboopsBtn">🧠 Taboops!</button>
-      <button class="format-button" id="buzzwordsBtn">🧩 Buzzwords & Bullsh*t</button>
-      <button class="format-button" id="bleepBtn">📕 Fill in the Bleep!</button>
+    <div class="format-selector">
+      <button class="format-button active" data-format="Taboops!">🧠 Taboops!</button>
+      <button class="format-button" data-format="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</button>
+      <button class="format-button" data-format="Fill in the Bleep!">📕 Fill in the Bleep!</button>
     </div>
 
-    <div id="fields-container">
-      <!-- Form fields will be injected here -->
-    </div>
-
-    <button id="generate">Generate</button>
+    <form id="prompt-form">
+      <div id="fields-container">
+        <!-- Fields will be dynamically inserted here -->
+      </div>
+      <button type="submit" id="generate">Generate</button>
+    </form>
 
     <div id="result"></div>
-    <a href="https://chasebudurka.com" class="back-link">&larr; Back to ChaseBudurka.com</a>
+
+    <a href="https://chasebudurka.com" class="home-button">← Back to ChaseBudurka.com</a>
   </div>
 
   <script src="scripts.js"></script>
 </body>
+
 </html>
