@@ -1,122 +1,115 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const themeToggle = document.getElementById("theme-toggle");
   const formatButtons = document.querySelectorAll(".format-button");
   const fieldsContainer = document.getElementById("fields-container");
+  const resultContainer = document.getElementById("result");
   const generateButton = document.getElementById("generate");
-  const resultBox = document.getElementById("result");
+  const copyButton = document.getElementById("copy-button");
+  const backLink = document.getElementById("back-link");
+  const themeToggle = document.getElementById("theme-toggle");
 
-  const defaultTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  let currentFormat = "Taboops!";
 
-  // Theme Setup
-  const savedTheme = localStorage.getItem("theme") || defaultTheme;
-  document.documentElement.setAttribute("data-theme", savedTheme);
-  themeToggle.checked = savedTheme === "dark";
-
-  themeToggle.addEventListener("change", () => {
-    const newTheme = themeToggle.checked ? "dark" : "light";
-    document.documentElement.setAttribute("data-theme", newTheme);
-    localStorage.setItem("theme", newTheme);
-  });
-
-  // Format Selection
+  // === FORMAT SWITCHING ===
   formatButtons.forEach((button) => {
     button.addEventListener("click", () => {
       formatButtons.forEach((btn) => btn.classList.remove("active"));
       button.classList.add("active");
-      loadFields(button.dataset.format);
-      resultBox.innerHTML = ""; // Clear result on switch
+      currentFormat = button.dataset.format;
+      renderFields();
+      resultContainer.innerHTML = "";
     });
   });
 
-  function createField(labelText, placeholder, name) {
-    const group = document.createElement("div");
-    group.className = "field-group";
+  // === THEME TOGGLE ===
+  themeToggle.addEventListener("click", () => {
+    const html = document.documentElement;
+    const currentTheme = html.getAttribute("data-theme") || "light";
+    const newTheme = currentTheme === "dark" ? "light" : "dark";
+    html.setAttribute("data-theme", newTheme);
+    themeToggle.classList.toggle("active", newTheme === "dark");
+  });
 
-    const label = document.createElement("label");
-    label.textContent = labelText;
-    label.htmlFor = name;
-
-    const input = document.createElement("input");
-    input.type = "text";
-    input.id = name;
-    input.name = name;
-    input.className = "user-input";
-    input.placeholder = placeholder;
-
-    group.appendChild(label);
-    group.appendChild(input);
-    return group;
-  }
-
-  function loadFields(format) {
+  // === INPUT FIELD LOGIC ===
+  function renderFields() {
     fieldsContainer.innerHTML = "";
 
-    if (format === "Taboops!") {
-      fieldsContainer.appendChild(
-        createField("Taboo Word", "Enter a word to avoid", "tabooWord")
-      );
-    } else if (format === "Buzzwords & Bullsh*t") {
-      fieldsContainer.appendChild(
-        createField("Buzzword Theme", "e.g., Things you'd hear in an ice cream boardroom", "buzzTopic")
-      );
-    } else if (format === "Fill in the Bleep!") {
-      fieldsContainer.appendChild(createField("Story or Genre", "e.g., The Godfather", "story"));
-      fieldsContainer.appendChild(createField("Noun", "Enter a noun", "noun1"));
-      fieldsContainer.appendChild(createField("Adjective", "Enter an adjective", "adj"));
-      fieldsContainer.appendChild(createField("Place", "Enter a place", "place"));
-      fieldsContainer.appendChild(createField("Another Noun", "Enter another noun", "noun2"));
-      fieldsContainer.appendChild(createField("Verb", "Enter a verb", "verb"));
-      fieldsContainer.appendChild(createField("Random Thing #1", "Something silly", "random1"));
-      fieldsContainer.appendChild(createField("Random Thing #2", "Another weird thing", "random2"));
+    const field = (labelText, id, placeholder) => `
+      <div class="field-group">
+        <label for="${id}">${labelText}</label>
+        <input type="text" class="user-input" id="${id}" placeholder="${placeholder}">
+      </div>
+    `;
+
+    if (currentFormat === "Taboops!") {
+      fieldsContainer.innerHTML = field("Taboo Word", "tabooWord", "Enter a word to avoid");
+    } else if (currentFormat === "Buzzwords & Bullsh*t") {
+      fieldsContainer.innerHTML = field("Buzzword Theme", "buzzTopic", "e.g., Funny phrases a Walmart greeter might say");
+    } else if (currentFormat === "Fill in the Bleep!") {
+      const fields = [
+        { label: "Story or Genre", id: "story", placeholder: "e.g., The Godfather" },
+        { label: "Noun", id: "noun1", placeholder: "Enter a noun" },
+        { label: "Adjective", id: "adj", placeholder: "Enter an adjective" },
+        { label: "Place", id: "place", placeholder: "Enter a place" },
+        { label: "Another Noun", id: "noun2", placeholder: "Enter another noun" },
+        { label: "Verb", id: "verb", placeholder: "Enter a verb" },
+        { label: "Random Thing #1", id: "random1", placeholder: "Something silly" },
+        { label: "Random Thing #2", id: "random2", placeholder: "Another weird thing" },
+      ];
+      fieldsContainer.innerHTML = fields.map(f => field(f.label, f.id, f.placeholder)).join("");
     }
   }
 
-  // Generate Output
+  renderFields(); // Initial load
+
+  // === GENERATE BUTTON ===
   generateButton.addEventListener("click", async () => {
-    const activeFormat = document.querySelector(".format-button.active")?.dataset?.format;
-    if (!activeFormat) return;
+    resultContainer.innerHTML = "<span class='loading'>Generating...</span>";
 
-    generateButton.disabled = true;
-    generateButton.textContent = "Thinking...";
-    resultBox.innerHTML = "";
-
-    const formData = {};
-    document.querySelectorAll(".user-input").forEach((input) => {
-      formData[input.name] = input.value;
-    });
-    formData.format = activeFormat;
+    const data = { format: currentFormat };
+    if (currentFormat === "Taboops!") {
+      data.tabooWord = document.getElementById("tabooWord").value.trim();
+    } else if (currentFormat === "Buzzwords & Bullsh*t") {
+      data.buzzTopic = document.getElementById("buzzTopic").value.trim();
+    } else if (currentFormat === "Fill in the Bleep!") {
+      ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"].forEach(id => {
+        const val = document.getElementById(id).value.trim();
+        data[id] = val;
+      });
+    }
 
     try {
       const response = await fetch("/api/generate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
-      const data = await response.json();
-      if (data.result) {
-        resultBox.innerHTML = `
-          <pre>${data.result}</pre>
-          <button class="copy-btn">📋 Copy</button>
-        `;
-        document.querySelector(".copy-btn").addEventListener("click", () => {
-          navigator.clipboard.writeText(data.result);
-        });
+      const res = await response.json();
+      if (res.error) {
+        resultContainer.innerHTML = `<div class='error'>❌ ${res.error}</div>`;
       } else {
-        resultBox.innerHTML = `<p class="error">❌ Error: ${data.error || "Unknown error."}</p>`;
+        resultContainer.innerHTML = `
+          <pre>${res.result}</pre>
+          <button class="copy-btn" id="copy-button">📋 Copy</button>
+        `;
+
+        // Copy Button Logic
+        document.getElementById("copy-button").addEventListener("click", () => {
+          navigator.clipboard.writeText(res.result);
+          document.getElementById("copy-button").innerText = "✅ Copied!";
+          setTimeout(() => {
+            document.getElementById("copy-button").innerText = "📋 Copy";
+          }, 2000);
+        });
       }
     } catch (err) {
-      resultBox.innerHTML = `<p class="error">❌ Error connecting to server.</p>`;
-    } finally {
-      generateButton.disabled = false;
-      generateButton.textContent = "Generate";
+      resultContainer.innerHTML = `<div class='error'>❌ Something went wrong.</div>`;
+      console.error(err);
     }
   });
 
-  // Initialize default mode
-  document.querySelector(".format-button.active")?.click();
+  // === BACK LINK ===
+  backLink.addEventListener("click", () => {
+    window.location.href = "https://chasebudurka.com";
+  });
 });
