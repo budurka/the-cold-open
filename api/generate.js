@@ -22,7 +22,8 @@ export default async function handler(req, res) {
     noun2,
     verb,
     random1,
-    random2
+    random2,
+    boxPrompt
   } = req.body || {};
 
   let prompt = "";
@@ -80,6 +81,23 @@ Theme: [short label]
 - ${clean(random2)}
 
 Make it 5–7 short, fast-paced sentences. Weird but memorable. Avoid seriousness, twist endings, or romance. Just funny and fast.`;
+        break;
+
+      case "What’s in the Box?":
+        if (!boxPrompt) {
+          return res.status(400).json({ error: "Missing suggestion." });
+        }
+        prompt = `Generate a list of 5 random or interesting items you might find in "${clean(boxPrompt)}".
+
+Keep it grounded in reality, but play with absurdity and unexpectedness. Don't include explanations — just the items.
+
+Output format:
+Things you might find in ${clean(boxPrompt)}:
+1.
+2.
+3.
+4.
+5.`;
         break;
 
       default:
