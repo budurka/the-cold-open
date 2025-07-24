@@ -20,7 +20,7 @@ formatButtons.forEach((btn) => {
   });
 });
 
-// Render input fields
+// Render input fields dynamically based on format
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
 
@@ -48,7 +48,7 @@ function renderFields(format) {
   }
 }
 
-// Generate output
+// Generate result text
 generateBtn.addEventListener("click", () => {
   const inputField = fieldsContainer.querySelector("input");
   const inputValue = inputField?.value.trim();
@@ -71,23 +71,23 @@ copyBtn.addEventListener("click", () => {
   });
 });
 
-// Try Again
+// Try again
 tryAgainBtn.addEventListener("click", () => {
   resultSection.hidden = true;
   const input = fieldsContainer.querySelector("input");
   if (input) input.focus();
 });
 
-// Share (placeholder)
+// Share button (placeholder)
 shareBtn.addEventListener("click", () => {
   alert("Sharing coming soon!");
 });
 
-// Theme toggle
+// Dark mode toggle
 const themeToggle = document.getElementById("theme-toggle");
 const htmlElement = document.documentElement;
 
-// Apply theme on load
+// On load: apply saved theme and render default fields
 document.addEventListener("DOMContentLoaded", () => {
   const savedTheme = localStorage.getItem("coldOpenTheme") || "light";
   htmlElement.setAttribute("data-theme", savedTheme);
@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFields(selectedFormat);
 });
 
-// Listen for toggle
+// Toggle theme
 themeToggle.addEventListener("change", () => {
   const newTheme = themeToggle.checked ? "dark" : "light";
   htmlElement.setAttribute("data-theme", newTheme);
