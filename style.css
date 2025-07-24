@@ -32,8 +32,6 @@ body {
   color: var(--text);
   transition: background 0.3s, color 0.3s;
   min-height: 100vh;
-  width: 100%;
-  overflow-x: hidden;
 }
 
 a {
@@ -50,12 +48,10 @@ a:visited {
 }
 
 .container {
-  width: 100%;
-  max-width: 640px;
+  max-width: 700px;
   margin: 2rem auto;
-  padding: 2rem 1rem;
+  padding: 2rem;
   text-align: center;
-  box-sizing: border-box;
 }
 
 h1 {
@@ -75,9 +71,61 @@ p {
   margin: 1rem 0;
 }
 
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary);
+}
+
+input:checked + .slider:before {
+  transform: translateX(24px);
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
 .format-button {
   padding: 0.7rem 1.2rem;
-  margin: 0.5rem 0.4rem;
+  margin: 0.5rem;
   border: none;
   border-radius: 8px;
   background-color: #eee;
@@ -101,13 +149,13 @@ p {
 
 .field-group {
   margin-bottom: 1.25rem;
+  text-align: left;
 }
 
 label {
   display: block;
   margin-bottom: 0.4rem;
   font-weight: 500;
-  text-align: left;
 }
 
 .user-input {
@@ -119,7 +167,6 @@ label {
   background-color: var(--input-bg);
   color: var(--text);
   transition: border-color 0.2s ease;
-  box-sizing: border-box;
 }
 
 .user-input:focus {
@@ -150,27 +197,11 @@ label {
   padding: 1rem;
   border-radius: 8px;
   text-align: left;
-  font-family: 'Courier New', monospace;
-  font-size: 0.95rem;
-  line-height: 1.5;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  font-family: 'Courier New', monospace;
   overflow-wrap: break-word;
-  overflow-x: auto;
+  word-wrap: break-word;
   max-width: 100%;
-  box-sizing: border-box;
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .copy-btn {
@@ -190,7 +221,6 @@ label {
 .error {
   color: var(--primary);
   font-weight: bold;
-  margin-top: 1rem;
 }
 
 .loading {
@@ -200,17 +230,14 @@ label {
 .back-link {
   display: inline-block;
   margin-top: 2rem;
-  font-weight: bold;
+  padding: 0.4rem 1.2rem;
+  background-color: #eee;
   color: var(--primary);
-  background-color: transparent;
-  border: 2px solid var(--primary);
-  padding: 0.5rem 1rem;
   border-radius: 6px;
-  transition: all 0.2s ease-in-out;
+  text-decoration: none;
+  font-weight: 500;
 }
 
 .back-link:hover {
-  background-color: var(--primary);
-  color: white;
-  text-decoration: none;
+  background-color: var(--gray);
 }
