@@ -84,12 +84,12 @@ Make it 5–7 short, fast-paced sentences. Weird but memorable. Avoid seriousnes
         break;
 
       case "What’s in the Box?":
-        if (!boxPrompt) {
-          return res.status(400).json({ error: "Missing suggestion." });
-        }
-        prompt = `Generate a list of 5 random or interesting items you might find in "${clean(boxPrompt)}".
+  if (!boxPrompt) {
+    return res.status(400).json({ error: "Missing suggestion." });
+  }
+  prompt = `List 5 unusual or oddly specific items someone might find in "${clean(boxPrompt)}".
 
-Keep it grounded in reality, but play with absurdity and unexpectedness. Don't include explanations — just the items.
+Each item should be short (no more than 3–5 words). Focus on surprising, grounded, vivid nouns — skip full sentences or backstory.
 
 Output format:
 Things you might find in ${clean(boxPrompt)}:
@@ -98,7 +98,7 @@ Things you might find in ${clean(boxPrompt)}:
 3.
 4.
 5.`;
-        break;
+  break;
 
       default:
         return res.status(400).json({ error: "Invalid format." });
