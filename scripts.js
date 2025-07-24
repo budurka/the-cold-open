@@ -1,110 +1,79 @@
-const themeToggle = document.getElementById("theme-toggle");
-const root = document.documentElement;
-
-themeToggle.checked = localStorage.getItem("theme") === "dark";
-applyTheme(themeToggle.checked ? "dark" : "light");
-
-themeToggle.addEventListener("change", () => {
-  applyTheme(themeToggle.checked ? "dark" : "light");
-});
-
-function applyTheme(t) {
-  root.dataset.theme = t;
-  localStorage.setItem("theme", t);
-}
-
 const formatButtons = document.querySelectorAll(".format-button");
 const fieldsContainer = document.getElementById("fields-container");
 const generateBtn = document.getElementById("generate");
-const resultDiv = document.getElementById("result");
+const resultSection = document.getElementById("result");
 const resultText = document.getElementById("result-text");
 const copyBtn = document.getElementById("copy-button");
+const tryAgainBtn = document.getElementById("try-again");
+const shareBtn = document.getElementById("share");
 
-let currentFormat = "Taboops!";
-renderFields();
+let selectedFormat = "Taboops!";
 
-formatButtons.forEach(btn => {
+// Handle format switching
+formatButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    formatButtons.forEach(b => b.classList.remove("active"));
+    formatButtons.forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
-    currentFormat = btn.dataset.format;
-    resultDiv.hidden = true;
-    renderFields();
+    selectedFormat = btn.getAttribute("data-format");
+    renderFields(selectedFormat);
   });
 });
 
-function renderFields(){
+function renderFields(format) {
   fieldsContainer.innerHTML = "";
-  if(currentFormat === "Taboops!"){
-    fieldsContainer.innerHTML = `<div class="field-group">
-      <label>Taboo Word</label>
-      <input id="taboo" class="user-input" placeholder="Enter taboo word">
-    </div>`;
-  }
-  if(currentFormat === "Buzzwords & Bullsh*t"){
-    fieldsContainer.innerHTML = `<div class="field-group">
-      <label>Theme</label>
-      <input id="buzz" class="user-input" placeholder="e.g., ice cream boardroom">
-    </div>`;
-  }
-  if(currentFormat === "Fill in the Bleep!"){
-    const prompts = [
-      { id:"story", label:"Story or Genre", placeholder:"e.g., The Godfather" },
-      { id:"noun1", label:"Noun", placeholder:"a noun" },
-      { id:"adj", label:"Adjective", placeholder:"an adjective" },
-      { id:"place", label:"Place", placeholder:"a place" },
-      { id:"noun2", label:"Another Noun", placeholder:"another noun" },
-      { id:"verb", label:"Verb", placeholder:"a verb" },
-      { id:"random1", label:"Random Thing #1", placeholder:"something weird" },
-      { id:"random2", label:"Random Thing #2", placeholder:"another weird thing" }
-    ];
-    prompts.forEach(({id,label,placeholder}) => {
-      const grp = document.createElement("div");
-      grp.className = "field-group";
-      grp.innerHTML = `<label>${label}</label><input id="${id}" class="user-input" placeholder="${placeholder}">`;
-      fieldsContainer.appendChild(grp);
-    });
+
+  if (format === "Taboops!") {
+    fieldsContainer.innerHTML = `
+      <div class="field-group">
+        <label for="suggestion">What’s the topic or phrase?</label>
+        <input class="user-input" id="suggestion" type="text" placeholder="e.g. Found family, iced coffee, or ghosting your therapist" />
+      </div>
+    `;
+  } else if (format === "Buzzwords & Bullsh*t") {
+    fieldsContainer.innerHTML = `
+      <div class="field-group">
+        <label for="topic">What’s the industry or product?</label>
+        <input class="user-input" id="topic" type="text" placeholder="e.g. AI marketing tools, ergonomic gardening gloves" />
+      </div>
+    `;
+  } else if (format === "Fill in the Bleep!") {
+    fieldsContainer.innerHTML = `
+      <div class="field-group">
+        <label for="theme">What’s the theme or category?</label>
+        <input class="user-input" id="theme" type="text" placeholder="e.g. Bad boss moments, dating fails" />
+      </div>
+    `;
   }
 }
 
-generateBtn.addEventListener("click", async () => {
-  const inputs = {};
-  if(currentFormat === "Taboops!") {
-    const val = document.getElementById("taboo").value.trim();
-    if(!val) return alert("Type a taboo word");
-    inputs.tabooWord = val;
-  }
-  if(currentFormat === "Buzzwords & Bullsh*t") {
-    const val = document.getElementById("buzz").value.trim();
-    if(!val) return alert("Enter a theme");
-    inputs.buzzTopic = val;
-  }
-  if(currentFormat === "Fill in the Bleep!") {
-    ["story","noun1","adj","place","noun2","verb","random1","random2"].forEach(id => {
-      const val = document.getElementById(id).value.trim();
-      if(!val) throw alert(`Enter ${id}`);
-      inputs[id] = val;
-    });
+// Generate output
+generateBtn.addEventListener("click", () => {
+  const inputField = fieldsContainer.querySelector("input");
+  const inputValue = inputField?.value.trim();
+
+  if (!inputValue) {
+    alert("Please enter something to work with.");
+    return;
   }
 
-  resultDiv.hidden = false;
-  resultText.textContent = "⏳ Generating…";
-
-  try {
-    const res = await fetch("/api/generate", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ format: currentFormat, ...inputs })
-    });
-    const { result } = await res.json();
-    resultText.textContent = result;
-  } catch(e) {
-    resultText.textContent = "❌ Error generating result.";
-  }
+  resultText.textContent = `Here's your generated ${selectedFormat} prompt based on: "${inputValue}"\n\n[Fake AI-generated output here 🤖]`;
+  resultSection.hidden = false;
 });
 
+// Copy button
 copyBtn.addEventListener("click", () => {
-  navigator.clipboard.writeText(resultText.textContent)
-    .then(() => copyBtn.textContent = "Copied!")
-    .catch(() => copyBtn.textContent = "Failed!");
+  navigator.clipboard.writeText(resultText.textContent).then(() => {
+    alert("Copied to clipboard!");
+  });
+});
+
+// Try again button
+tryAgainBtn.addEventListener("click", () => {
+  resultSection.hidden = true;
+  fieldsContainer.querySelector("input").focus();
+});
+
+// Share button placeholder
+shareBtn.addEventListener("click", () => {
+  alert("Sharing coming soon!");
 });
