@@ -16,9 +16,11 @@ formatButtons.forEach((btn) => {
     btn.classList.add("active");
     selectedFormat = btn.getAttribute("data-format");
     renderFields(selectedFormat);
+    resultSection.hidden = true;
   });
 });
 
+// Render input fields
 function renderFields(format) {
   fieldsContainer.innerHTML = "";
 
@@ -56,24 +58,46 @@ generateBtn.addEventListener("click", () => {
     return;
   }
 
-  resultText.textContent = `Here's your generated ${selectedFormat} prompt based on: "${inputValue}"\n\n[Fake AI-generated output here 🤖]`;
+  const prompt = `Here's your generated ${selectedFormat} prompt based on: "${inputValue}"\n\n[Fake AI-generated output here 🤖]`;
+
+  resultText.textContent = prompt;
   resultSection.hidden = false;
 });
 
-// Copy button
+// Copy to clipboard
 copyBtn.addEventListener("click", () => {
   navigator.clipboard.writeText(resultText.textContent).then(() => {
     alert("Copied to clipboard!");
   });
 });
 
-// Try again button
+// Try Again
 tryAgainBtn.addEventListener("click", () => {
   resultSection.hidden = true;
-  fieldsContainer.querySelector("input").focus();
+  const input = fieldsContainer.querySelector("input");
+  if (input) input.focus();
 });
 
-// Share button placeholder
+// Share (placeholder)
 shareBtn.addEventListener("click", () => {
   alert("Sharing coming soon!");
+});
+
+// Theme toggle
+const themeToggle = document.getElementById("theme-toggle");
+const htmlElement = document.documentElement;
+
+// Apply theme on load
+document.addEventListener("DOMContentLoaded", () => {
+  const savedTheme = localStorage.getItem("coldOpenTheme") || "light";
+  htmlElement.setAttribute("data-theme", savedTheme);
+  themeToggle.checked = savedTheme === "dark";
+  renderFields(selectedFormat);
+});
+
+// Listen for toggle
+themeToggle.addEventListener("change", () => {
+  const newTheme = themeToggle.checked ? "dark" : "light";
+  htmlElement.setAttribute("data-theme", newTheme);
+  localStorage.setItem("coldOpenTheme", newTheme);
 });
