@@ -11,34 +11,40 @@
     <h1>The Cold Open</h1>
     <p class="subtitle">An audience-powered premise generator</p>
 
-    <div class="toggle-wrapper">
-      🌞 / 🌙
+    <!-- Theme toggle -->
+    <div class="theme-toggle">
+      <span>🌞 / 🌙</span>
       <label class="switch">
         <input type="checkbox" id="theme-toggle" />
         <span class="slider"></span>
       </label>
     </div>
 
+    <!-- Format buttons -->
     <div id="format-buttons">
       <button class="format-button active" data-format="Taboops!">🧠 Taboops!</button>
       <button class="format-button" data-format="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</button>
       <button class="format-button" data-format="Fill in the Bleep!">📕 Fill in the Bleep!</button>
     </div>
 
+    <!-- Dynamic fields -->
     <div id="fields-container"></div>
 
-    <button id="generate">Generate</button>
+    <!-- Generate button -->
+    <button id="generate" class="generate-button">Generate</button>
 
-    <div id="result" hidden>
-      <pre id="result-text"></pre>
-      <div class="button-group">
-        <button id="try-again">Try Again</button>
-        <button id="copy-button">Copy</button>
-        <button id="share">Share</button>
-      </div>
+    <!-- Output result -->
+    <div id="result" class="result-box"></div>
+
+    <!-- Copy button -->
+    <button id="copy-result" class="copy-btn" style="display: none;">Copy to Clipboard</button>
+
+    <!-- Back to site -->
+    <div class="back-home">
+      <a href="https://chasebudurka.com">
+        <button class="home-btn">← Back to ChaseBudurka.com</button>
+      </a>
     </div>
-
-    <a class="back-link" href="https://chasebudurka.com">← Back to Chase Budurka</a>
   </div>
 
   <script src="scripts.js"></script>
