@@ -82,7 +82,7 @@ h1 {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  margin-bottom: 0.5rem; /* ✅ added spacing between buttons */
+  margin-bottom: 0.5rem;
 }
 
 .format-button.active {
@@ -167,7 +167,6 @@ label {
   background-color: #222;
 }
 
-/* ✅ Updated back-link styling */
 .back-link {
   display: inline-block;
   margin-top: 2.5rem;
@@ -179,11 +178,18 @@ label {
   font-weight: 500;
   transition: background 0.2s ease;
   font-size: 1rem;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.05);
 }
 
 .back-link:hover {
   background-color: var(--primary);
   color: white;
+}
+
+[data-theme="dark"] .back-link {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .error {
