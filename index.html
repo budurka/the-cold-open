@@ -19,7 +19,7 @@
       </label>
     </div>
 
-    <div id="format-buttons">
+    <div id="format-buttons" class="button-row">
       <button class="format-button active" data-format="Taboops!">🧠 Taboops!</button>
       <button class="format-button" data-format="Buzzwords & Bullsh*t">🧩 Buzzwords & Bullsh*t</button>
       <button class="format-button" data-format="Fill in the Bleep!">📕 Fill in the Bleep!</button>
@@ -29,9 +29,11 @@
 
     <button id="generate">Generate</button>
 
-    <div id="result" hidden>
+    <div id="result" class="result-container" hidden>
       <pre id="result-text"></pre>
-      <button class="copy-btn" id="copy-button">Copy</button>
+      <div class="button-group">
+        <button class="copy-btn" id="copy-button">Copy</button>
+      </div>
     </div>
 
     <a class="back-link" href="https://chasebudurka.com">← Back to Chase Budurka</a>
