@@ -82,6 +82,7 @@ h1 {
   font-size: 1rem;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  margin-bottom: 0.5rem; /* ✅ added spacing between buttons */
 }
 
 .format-button.active {
@@ -166,16 +167,18 @@ label {
   background-color: #222;
 }
 
+/* ✅ Updated back-link styling */
 .back-link {
   display: inline-block;
-  margin-top: 2rem;
-  padding: 0.5rem 1.2rem;
+  margin-top: 2.5rem;
+  padding: 0.6rem 1.4rem;
   background-color: var(--gray);
   color: var(--text);
   border-radius: 6px;
   text-decoration: none;
   font-weight: 500;
   transition: background 0.2s ease;
+  font-size: 1rem;
 }
 
 .back-link:hover {
@@ -192,6 +195,7 @@ label {
   font-style: italic;
 }
 
+/* 📱 Mobile Responsive */
 @media (max-width: 600px) {
   .format-button {
     flex: 1 1 100%;
@@ -218,5 +222,11 @@ label {
   .copy-btn {
     width: 100%;
     text-align: center;
+  }
+
+  .back-link {
+    width: 100%;
+    text-align: center;
+    box-sizing: border-box;
   }
 }
