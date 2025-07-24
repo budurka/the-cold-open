@@ -18,13 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // === THEME TOGGLE BUTTON ===
+  // === THEME TOGGLE ===
   themeToggle.addEventListener("click", () => {
     const html = document.documentElement;
     const isDark = html.getAttribute("data-theme") === "dark";
-    const newTheme = isDark ? "light" : "dark";
-    html.setAttribute("data-theme", newTheme);
-    themeToggle.textContent = newTheme === "dark" ? "🌞 / 🌙" : "🌙 / 🌞";
+    html.setAttribute("data-theme", isDark ? "light" : "dark");
+    themeToggle.textContent = isDark ? "🌙 / 🌞" : "🌞 / 🌙";
   });
 
   // === INPUT FIELD LOGIC ===
@@ -54,6 +53,8 @@ document.addEventListener("DOMContentLoaded", () => {
         { label: "Random Thing #2", id: "random2", placeholder: "Another weird thing" },
       ];
       fieldsContainer.innerHTML = fields.map(f => field(f.label, f.id, f.placeholder)).join("");
+    } else if (currentFormat === "What’s in the Box?") {
+      fieldsContainer.innerHTML = field("Suggestion", "boxPrompt", "e.g., a vampire’s fridge");
     }
   }
 
@@ -73,6 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ["story", "noun1", "adj", "place", "noun2", "verb", "random1", "random2"].forEach(id => {
         data[id] = document.getElementById(id).value.trim();
       });
+    } else if (currentFormat === "What’s in the Box?") {
+      data.boxPrompt = document.getElementById("boxPrompt").value.trim();
     }
 
     try {
