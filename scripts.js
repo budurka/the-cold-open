@@ -1,15 +1,25 @@
-// Theme toggle: prefers-color-scheme aware, no checkbox
+// Theme toggle: prefers-color-scheme aware with explicit overrides
 (() => {
   const root = document.documentElement;
   const KEY = 'tco-theme';
   const saved = localStorage.getItem(KEY);
+
+  // Respect saved theme if present
   if (saved === 'dark') root.classList.add('theme-dark');
   if (saved === 'light') root.classList.add('theme-light');
 
-  document.getElementById('themeToggle')?.addEventListener('click', () => {
+  const btn = document.getElementById('themeToggle');
+  const setPressed = () => {
+    const isDark = root.classList.contains('theme-dark');
+    if (btn) btn.setAttribute('aria-pressed', String(isDark));
+  };
+  setPressed();
+
+  btn?.addEventListener('click', () => {
     const isDark = root.classList.toggle('theme-dark');
     if (isDark) root.classList.remove('theme-light');
     localStorage.setItem(KEY, isDark ? 'dark' : 'light');
+    setPressed();
   });
 })();
 

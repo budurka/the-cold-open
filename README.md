@@ -1,15 +1,19 @@
-# The Cold Open — UI Refresh
+# The Cold Open — UI Refresh (Fixed)
 
-Liquid-glass UI with light/dark theme, mobile-first layout, and prompt generator (incl. “Things You Might Find In A…”).
+- Liquid-glass UI
+- Working light/dark toggle (explicit theme overrides)
+- Mobile-first, responsive layout
+- “Things You Might Find In A…” format
+- Clean header (no GitHub pill)
+- Correct `vercel.json` using rewrites (doesn’t break static assets)
 
 ## Files
 - `index.html` — markup
 - `style.css` — liquid glass styles + theme
 - `scripts.js` — prompt logic, saving/exporting, theme toggle
 - `vercel.json` — static config for Vercel
+- `.gitignore`
 
-## Run locally
-Just open `index.html` in a browser, or use any static server (e.g., VS Code Live Server).
-
-## Deploy (Vercel)
-Push this to your branch (e.g., `ui-refresh`). Vercel will auto-create a Preview deployment.
+## Deploy
+- Replace files in your branch (e.g., `ui-refresh`) and push.
+- Vercel will create a Preview deployment.
