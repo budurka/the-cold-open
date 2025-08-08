@@ -4,29 +4,40 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>The Cold Open</title>
+    <meta name="description" content="Lightning-fast improv prompt generator with a glassy UI, dark mode, and offline support." />
+    <meta name="theme-color" content="#1a1b1e" />
     <meta name="color-scheme" content="light dark" />
+    <meta property="og:title" content="The Cold Open" />
+    <meta property="og:description" content="Generate scenes, lines, and 'Things You Might Find In…' prompts." />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/assets/og.png" />
+    <link rel="icon" href="/assets/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="/style.css" />
     <script>document.documentElement.classList.remove('no-js');</script>
   </head>
   <body>
     <header class="site-header glass">
       <div class="brand">
-        <span class="logo">🎭</span>
+        <span class="logo" aria-hidden="true">🎭</span>
         <h1>The Cold Open</h1>
       </div>
       <div class="header-actions">
-        <button id="themeToggle" class="btn ghost" aria-label="Toggle theme" aria-pressed="false">🌗</button>
+        <div class="segmented" role="group" aria-label="Theme">
+          <button id="themeAuto" class="seg on" data-mode="auto" title="Auto">Auto</button>
+          <button id="themeLight" class="seg" data-mode="light" title="Light">Light</button>
+          <button id="themeDark" class="seg" data-mode="dark" title="Dark">Dark</button>
+        </div>
       </div>
     </header>
 
     <main class="container">
-      <!-- Prompt Controls -->
       <section class="panel glass">
         <h2>Generate a Prompt</h2>
-
         <div class="control-row">
           <label class="field">
             <span class="label">Format</span>
@@ -50,38 +61,49 @@
           </label>
 
           <div class="buttons">
-            <button id="generateBtn" class="btn primary">Generate</button>
-            <button id="saveBtn" class="btn ghost">Save</button>
+            <button id="generateBtn" class="btn primary" title="g">Generate</button>
+            <button id="saveBtn" class="btn ghost" title="s">Save</button>
             <button id="clearBtn" class="btn ghost">Clear</button>
+            <button id="shareBtn" class="btn" title="Share URL">Share</button>
           </div>
         </div>
       </section>
 
-      <!-- Output -->
       <section class="panel glass output">
         <div class="output-meta">
           <h3 id="outputTitle">Your Prompt</h3>
           <div class="output-actions">
-            <button id="copyBtn" class="btn">Copy</button>
+            <button id="copyBtn" class="btn" title="c">Copy</button>
           </div>
         </div>
         <p id="outputText" class="prompt-text">Tap Generate to get inspired.</p>
       </section>
 
-      <!-- Saved Prompts -->
       <section class="panel glass">
         <div class="section-head">
           <h2>Saved</h2>
-          <button id="exportBtn" class="btn">Export</button>
+          <div class="buttons">
+            <button id="importBtn" class="btn">Import</button>
+            <button id="exportBtn" class="btn">Export</button>
+            <input id="importFile" type="file" accept="application/json,text/plain" hidden />
+          </div>
         </div>
         <ul id="savedList" class="saved-list" aria-live="polite"></ul>
       </section>
     </main>
 
     <footer class="site-footer">
-      <p>Made for improv nerds. Have fun. ✌️</p>
+      <p>Made for improv nerds. Keyboard: <kbd>g</kbd>=Generate, <kbd>s</kbd>=Save, <kbd>c</kbd>=Copy, <kbd>/</kbd>=Focus input.</p>
     </footer>
 
-    <script src="scripts.js" defer></script>
+    <script src="/scripts.js" defer></script>
+    <script>
+      // Register the service worker for offline support
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js');
+        });
+      }
+    </script>
   </body>
 </html>

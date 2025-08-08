@@ -1,19 +1,23 @@
-# The Cold Open — UI Refresh (Fixed)
+# The Cold Open — Complete Refresh
 
-- Liquid-glass UI
-- Working light/dark toggle (explicit theme overrides)
-- Mobile-first, responsive layout
-- “Things You Might Find In A…” format
-- Clean header (no GitHub pill)
-- Correct `vercel.json` using rewrites (doesn’t break static assets)
+A polished, fast, *offline-capable* improv prompt app with:
+- Liquid-glass UI, responsive & accessible
+- Auto/Light/Dark theme switcher (persisted)
+- New “Things You Might Find In A…” format with seed input
+- Save, Copy, Import/Export (JSON), and URL-based sharing
+- Keyboard shortcuts (g/s/c, / to focus), PWA + offline cache
 
-## Files
-- `index.html` — markup
-- `style.css` — liquid glass styles + theme
-- `scripts.js` — prompt logic, saving/exporting, theme toggle
-- `vercel.json` — static config for Vercel
-- `.gitignore`
+## Structure
+- `index.html` — markup + SEO/OG tags
+- `style.css` — theme tokens and UI
+- `scripts.js` — app logic, persistence, shortcuts
+- `manifest.webmanifest` — PWA manifest
+- `sw.js` — service worker for offline
+- `assets/` — icons + og image
+- `vercel.json` — rewrites that don’t break static files
+
+## Local
+Open `index.html` in a browser or serve statically.
 
 ## Deploy
-- Replace files in your branch (e.g., `ui-refresh`) and push.
-- Vercel will create a Preview deployment.
+Push to any branch — Vercel will create a Preview URL.

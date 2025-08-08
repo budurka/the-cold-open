@@ -1,5 +1,4 @@
 :root {
-  /* LIGHT THEME DEFAULTS */
   --bg: hsl(240 8% 98%);
   --fg: hsl(240 10% 10%);
   --muted: hsl(240 6% 40%);
@@ -11,7 +10,6 @@
   --radius: 18px;
 }
 
-/* If the user prefers dark and no manual override is set, start dark */
 @media (prefers-color-scheme: dark) {
   :root {
     --bg: hsl(240 10% 6%);
@@ -25,29 +23,8 @@
   }
 }
 
-/* Explicit overrides via html.theme-light / html.theme-dark */
-html.theme-light {
-  color-scheme: light;
-  --bg: hsl(240 8% 98%);
-  --fg: hsl(240 10% 10%);
-  --muted: hsl(240 6% 40%);
-  --card: hsl(0 0% 100% / 0.6);
-  --accent: hsl(262 83% 58%);
-  --accent-ink: white;
-  --ring: hsl(262 83% 70% / 0.35);
-  --shadow: 0 10px 30px hsl(240 10% 10% / 0.12);
-}
-html.theme-dark {
-  color-scheme: dark;
-  --bg: hsl(240 10% 6%);
-  --fg: hsl(0 0% 98%);
-  --muted: hsl(240 5% 70%);
-  --card: hsl(0 0% 8% / 0.6);
-  --accent: hsl(263 90% 68%);
-  --accent-ink: black;
-  --ring: hsl(263 90% 68% / 0.35);
-  --shadow: 0 10px 30px hsl(0 0% 0% / 0.6);
-}
+html.theme-light { color-scheme: light; }
+html.theme-dark { color-scheme: dark; }
 
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -86,12 +63,15 @@ body {
 
 .brand { display: flex; align-items: center; gap: 10px; }
 .brand .logo { font-size: 1.4rem; }
-.brand h1 { font-size: 1rem; margin: 0; font-weight: 800; letter-spacing: 0.2px; }
-@media (min-width: 700px) {
-  .brand h1 { font-size: 1.05rem; }
-}
+.brand h1 { font-size: clamp(1rem, 0.8rem + 0.5vw, 1.2rem); margin: 0; font-weight: 800; letter-spacing: 0.2px; }
 
 .header-actions { display: flex; gap: 8px; }
+
+.segmented { display: inline-flex; background: hsl(0 0% 100% / 0.35); border: 1px solid hsl(0 0% 100% / 0.25); border-radius: 999px; }
+.segmented .seg {
+  border: none; padding: 8px 12px; border-radius: 999px; background: transparent; cursor: pointer; font-weight: 600;
+}
+.segmented .seg.on { background: var(--accent); color: var(--accent-ink); }
 
 .glass {
   background: var(--card);
@@ -141,18 +121,12 @@ input:focus, select:focus { box-shadow: 0 0 0 6px var(--ring); }
 }
 .btn:hover { filter: brightness(1.02); transform: translateY(-1px); }
 .btn:active { transform: translateY(0); }
-.btn.primary {
-  background: var(--accent);
-  color: var(--accent-ink);
-  border-color: transparent;
-}
-.btn.ghost {
-  background: hsl(0 0% 100% / 0.25);
-}
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+.btn.ghost { background: hsl(0 0% 100% / 0.25); }
 
 .output .prompt-text {
-  font-size: clamp(1.1rem, 2.6vw, 1.6rem);
-  line-height: 1.4;
+  font-size: clamp(1.15rem, 2.8vw, 1.7rem);
+  line-height: 1.45;
   margin: 10px 0 0;
   word-break: break-word;
 }
