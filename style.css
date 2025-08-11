@@ -1,4 +1,4 @@
-/* The Cold Open — Glass Wallet UI */
+/* The Cold Open — Glass Wallet UI (v2, full-screen) */
 :root{
   --bg: radial-gradient(1000px 800px at 15% 10%, #1f2a3a 0%, #0d1117 60%), radial-gradient(800px 800px at 90% 90%, #ff6b2e33 0%, transparent 60%);
   --text: #e6e9ee;
@@ -30,6 +30,7 @@ body{
   color:var(--text);
   background:var(--bg);
   background-attachment: fixed;
+  overscroll-behavior-y:none;
 }
 
 #app{
@@ -37,46 +38,41 @@ body{
   display:flex;
   flex-direction:column;
   gap:16px;
-  padding:24px 16px 110px; /* reserve for dock */
+  padding:24px 16px calc(110px + env(safe-area-inset-bottom));
 }
 
-.header{
-  text-align:center;
-  padding-top:8px;
-}
-.title{
-  margin:0;
-  font-weight:800;
-  letter-spacing:0.2px;
-  font-size: clamp(22px, 5vw, 32px);
-}
-.subtitle{
-  margin:6px 0 0;
-  color:var(--subtext);
-  font-weight:600;
+/* Center shell for desktop so it doesn't stretch awkwardly */
+@media (min-width: 980px){
+  #app{ max-width: 1100px; margin: 0 auto; }
 }
 
-/* Wallet / Rolodex */
+.header{ text-align:center; padding-top:8px; }
+.title{ margin:0; font-weight:800; letter-spacing:0.2px; font-size: clamp(22px, 5vw, 34px); }
+.subtitle{ margin:6px 0 0; color:var(--subtext); font-weight:600; }
+
+/* Wallet occupies remaining height between header and dock */
 .wallet{
+  height: calc(100svh - 170px - env(safe-area-inset-bottom)); /* full height minus header + dock */
   display:grid;
   grid-auto-flow:column;
-  grid-auto-columns: 88%;
+  grid-auto-columns: 92%;
   overflow-x:auto;
-  gap:16px;
+  gap:18px;
   scroll-snap-type:x mandatory;
-  padding:8px 2px 8px 2px;
+  padding:6px 2px 6px 2px;
+  align-items:center;
 }
 .wallet::-webkit-scrollbar{height:8px}
 .wallet::-webkit-scrollbar-thumb{background:#ffffff22;border-radius:999px}
 
+/* Card fills most of the screen height */
 .card{
   position:relative;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
-  padding:20px;
-  height: 54svh;
-  min-height:420px;
+  padding:22px;
+  height: 100%;
   border-radius:28px;
   background:var(--card);
   border:1px solid var(--stroke);
@@ -85,27 +81,21 @@ body{
   scroll-snap-align:center;
   transition: transform .35s cubic-bezier(.2,.8,.2,1), background .2s;
 }
-.card .emoji{
-  font-size:40px;
-}
-.card h3{
-  margin:8px 0 4px;
-  font-size: clamp(22px, 4.8vw, 28px);
-}
-.card p{
-  margin:0;
-  color:var(--subtext);
-  line-height:1.3;
-}
-.card .select{
-  margin-top:18px;
-  align-self:flex-start;
+.card .emoji{ font-size:40px; }
+.card .emoji svg{ display:block; }
+.card h3{ margin:12px 0 6px; font-size: clamp(22px, 5.2vw, 30px); }
+.card p{ margin:0; color:var(--subtext); line-height:1.35; font-size: clamp(14px, 3.6vw, 16px); }
+.card .select{ margin-top:20px; align-self:flex-start; }
+
+/* Desktop sizing */
+@media (min-width: 720px){
+  .wallet{ grid-auto-columns: 540px; }
 }
 
 /* Dock */
 .dock{
   position:fixed;
-  inset:auto 16px 16px;
+  inset:auto 16px max(16px, env(safe-area-inset-bottom));
   display:grid;
   grid-template-columns: repeat(4, 1fr);
   gap:8px;
@@ -121,16 +111,17 @@ body{
   border:0;
   background:transparent;
   color:var(--text);
-  padding:6px 4px;
+  padding:6px 6px;
   border-radius:14px;
   display:flex;
   flex-direction:column;
   align-items:center;
   gap:4px;
+  min-width:0;
 }
-.dock-btn .icon{font-size:18px; line-height:1}
-.dock-btn .dock-label{font-size:11px; color:var(--subtext); font-weight:600}
-.dock-btn.active{background: #ffffff10}
+.dock-btn .icon{line-height:1; display:grid; place-items:center}
+.dock-btn .dock-label{font-size:11px; color:var(--subtext); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.dock-btn.active{background: #ffffff12}
 
 /* Pills / Buttons */
 .pill{
@@ -149,9 +140,7 @@ body{
   color:white;
   border:none;
 }
-.pill.secondary{
-  background: var(--card);
-}
+.pill.secondary{ background: var(--card); }
 
 /* Generator overlay */
 .generator.hidden{display:none}
@@ -164,36 +153,25 @@ body{
   background:linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.45));
   backdrop-filter: blur(14px);
 }
-.gen-card{
-  width:min(560px, 100%);
-}
-.gen-head{
-  display:flex; align-items:center; gap:8px;
-}
+.gen-card{ width:min(640px, 100%); }
+.gen-head{ display:flex; align-items:center; gap:8px; }
 .back-btn{
   appearance:none;
-  width:36px; height:36px; border-radius:50%;
+  width:38px; height:38px; border-radius:50%;
   border:1px solid var(--stroke); background:var(--card); color:var(--text);
   display:grid; place-items:center; font-size:22px;
 }
 .gen-title{ margin:0 0 0 6px; font-size:22px; font-weight:800 }
 .gen-tagline{ margin-top:10px; color:var(--subtext) }
-
 .prompt-card{
   margin-top:14px;
   border-radius:22px;
   padding:18px;
-  min-height:140px;
+  min-height:160px;
   background:var(--card);
   border:1px solid var(--stroke);
   backdrop-filter: var(--glass-blur);
   box-shadow: var(--shadow);
 }
-.prompt-text{ margin:0; font-size:18px; font-weight:600; line-height:1.35 }
-.gen-actions{
-  display:flex; gap:10px; margin-top:14px;
-}
-
-@media (min-width: 720px){
-  .wallet{ grid-auto-columns: 420px; }
-}
+.prompt-text{ margin:0; font-size:18px; font-weight:600; line-height:1.4 }
+.gen-actions{ display:flex; gap:10px; margin-top:14px; }

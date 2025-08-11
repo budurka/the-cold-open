@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>The Cold Open • Improv</title>
   <link rel="stylesheet" href="style.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -25,16 +25,45 @@
     <!-- Bottom Dock Nav -->
     <nav class="dock" aria-label="Show shortcuts">
       <button class="dock-btn" data-key="Taboops!" aria-label="Taboops">
-        <span class="icon">🚫💬</span><span class="dock-label">Taboops!</span>
+        <span class="icon" aria-hidden="true">
+          <!-- no-speech bubble (slash) -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M7 7l10 10" stroke-linecap="round"/>
+            <rect x="8" y="9" width="8" height="4" rx="2" fill="currentColor" opacity=".2"/>
+          </svg>
+        </span>
+        <span class="dock-label">Taboops!</span>
       </button>
-      <button class="dock-btn" data-key="Buzzwords & Bullsh*t" aria-label="Buzzwords and Nonsense">
-        <span class="icon">💬🤪</span><span class="dock-label">Buzzwords</span>
+      <button class="dock-btn" data-key="Buzzwords & Bullsh*t" aria-label="Buzzwords & Nonsense">
+        <span class="icon" aria-hidden="true">
+          <!-- chat bubble with grin -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-9 8.46 8.5 8.5 0 0 1-3.36-.72L3 20l1.76-4.21A8.38 8.38 0 0 1 3 11.5 8.5 8.5 0 0 1 12 3a8.5 8.5 0 0 1 9 8.5Z"/>
+            <path d="M8 9h.01M16 9h.01M8 13c1.5 1 3.5 1 5 0" stroke-linecap="round"/>
+          </svg>
+        </span>
+        <span class="dock-label">Buzzwords</span>
       </button>
       <button class="dock-btn" data-key="Fill in the Bleep!" aria-label="Fill in the Bleep">
-        <span class="icon">✏️📄</span><span class="dock-label">Bleep!</span>
+        <span class="icon" aria-hidden="true">
+          <!-- pencil + page -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"/>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+          </svg>
+        </span>
+        <span class="dock-label">Bleep!</span>
       </button>
       <button class="dock-btn" data-key="What’s in the Box?" aria-label="What's in the Box">
-        <span class="icon">📦❓</span><span class="dock-label">Box?</span>
+        <span class="icon" aria-hidden="true">
+          <!-- box -->
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"/>
+            <path d="M3.3 7L12 12l8.7-5M12 22V12"/>
+          </svg>
+        </span>
+        <span class="dock-label">Box?</span>
       </button>
     </nav>
   </div>
