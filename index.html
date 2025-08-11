@@ -1,109 +1,62 @@
 <!doctype html>
-<html lang="en" class="no-js">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>The Cold Open</title>
-    <meta name="description" content="Lightning-fast improv prompt generator with a glassy UI, dark mode, and offline support." />
-    <meta name="theme-color" content="#1a1b1e" />
-    <meta name="color-scheme" content="light dark" />
-    <meta property="og:title" content="The Cold Open" />
-    <meta property="og:description" content="Generate scenes, lines, and 'Things You Might Find In…' prompts." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="/assets/og.png" />
-    <link rel="icon" href="/assets/icon-192.png" sizes="192x192" />
-    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css" />
-    <script>document.documentElement.classList.remove('no-js');</script>
-  </head>
-  <body>
-    <header class="site-header glass">
-      <div class="brand">
-        <span class="logo" aria-hidden="true">🎭</span>
-        <h1>The Cold Open</h1>
-      </div>
-      <div class="header-actions">
-        <div class="segmented" role="group" aria-label="Theme">
-          <button id="themeAuto" class="seg on" data-mode="auto" title="Auto">Auto</button>
-          <button id="themeLight" class="seg" data-mode="light" title="Light">Light</button>
-          <button id="themeDark" class="seg" data-mode="dark" title="Dark">Dark</button>
-        </div>
-      </div>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>The Cold Open • Improv</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <h1 class="title">The Cold Open</h1>
+      <p class="subtitle">Choose a Show</p>
     </header>
 
-    <main class="container">
-      <section class="panel glass">
-        <h2>Generate a Prompt</h2>
-        <div class="control-row">
-          <label class="field">
-            <span class="label">Format</span>
-            <select id="formatSelect">
-              <option value="location">Location</option>
-              <option value="object">Object</option>
-              <option value="profession">Profession</option>
-              <option value="relationship">Relationship</option>
-              <option value="emotion">Emotion</option>
-              <option value="habit">Habit</option>
-              <option value="action">Action</option>
-              <option value="abstract">Abstract</option>
-              <option value="line">Opening Line</option>
-              <option value="things">Things You Might Find In A...</option>
-            </select>
-          </label>
-
-          <label class="field" id="thingsInputWrap" hidden>
-            <span class="label">Setting / Place</span>
-            <input id="thingsInput" type="text" placeholder="e.g., medieval tavern, dentist’s office" />
-          </label>
-
-          <div class="buttons">
-            <button id="generateBtn" class="btn primary" title="g">Generate</button>
-            <button id="saveBtn" class="btn ghost" title="s">Save</button>
-            <button id="clearBtn" class="btn ghost">Clear</button>
-            <button id="shareBtn" class="btn" title="Share URL">Share</button>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel glass output">
-        <div class="output-meta">
-          <h3 id="outputTitle">Your Prompt</h3>
-          <div class="output-actions">
-            <button id="copyBtn" class="btn" title="c">Copy</button>
-          </div>
-        </div>
-        <p id="outputText" class="prompt-text">Tap Generate to get inspired.</p>
-      </section>
-
-      <section class="panel glass">
-        <div class="section-head">
-          <h2>Saved</h2>
-          <div class="buttons">
-            <button id="importBtn" class="btn">Import</button>
-            <button id="exportBtn" class="btn">Export</button>
-            <input id="importFile" type="file" accept="application/json,text/plain" hidden />
-          </div>
-        </div>
-        <ul id="savedList" class="saved-list" aria-live="polite"></ul>
-      </section>
+    <!-- Wallet / Rolodex -->
+    <main class="wallet" id="wallet" aria-label="Show type rolodex">
+      <!-- Cards injected by JS -->
     </main>
 
-    <footer class="site-footer">
-      <p>Made for improv nerds. Keyboard: <kbd>g</kbd>=Generate, <kbd>s</kbd>=Save, <kbd>c</kbd>=Copy, <kbd>/</kbd>=Focus input.</p>
-    </footer>
+    <!-- Bottom Dock Nav -->
+    <nav class="dock" aria-label="Show shortcuts">
+      <button class="dock-btn" data-key="Taboops!" aria-label="Taboops">
+        <span class="icon">🚫💬</span><span class="dock-label">Taboops!</span>
+      </button>
+      <button class="dock-btn" data-key="Buzzwords & Bullsh*t" aria-label="Buzzwords and Nonsense">
+        <span class="icon">💬🤪</span><span class="dock-label">Buzzwords</span>
+      </button>
+      <button class="dock-btn" data-key="Fill in the Bleep!" aria-label="Fill in the Bleep">
+        <span class="icon">✏️📄</span><span class="dock-label">Bleep!</span>
+      </button>
+      <button class="dock-btn" data-key="What’s in the Box?" aria-label="What's in the Box">
+        <span class="icon">📦❓</span><span class="dock-label">Box?</span>
+      </button>
+    </nav>
+  </div>
 
-    <script src="/scripts.js" defer></script>
-    <script>
-      // Register the service worker for offline support
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js');
-        });
-      }
-    </script>
-  </body>
+  <!-- Generator Overlay (same page) -->
+  <section id="generator" class="generator hidden" role="dialog" aria-modal="true" aria-labelledby="gen-title">
+    <div class="gen-card">
+      <header class="gen-head">
+        <button class="back-btn" id="backBtn" aria-label="Back to show selection">‹</button>
+        <h2 id="gen-title" class="gen-title"></h2>
+      </header>
+      <div class="prompt-card">
+        <p id="promptText" class="prompt-text">Tap Generate to create your first prompt.</p>
+      </div>
+      <div class="gen-actions">
+        <button id="copyBtn" class="pill secondary">Copy</button>
+        <button id="genBtn" class="pill primary">Generate</button>
+      </div>
+      <p class="gen-tagline" id="genTag"></p>
+    </div>
+  </section>
+
+  <script src="scripts.js"></script>
+</body>
 </html>
